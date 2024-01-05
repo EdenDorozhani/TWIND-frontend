@@ -1,0 +1,49 @@
+.container {
+  margin: 12px auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 30px;
+  width: 130px;
+  padding: 0px 10px;
+  color: white;
+  background-color: rgb(9, 121, 84);
+  font-weight: 800;
+  font-size: 15px;
+  font-family: "Times New Roman";
+  transition: all ease 0.3s;
+  border-radius: 10px;
+}
+
+.s {
+  width: 130px;
+  height: 30px;
+}
+
+.m {
+  width: 160px;
+  height: 40px;
+}
+
+.l {
+  width: 230px;
+  height: 47px;
+}
+
+.white {
+  background-color: white;
+}
+.danger {
+  background-color: #f32013;
+}
+.warning {
+  background-color: #f0d500;
+}
+.blue {
+  background-color: rgb(0, 110, 255);
+}
+
+.container:hover {
+  cursor: pointer;
+  background-color: rgb(8, 8, 8, 0.1);
+}

@@ -1,0 +1,48 @@
+.simpleText {
+  color: rgb(9, 121, 84);
+  font-family: "Times New Roman";
+  user-select: none;
+  word-break: break-all;
+}
+
+.sFont {
+  font-size: 15px;
+}
+.mFont {
+  font-size: 18px;
+}
+.lFont {
+  font-size: 30px;
+}
+.xlFont {
+  font-size: 38px;
+}
+
+.white {
+  color: white;
+}
+.danger {
+  color: #f32013;
+}
+.warning {
+  color: #f0d500;
+}
+.blue {
+  color: rgb(0, 110, 255);
+}
+.fade {
+  color: rgb(131, 131, 131);
+}
+.black {
+  color: black;
+}
+
+.thin {
+  font-weight: 100;
+}
+.bold {
+  font-weight: 500;
+}
+.bolder {
+  font-weight: 800;
+}

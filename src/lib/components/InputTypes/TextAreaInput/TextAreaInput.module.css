@@ -1,0 +1,20 @@
+.textArea {
+  border: 1px solid rgb(9, 121, 84);
+  color: rgb(9, 121, 84);
+  resize: none;
+  outline: none;
+  padding: 5px 5px;
+  font-size: 16px;
+  font-family: "Times New Roman";
+  width: 230px;
+}
+
+.noBorder {
+  border: none;
+}
+
+.textArea::placeholder {
+  color: rgb(9, 121, 84);
+  font-size: 16px;
+  font-family: "Times New Roman";
+}

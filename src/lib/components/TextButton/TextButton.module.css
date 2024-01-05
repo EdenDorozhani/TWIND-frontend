@@ -1,0 +1,59 @@
+.text {
+  color: rgb(9, 121, 84);
+  font-weight: 800;
+  user-select: none;
+  transition: all ease 0.3s;
+  margin-right: 5px;
+  word-break: break-all;
+}
+
+.noBreak {
+  word-break: unset;
+}
+
+.sFont {
+  font-size: 14px;
+}
+.mFont {
+  font-size: 18px;
+}
+.lFont {
+  font-size: 30px;
+}
+.xlFont {
+  font-size: 38px;
+}
+
+.white {
+  color: white;
+}
+.danger {
+  color: #f32013;
+}
+.warning {
+  color: #f0d500;
+}
+.blue {
+  color: rgb(0, 110, 255);
+}
+.fade {
+  color: rgb(131, 131, 131);
+}
+.black {
+  color: black;
+}
+
+.thin {
+  font-weight: 100;
+}
+.bold {
+  font-weight: 500;
+}
+.bolder {
+  font-weight: 800;
+}
+
+.text:hover {
+  cursor: pointer;
+  opacity: 0.7;
+}

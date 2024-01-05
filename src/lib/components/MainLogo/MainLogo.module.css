@@ -1,0 +1,22 @@
+.mainLogo {
+  font-size: 100px;
+  color: rgb(9, 121, 84);
+  user-select: none;
+}
+
+.animated {
+  position: relative;
+  animation-name: spiral;
+  animation-duration: 1.8s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes spiral {
+  0% {
+    transform: rotateY(360deg);
+  }
+  100% {
+    transform: rotateY(0);
+  }
+}

@@ -1,0 +1,39 @@
+.icon {
+  color: rgb(9, 121, 84);
+  font-weight: 800;
+  font-family: "Times New Roman";
+  user-select: none;
+}
+
+.button {
+  cursor: pointer;
+}
+
+.sFont {
+  font-size: 20px;
+}
+.mFont {
+  font-size: 24px;
+}
+.lFont {
+  font-size: 30px;
+}
+.xlFont {
+  font-size: 38px;
+}
+
+.white {
+  color: white;
+}
+.danger {
+  color: #f32013;
+}
+.warning {
+  color: #f0d500;
+}
+.blue {
+  color: rgb(0, 110, 255);
+}
+.fade {
+  color: rgb(131, 131, 131);
+}

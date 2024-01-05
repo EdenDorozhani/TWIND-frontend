@@ -1,0 +1,155 @@
+import { useEffect, useState } from "react";
+import Post from "../../lib/components/Post";
+import NotificationPanel from "../../lib/components/NotificationPanel";
+import FlatList from "../../lib/components/util/FlatList";
+import FlexBox from "../../lib/components/FlexBox";
+import { useNavigate } from "react-router-dom";
+import { formatImgUrl, shouldInterruptInfinityScroll } from "../../lib/helpers";
+import useMultipleData from "../../hooks/useMultipleData";
+import Modal from "../../lib/components/Modal";
+import useModal from "../../hooks/useModal";
+import useLoggedInUser from "../../context/useLoggedInUser";
+import UsersList from "../../lib/components/UsersList";
+import PostActions from "../../lib/components/PostActions";
+import useDataDeleter from "../../hooks/useDataDeleter";
+import EndlessScroll from "../../lib/components/EndlessScroll";
+
+const Home = () => {
+  const [postId, setPostId] = useState();
+  const [popUpVisible, setPopUpVisible] = useState(false);
+  const navigate = useNavigate();
+
+  const { userLoggedInData } = useLoggedInUser();
+
+  const { openModal, closeModal, isVisible } = useModal();
+
+  const {
+    data: postsData,
+    getDataPagination: getDataPaginationPosts,
+    isLoading,
+    setData,
+  } = useMultipleData({
+    pageSize: 10,
+    path: "getPosts",
+  });
+
+  const {
+    data: postsLikesData,
+    getDataPagination: getDataPaginationLikes,
+    resetData: resetLikesData,
+    resetPage: resetLikesPage,
+    isLoading: isLoadingLikes,
+  } = useMultipleData({
+    pageSize: 12,
+    identifier: postId,
+    path: "getPostsLikes",
+  });
+
+  const { onDelete } = useDataDeleter({ path: "deletePost" });
+
+  useEffect(() => {
+    getDataPaginationPosts();
+  }, []);
+
+  const onPostModal = (postId) => {
+    navigate(`p/${postId}`);
+  };
+
+  const openLikesModal = (postId) => {
+    setPostId(postId);
+    getDataPaginationLikes(postId);
+    openModal();
+  };
+
+  const closeModalHandler = () => {
+    setPostId();
+    resetLikesPage();
+    resetLikesData();
+    setPopUpVisible(false);
+    closeModal();
+  };
+
+  const onUsernamesClick = (username) => {
+    navigate(`${username}`);
+  };
+
+  const onDotsIconClick = (postId) => {
+    openModal();
+    setPostId(postId);
+  };
+
+  const nvaigateToEditPage = () => {
+    navigate(`edit/${postId}`);
+  };
+
+  const onDeletePost = () => {
+    setPopUpVisible(true);
+  };
+
+  const confirmDelete = async () => {
+    onDelete({ action: closeModalHandler, identifier: postId, setData });
+  };
+
+  return (
+    <>
+      <Modal isVisible={isVisible} onClose={closeModalHandler}>
+        {!postsLikesData.module ? (
+          <PostActions
+            editAction={nvaigateToEditPage}
+            deleteAction={onDeletePost}
+            popUpVisible={popUpVisible}
+            cancelDelete={closeModalHandler}
+            confirmDelete={confirmDelete}
+          />
+        ) : (
+          <UsersList
+            onUserClick={onUsernamesClick}
+            type={postsLikesData.module}
+            count={postsLikesData.count}
+            shouldInterrupt={() => getDataPaginationLikes(postId)}
+            data={postsLikesData.data}
+            isLoading={isLoadingLikes}
+          />
+        )}
+      </Modal>
+      <EndlessScroll
+        loadMore={getDataPaginationPosts}
+        isLoading={isLoading}
+        dataLength={postsData.data.length}
+        totalCount={postsData.count}
+      >
+        <FlexBox justifyContent={"center"}>
+          <FlexBox padding={"extra large"} direction={"column"} gap={"large"}>
+            <FlatList
+              data={postsData.data}
+              renderItem={(post) => (
+                <Post
+                  key={post.postId}
+                  caption={post.caption}
+                  location={post.location}
+                  postImg={formatImgUrl(post.postImage)}
+                  postId={post.postId}
+                  userImg={formatImgUrl(post.userImgURL)}
+                  author={post.username}
+                  createdAt={post.createdAt}
+                  likes={post.likes}
+                  likedByUser={post.likedByUser}
+                  onPostModal={onPostModal}
+                  commentsCount={post.comments}
+                  userId={userLoggedInData?.userId}
+                  creatorId={post.creatorId}
+                  openLikesModal={openLikesModal}
+                  onUsernamesClick={onUsernamesClick}
+                  onDotsIconClick={onDotsIconClick}
+                />
+              )}
+            />
+          </FlexBox>
+          <NotificationPanel author={"edorozhani"} imageSrc={"d"} />
+        </FlexBox>
+      </EndlessScroll>
+    </>
+  );
+};
+
+export default Home;
