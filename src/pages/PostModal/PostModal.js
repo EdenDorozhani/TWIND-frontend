@@ -26,9 +26,9 @@ const PostModal = () => {
   const [popUpVisible, setPopUpVisible] = useState(false);
   const [commentId, setCommentId] = useState();
   const [replyId, setReplyId] = useState();
-  const [repliesData, setRepliesData] = useState({ data: [], module: "" });
-  const [repliesPage, setRepliesPage] = useState(1);
   const [identifier, setIdentifier] = useState();
+  const [repliesData, setRepliesData] = useState({});
+  const [repliesPage, setRepliesPage] = useState(1);
   const [popUpType, setPopUpType] = useState();
   const replyInputRef = useRef(null);
   const navigate = useNavigate();
@@ -170,9 +170,7 @@ const PostModal = () => {
   const onShowReplies = async (id) => {
     setIdentifier(id);
     let page;
-
     if (id !== identifier) {
-      setRepliesData({ data: [], module: "" });
       page = 1;
     } else {
       page = repliesPage;
@@ -181,9 +179,10 @@ const PostModal = () => {
       BASE_URL + `/getReplies?page=${page}&pageSize=${1}&identifier=${id}`;
     try {
       const response = await getMultipleData(url);
+
       setRepliesData((prevState) => ({
-        data: [...prevState.data, ...response.data.response.data],
-        module: response.data.response.module,
+        ...prevState,
+        [id]: [...(prevState[id] || []), ...response.data.response.replies],
       }));
       setRepliesPage(page + 1);
     } catch (err) {

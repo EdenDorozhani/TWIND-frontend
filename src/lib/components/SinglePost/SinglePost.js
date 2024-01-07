@@ -125,7 +125,7 @@ const SinglePost = ({
                           openCommentsLikesModal={openCommentsLikesModal}
                           onShowReplies={onShowReplies}
                           repliesCount={comment.totalReplies}
-                          repliesData={repliesData.data}
+                          repliesData={repliesData[comment.commentId]}
                         />
                       )}
                     />
