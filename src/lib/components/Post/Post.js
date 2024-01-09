@@ -75,7 +75,7 @@ const Post = ({
           userId={userId}
         />
         <img
-          style={{ height: "410px", width: "380px", objectFit: "cover" }}
+          style={{ height: "410px", width: "100%", objectFit: "cover" }}
           src={postImg}
         />
         <FlexBox gap={"large"}>

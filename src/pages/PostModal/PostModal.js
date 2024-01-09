@@ -190,7 +190,7 @@ const PostModal = () => {
       console.log(err);
     }
   };
-  console.log(repliesData);
+  console.log(errors);
   return (
     <>
       <ModalOverlay action={onCloseModal}>
