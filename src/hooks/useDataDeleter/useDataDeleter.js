@@ -4,20 +4,13 @@ import { deleteAction } from "./useDataDeleter.actions";
 import { BASE_URL } from "../../axiosConfig";
 
 const useDataDeleter = ({ path }) => {
-  const onDelete = async ({
-    identifier,
-    action = () => {},
-    setData = () => {},
-  }) => {
+  const onDelete = async ({ identifier, action = () => {} }) => {
     const url = BASE_URL + `/${path}?identifier=${identifier}`;
     try {
       const response = await deleteAction(url);
       toast.success(response.data.message);
-      setData((prevState) => ({
-        ...prevState,
-        data: prevState.data.filter((post) => post.postId !== identifier),
-      }));
       action();
+      return response;
     } catch (err) {
       toast.error(err.response.data.message);
     }

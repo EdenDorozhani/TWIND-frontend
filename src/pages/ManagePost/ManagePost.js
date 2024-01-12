@@ -31,7 +31,6 @@ const ManagePost = () => {
   const path = !postId ? "create" : `editPost?postId=${postId}`;
 
   const { backendErrors, submit } = useDataPoster({
-    dataToSend: { ...inputValue, postId },
     requestHeader: "multipart",
     urlPath: path,
   });
@@ -65,12 +64,11 @@ const ManagePost = () => {
   }, [postId]);
 
   const onInputChange = (name, value) => {
-    console.log(value);
     setInputValue({ ...inputValue, [name]: value });
   };
 
   const onFormSubmit = async () => {
-    submit({ navigateTo: "/twind" });
+    submit({ dataToSend: { ...inputValue, postId }, navigateTo: "/twind" });
   };
 
   return (

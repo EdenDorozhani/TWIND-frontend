@@ -8,7 +8,9 @@ const PostActions = ({
   popUpVisible,
   confirmDelete,
   cancelDelete,
+  type,
 }) => {
+  console.log(type);
   return (
     <>
       {popUpVisible ? (
@@ -19,9 +21,9 @@ const PostActions = ({
           padding={"large"}
           gap={"large"}
         >
-          <SimpleText content={"Delete post?"} size={"l"} color={"black"} />
+          <SimpleText content={`Delete ${type}?`} size={"l"} color={"black"} />
           <SimpleText
-            content={"Are you sure you want to delete this post?"}
+            content={`Are you sure you want to delete this ${type}?`}
             color={"black"}
           />
           <FlexBox gap={"extra large"}>
@@ -39,16 +41,18 @@ const PostActions = ({
         </FlexBox>
       ) : (
         <>
-          <div
-            style={{
-              borderBottom: "1px solid green",
-              padding: "10px",
-            }}
-          >
-            <FlexBox alignItems={"center"} justifyContent={"center"}>
-              <TextButton content={"Edit"} action={editAction} />
-            </FlexBox>
-          </div>
+          {type === "post" && (
+            <div
+              style={{
+                borderBottom: "1px solid green",
+                padding: "10px",
+              }}
+            >
+              <FlexBox alignItems={"center"} justifyContent={"center"}>
+                <TextButton content={"Edit"} action={editAction} />
+              </FlexBox>
+            </div>
+          )}{" "}
           <div
             style={{
               padding: "10px",

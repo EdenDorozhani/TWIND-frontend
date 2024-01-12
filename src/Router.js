@@ -31,7 +31,12 @@ const Router = () => {
             {
               path: ":username",
               element: <RootProfile />,
-              children: [{ path: "p/:postId", element: <PostModal /> }],
+              children: [
+                {
+                  path: "p/:postId",
+                  element: <PostModal />,
+                },
+              ],
             },
             { path: "edit-profile", element: <EditProfile /> },
           ],

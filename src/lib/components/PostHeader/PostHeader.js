@@ -15,12 +15,19 @@ const PostHeader = ({
   onIconClick,
   creatorId,
   userId,
+  toggleFollow,
 }) => {
-  const content = !!unknown ? (
-    <TextButton content={"follow"} size={"s"} color={"blue"} />
-  ) : (
-    <SimpleText content={passedTime} size={"s"} />
-  );
+  const content =
+    !!unknown && creatorId !== userId ? (
+      <TextButton
+        content={"follow"}
+        size={"s"}
+        color={"blue"}
+        action={toggleFollow}
+      />
+    ) : (
+      <SimpleText content={passedTime} size={"s"} />
+    );
 
   return (
     <FlexBox justifyContent={"between"}>

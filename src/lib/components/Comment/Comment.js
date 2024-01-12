@@ -27,17 +27,18 @@ const Comment = ({
   handleReplyClick,
   reply,
   openCommentsLikesModal,
-  onCommentIconClick,
   authorId,
   onShowReplies,
   repliesData,
   repliesCount,
+  onDotsIconClick,
+  replyId,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const { isLiked, likeCount, toggleLike } = useLikeAction({
     likedByUser: likedByUser || "0",
     likes: commentLikes || 0,
-    id: commentId,
+    id: replyId || commentId,
     userId,
     type: "updateCommentLikes",
   });
@@ -48,23 +49,26 @@ const Comment = ({
   };
 
   const commentLikesAction = () => {
-    openCommentsLikesModal(commentId);
+    openCommentsLikesModal(replyId || commentId);
   };
 
+  const conditinTextButton = isVisible && repliesData?.length == repliesCount;
+
   const textButtonContent = `- ${
-    isVisible && repliesData?.length == repliesCount
+    conditinTextButton
       ? "Hide replies"
       : `View replies(${
-          isVisible ? repliesCount - repliesData?.length : repliesCount
+          isVisible && !!repliesData
+            ? repliesCount - repliesData?.length
+            : repliesCount
         })`
   }`;
-
   const onShowRepliesHandler = () => {
     if (isVisible === true && repliesData?.length == repliesCount) {
       setIsVisible(false);
     } else {
       setIsVisible(true);
-      onShowReplies(commentId);
+      onShowReplies(commentId, repliesCount);
     }
   };
 
@@ -91,6 +95,7 @@ const Comment = ({
                   size={"s"}
                   color={"fade"}
                   action={replyAction}
+                  noBreak
                 />
                 <TextButton
                   content={!likeCount ? "" : `${likeCount} like`}
@@ -102,7 +107,7 @@ const Comment = ({
                   <Icon
                     iconName={faEllipsis}
                     type={"button"}
-                    action={onCommentIconClick}
+                    action={() => onDotsIconClick(commentId, replyId)}
                     color={"fade"}
                   />
                 )}
@@ -138,11 +143,15 @@ const Comment = ({
                     author={comment.username}
                     caption={comment.description}
                     commentId={commentId}
+                    replyId={comment.commentId}
                     commentLikes={comment.commentsLikeCount}
                     likedByUser={comment.likedByUser}
                     handleReplyClick={handleReplyClick}
                     openCommentsLikesModal={openCommentsLikesModal}
                     repliesData={repliesData}
+                    onReply={onReply}
+                    authorId={comment.userId}
+                    onDotsIconClick={onDotsIconClick}
                   />
                 )}
               />

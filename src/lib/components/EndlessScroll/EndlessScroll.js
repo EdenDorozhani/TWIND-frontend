@@ -9,13 +9,7 @@ const EndlessScroll = ({
   isLoading,
 }) => {
   const shouldInterruptInfinityScroll = () => {
-    let funct;
-    if (isLoading) {
-      funct = () => {};
-    } else {
-      funct = loadMore();
-    }
-    return funct;
+    return isLoading ? () => {} : loadMore;
   };
 
   return (

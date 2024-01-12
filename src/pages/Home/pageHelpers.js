@@ -3,7 +3,6 @@ import * as yup from "yup";
 import {
   faHome,
   faMagnifyingGlass,
-  faMessage,
   faRightFromBracket,
   faSquarePlus,
 } from "@fortawesome/free-solid-svg-icons";
@@ -12,7 +11,6 @@ export const HOME_SIDEBAR_LINKS = (userPhoto) => {
   return [
     { content: "Home", icon: faHome, path: "" },
     { content: "Explore", icon: faMagnifyingGlass, path: "explore" },
-    { content: "Messages", icon: faMessage, path: "messages" },
     { content: "Create", icon: faSquarePlus, path: "create" },
     { content: "Logout", icon: faRightFromBracket, path: "/" },
     {

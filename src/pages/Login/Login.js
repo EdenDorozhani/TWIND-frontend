@@ -11,7 +11,6 @@ const Authentication = () => {
   const navigate = useNavigate();
 
   const { submit } = useDataPoster({
-    dataToSend: inputValue,
     requestHeader: "json",
     urlPath: "login",
   });
@@ -34,7 +33,11 @@ const Authentication = () => {
   };
 
   const onFormSubmit = async () => {
-    const response = await submit({ navigateTo: "/twind", toastErr: true });
+    const response = await submit({
+      dataToSend: inputValue,
+      navigateTo: "/twind",
+      toastErr: true,
+    });
     if (!response.data) return;
     localStorage.setItem("session", response.data.response.token);
   };

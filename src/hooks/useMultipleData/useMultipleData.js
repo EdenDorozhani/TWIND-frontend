@@ -26,11 +26,18 @@ const useMultipleData = ({ pageSize, path }) => {
     setPage(1);
   };
 
-  const getDataPagination = async (identifier, conditionalPath = null) => {
+  const getDataPagination = async (
+    identifier,
+    conditionalPath = null,
+    value = null,
+    secondaryPage = null
+  ) => {
     const url =
       BASE_URL +
-      `/${!path ? conditionalPath : path}?page=${page}&pageSize=${pageSize}${
-        !!identifier ? `&identifier=${identifier}` : ""
+      `/${!path ? conditionalPath : path}?page=${
+        secondaryPage || page
+      }&pageSize=${pageSize}${!!identifier ? `&identifier=${identifier}` : ""}${
+        value !== null ? `&value=${value}` : ""
       }`;
     setIsLoading(true);
     try {
@@ -43,6 +50,7 @@ const useMultipleData = ({ pageSize, path }) => {
       }));
       setIsLoading(false);
       setPage(page + 1);
+      return response.data.response.data;
     } catch (err) {
       toast.error(err.message);
     }

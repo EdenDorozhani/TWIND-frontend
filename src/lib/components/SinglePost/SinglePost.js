@@ -39,6 +39,8 @@ const SinglePost = ({
   repliesData,
   isLoadingComments,
   shouldInterrupt,
+  toggleFollow,
+  isFollow,
 }) => {
   return (
     <FlexBox>
@@ -68,8 +70,11 @@ const SinglePost = ({
                 author={singlePostData.username}
                 location={singlePostData.location}
                 userImg={formatImgUrl(singlePostData.userImgURL)}
-                unknown
+                unknown={isFollow === "1" ? false : true}
                 onIconClick={onDotsIconClick}
+                toggleFollow={toggleFollow}
+                userId={userId}
+                creatorId={singlePostData.creatorId}
               />
             </div>
             {singlePostData.caption && (
@@ -125,7 +130,8 @@ const SinglePost = ({
                           openCommentsLikesModal={openCommentsLikesModal}
                           onShowReplies={onShowReplies}
                           repliesCount={comment.totalReplies}
-                          repliesData={repliesData[comment.commentId]}
+                          repliesData={repliesData?.[comment.commentId]}
+                          onDotsIconClick={onDotsIconClick}
                         />
                       )}
                     />

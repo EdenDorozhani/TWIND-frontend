@@ -1,8 +1,12 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { addCommentValidationSchema } from "./pageHelpers";
+import {
+  addCommentValidationSchema,
+  determinePage,
+  setTotalReplies,
+} from "./pageHelpers";
 import { getSinglePost } from "./PostModal.actions";
 import SinglePost from "../../lib/components/SinglePost";
 import useMultipleData from "../../hooks/useMultipleData";
@@ -19,6 +23,8 @@ import useDataPoster from "../../hooks/useDataPoster/useDataPoster";
 import useDataDeleter from "../../hooks/useDataDeleter";
 import { BASE_URL } from "../../axiosConfig";
 import { getMultipleData } from "../../hooks/useMultipleData/useMultipleData.action";
+import { postFollowers } from "../Home/Home.actions";
+import { Follow } from "../../context/FollowProvider";
 
 const PostModal = () => {
   const [singlePost, setSinglePost] = useState({});
@@ -26,15 +32,12 @@ const PostModal = () => {
   const [popUpVisible, setPopUpVisible] = useState(false);
   const [commentId, setCommentId] = useState();
   const [replyId, setReplyId] = useState();
-  const [identifier, setIdentifier] = useState();
   const [repliesData, setRepliesData] = useState({});
-  const [repliesPage, setRepliesPage] = useState(1);
-  const [popUpType, setPopUpType] = useState();
   const replyInputRef = useRef(null);
   const navigate = useNavigate();
   const { postId } = useParams();
   const { userLoggedInData } = useLoggedInUser();
-
+  const { setFollow, isFollowed } = useContext(Follow);
   const {
     register,
     formState: { errors },
@@ -44,12 +47,6 @@ const PostModal = () => {
   const { closeModal, isVisible, openModal } = useModal();
 
   const { backendErrors, submit } = useDataPoster({
-    dataToSend: {
-      description: inputValue["comment"],
-      postId,
-      userId: userLoggedInData.userId,
-      reply: replyId,
-    },
     urlPath: "postComment",
     requestHeader: "json",
   });
@@ -74,7 +71,9 @@ const PostModal = () => {
     pageSize: 8,
   });
 
-  const { onDelete } = useDataDeleter({ path: "deletePost" });
+  const { onDelete } = useDataDeleter({
+    path: commentId ? "deleteComment" : "deletePost",
+  });
 
   const { isLiked, likeCount, toggleLike } = useLikeAction({
     id: postId,
@@ -97,6 +96,10 @@ const PostModal = () => {
     getData();
   }, []);
 
+  useEffect(() => {
+    setFollow(singlePost.followedByUser);
+  }, [singlePost.followedByUser]);
+
   const onInputChange = (name, value) => {
     setInputValue({ ...inputValue, [name]: value });
   };
@@ -106,13 +109,29 @@ const PostModal = () => {
   };
 
   const onSendComment = async () => {
-    const response = await submit({});
+    const response = await submit({
+      dataToSend: {
+        description: inputValue["comment"],
+        postId,
+        userId: userLoggedInData.userId,
+        reply: replyId,
+      },
+      toastScc: true,
+    });
     if (!response) return;
-    setDataComments((prevState) => ({
-      ...prevState,
-      data: [response.data.response, ...prevState.data],
-      count: prevState.count + 1,
-    }));
+    if (replyId) {
+      setTotalReplies(setDataComments, replyId, "increase");
+      setRepliesData((prevState) => ({
+        ...prevState,
+        [replyId]: [response.data.response, ...(prevState[replyId] || [])],
+      }));
+    } else {
+      setDataComments((prevState) => ({
+        ...prevState,
+        data: [response.data.response, ...prevState.data],
+        count: prevState.count + 1,
+      }));
+    }
     setInputValue({});
     setReplyId();
   };
@@ -139,14 +158,16 @@ const PostModal = () => {
 
   const closeCommentsLikesModal = () => {
     setCommentId();
+    setReplyId();
     resetLikesPage();
     resetLikesData();
     setPopUpVisible(false);
     closeModal();
   };
 
-  const onDotsIconClick = (type) => {
-    setPopUpType(type);
+  const onDotsIconClick = (commentId, replyId) => {
+    setCommentId(commentId);
+    setReplyId(replyId);
     openModal();
   };
 
@@ -160,36 +181,69 @@ const PostModal = () => {
 
   const confirmDeletePost = async () => {
     const response = onDelete({
-      identifier: postId,
+      identifier: replyId || commentId || postId,
       action: closeCommentsLikesModal,
     });
     if (!response) return;
-    navigate(`/twind/${userLoggedInData.username}`, { state: { postId } });
+    if (replyId) {
+      setRepliesData((prevState) => {
+        const state = prevState[commentId].filter(
+          (reply) => reply.commentId !== replyId
+        );
+        return { ...prevState, [commentId]: state };
+      });
+      setTotalReplies(setDataComments, commentId, "decrease");
+    } else if (!replyId && !!commentId) {
+      setDataComments((prevState) => ({
+        ...prevState,
+        data: prevState.data.filter(
+          (comment) => comment.commentId !== commentId
+        ),
+        count: prevState.count - 1,
+      }));
+      return;
+    } else if (!commentId) {
+      navigate(`/twind/${userLoggedInData.username}`, { state: { postId } });
+    }
   };
 
-  const onShowReplies = async (id) => {
-    setIdentifier(id);
-    let page;
-    if (id !== identifier) {
-      page = 1;
-    } else {
-      page = repliesPage;
-    }
+  const onShowReplies = async (id, repliesCount) => {
+    const pageSize = 2;
+    const page = determinePage(repliesData, id, repliesCount, pageSize);
+    if (!page) return;
     const url =
-      BASE_URL + `/getReplies?page=${page}&pageSize=${1}&identifier=${id}`;
+      BASE_URL +
+      `/getReplies?page=${page}&pageSize=${pageSize}&identifier=${id}`;
     try {
       const response = await getMultipleData(url);
-
       setRepliesData((prevState) => ({
         ...prevState,
         [id]: [...(prevState[id] || []), ...response.data.response.replies],
       }));
-      setRepliesPage(page + 1);
     } catch (err) {
       console.log(err);
     }
   };
-  console.log(errors);
+
+  const updateFollowers = async (isFollow, id) => {
+    const value = isFollow === "0" ? "1" : "0";
+    setFollow(value);
+    try {
+      await postFollowers(userLoggedInData?.userId, id, isFollow);
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  const toggleFollow = () => {
+    if (isFollowed === "0") {
+      setFollow("1");
+    } else {
+      setFollow("0");
+    }
+    updateFollowers(isFollowed, singlePost.creatorId);
+  };
+
   return (
     <>
       <ModalOverlay action={onCloseModal}>
@@ -217,6 +271,8 @@ const PostModal = () => {
             backendErrors={backendErrors}
             repliesData={repliesData}
             isLoadingComments={isLoadingComments}
+            toggleFollow={toggleFollow}
+            isFollow={isFollowed}
           />
         </div>
       </ModalOverlay>
@@ -228,6 +284,7 @@ const PostModal = () => {
             popUpVisible={popUpVisible}
             cancelDelete={closeCommentsLikesModal}
             confirmDelete={confirmDeletePost}
+            type={commentId ? "comment" : "post"}
           />
         ) : (
           <UsersList
@@ -241,6 +298,8 @@ const PostModal = () => {
               )
             }
             data={likesData.data}
+            updateFollowers={updateFollowers}
+            userId={userLoggedInData?.userId}
           />
         )}
       </Modal>
