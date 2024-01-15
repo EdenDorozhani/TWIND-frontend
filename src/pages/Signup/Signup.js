@@ -11,7 +11,6 @@ const Authentication = () => {
   const [inputValue, setInputValue] = useState({});
   const navigate = useNavigate();
   const { submit, backendErrors, setBackendErrors } = useDataPoster({
-    dataToSend: inputValue,
     requestHeader: "json",
     urlPath: "signup",
   });
@@ -29,7 +28,7 @@ const Authentication = () => {
   };
 
   const onFormSubmit = async () => {
-    submit({ navigateTo: "/" });
+    submit({ dataToSend: inputValue, navigateTo: "/" });
   };
 
   const onNavigateTo = () => {

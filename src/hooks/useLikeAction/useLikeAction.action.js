@@ -13,6 +13,6 @@ export const postLikes = async (id, userId, isLiked, type) => {
   try {
     await axios.post(url, { [key]: id, userId, keyWord });
   } catch (err) {
-    throw new Error(err.message);
+    throw err;
   }
 };

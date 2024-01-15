@@ -4,7 +4,7 @@ import NotificationPanel from "../../lib/components/NotificationPanel";
 import FlatList from "../../lib/components/util/FlatList";
 import FlexBox from "../../lib/components/FlexBox";
 import { useNavigate } from "react-router-dom";
-import { formatImgUrl, shouldInterruptInfinityScroll } from "../../lib/helpers";
+import { formatImgUrl } from "../../lib/helpers";
 import useMultipleData from "../../hooks/useMultipleData";
 import Modal from "../../lib/components/Modal";
 import useModal from "../../hooks/useModal";
@@ -13,6 +13,9 @@ import UsersList from "../../lib/components/UsersList";
 import PostActions from "../../lib/components/PostActions";
 import useDataDeleter from "../../hooks/useDataDeleter";
 import EndlessScroll from "../../lib/components/EndlessScroll";
+import { postFollowers } from "./Home.actions";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
   const [postId, setPostId] = useState();
@@ -27,7 +30,7 @@ const Home = () => {
     data: postsData,
     getDataPagination: getDataPaginationPosts,
     isLoading,
-    setData,
+    setData: setPostsData,
   } = useMultipleData({
     pageSize: 10,
     path: "getPosts",
@@ -87,7 +90,23 @@ const Home = () => {
   };
 
   const confirmDelete = async () => {
-    onDelete({ action: closeModalHandler, identifier: postId, setData });
+    const response = onDelete({
+      action: closeModalHandler,
+      identifier: postId,
+    });
+    if (!response) return;
+    setPostsData((prevState) => ({
+      ...prevState,
+      data: prevState.data.filter((post) => post.postId !== postId),
+    }));
+  };
+
+  const updateFollowers = async (isFollow, id) => {
+    try {
+      await postFollowers(userLoggedInData?.userId, id, isFollow);
+    } catch (err) {
+      toast.error(err.message);
+    }
   };
 
   return (
@@ -100,6 +119,7 @@ const Home = () => {
             popUpVisible={popUpVisible}
             cancelDelete={closeModalHandler}
             confirmDelete={confirmDelete}
+            type={"post"}
           />
         ) : (
           <UsersList
@@ -109,6 +129,8 @@ const Home = () => {
             shouldInterrupt={() => getDataPaginationLikes(postId)}
             data={postsLikesData.data}
             isLoading={isLoadingLikes}
+            userId={userLoggedInData?.userId}
+            updateFollowers={updateFollowers}
           />
         )}
       </Modal>

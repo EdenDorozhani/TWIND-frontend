@@ -6,7 +6,7 @@ import { fromArrayToObject } from "../../lib/helpers";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const useDataPoster = ({ requestHeader, urlPath, dataToSend }) => {
+const useDataPoster = ({ requestHeader, urlPath }) => {
   const [backendErrors, setBackendErrors] = useState({});
   const navigate = useNavigate();
 
@@ -25,12 +25,17 @@ const useDataPoster = ({ requestHeader, urlPath, dataToSend }) => {
 
   const url = BASE_URL + `/${urlPath}`;
 
-  const submit = async ({ navigateTo = null, toastErr }) => {
+  const submit = async ({
+    dataToSend,
+    navigateTo = null,
+    toastErr,
+    toastScc,
+  }) => {
     const headers = setHeaderContentType();
     try {
       const response = await postAction({ dataToSend, headers, url });
       if (response.data.success) {
-        toast.success(response.data.message);
+        !toastScc && toast.success(response.data.message);
         navigate(navigateTo);
       }
       return response;

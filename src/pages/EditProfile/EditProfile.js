@@ -35,10 +35,6 @@ const EditProfile = () => {
   );
 
   const { backendErrors, submit, setBackendErrors } = useDataPoster({
-    dataToSend: {
-      ...determineData.values,
-      userId: userLoggedInData.userId,
-    },
     requestHeader: determineData.headers,
     urlPath: modalStatus,
   });
@@ -90,6 +86,10 @@ const EditProfile = () => {
 
   const onEditProfile = async () => {
     const dataToStore = await submit({
+      dataToSend: {
+        ...determineData.values,
+        userId: userLoggedInData.userId,
+      },
       navigateTo: `/twind/${userLoggedInData.username}`,
     });
     if (!dataToStore) return;
