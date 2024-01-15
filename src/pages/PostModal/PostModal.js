@@ -179,7 +179,6 @@ const PostModal = () => {
       BASE_URL + `/getReplies?page=${page}&pageSize=${1}&identifier=${id}`;
     try {
       const response = await getMultipleData(url);
-
       setRepliesData((prevState) => ({
         ...prevState,
         [id]: [...(prevState[id] || []), ...response.data.response.replies],

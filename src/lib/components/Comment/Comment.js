@@ -143,6 +143,7 @@ const Comment = ({
                     handleReplyClick={handleReplyClick}
                     openCommentsLikesModal={openCommentsLikesModal}
                     repliesData={repliesData}
+                    onReply={onReply}
                   />
                 )}
               />
