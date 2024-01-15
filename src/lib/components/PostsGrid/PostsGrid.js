@@ -4,13 +4,7 @@ import FlexBox from "../FlexBox";
 import Icon from "../Icon";
 import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
 
-const ProfilePhoto = ({
-  imageUrl,
-  likeCount,
-  commentCount,
-  action,
-  postId,
-}) => {
+const PostsGrid = ({ imageUrl, likeCount, commentCount, action, postId }) => {
   const [isShown, setIsShown] = useState(false);
 
   const onOpenPost = () => {
@@ -67,4 +61,4 @@ const ProfilePhoto = ({
   );
 };
 
-export default ProfilePhoto;
+export default PostsGrid;
