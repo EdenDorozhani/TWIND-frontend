@@ -37,6 +37,7 @@ const SearchBar = ({ onSearchBarChange, inputValue }) => {
         onBlur={onBlur}
         onChange={onInputChange}
         name="search"
+        autoComplete="off"
       />
     </div>
   );

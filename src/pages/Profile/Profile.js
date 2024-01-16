@@ -160,6 +160,9 @@ const Profile = () => {
   const closeFollowersModal = () => {
     resetFollowersPage();
     resetFollowersData();
+    setFilterFollowersPage(1);
+    setFilteredFollowersData({ data: [], module: "" });
+    setSearchBarValue("");
     closeModal();
   };
 
@@ -167,8 +170,6 @@ const Profile = () => {
     setSearchBarValue(value);
   };
   const scrollCondition = searchBarValue.length !== 0;
-
-  console.log(filteredFollowersData.data?.[0]?.filteredCount);
 
   return (
     <>
@@ -184,7 +185,7 @@ const Profile = () => {
           isLoading={scrollCondition ? isLoadingFiltered : isLoadingFollowers}
           shouldInterrupt={
             scrollCondition
-              ? () => fetchFilteredFollowers("")
+              ? () => fetchFilteredFollowers()
               : () => getFollowers(profileUserData.userId)
           }
           updateFollowers={updateFollowers}

@@ -16,7 +16,7 @@ const PostsGrid = ({ imageUrl, likeCount, commentCount, action, postId }) => {
       style={{
         flex: "0 0 calc(31%)",
         position: "relative",
-        maxHeight: "360px",
+        height: "400px",
       }}
       onMouseEnter={() => setIsShown(true)}
       onMouseLeave={() => setIsShown(false)}

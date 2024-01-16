@@ -13,12 +13,17 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import EndlessScroll from "../../lib/components/EndlessScroll";
+import { postFollowers } from "../Home/Home.actions";
+import { formatImgUrl } from "../../lib/helpers";
 
 const Explore = () => {
-  const [filteredUsers, setFilteredUsers] = useState({ data: [], module: "" });
+  const [filteredFollowersData, setFilteredFollowersData] = useState({
+    data: [],
+    module: "",
+  });
+  const [isLoadingFiltered, setIsLoadingFiltered] = useState(false);
   const [searchBarValue, setSearchBarValue] = useState("");
-  const [filteredUsersPage, setFilteredUsersPage] = useState(1);
-  const [isLoadingFilteredUsers, setIsLoadingFilteredUsers] = useState(false);
+  const [filterFollowersPage, setFilterFollowersPage] = useState(1);
   const { userLoggedInData } = useLoggedInUser();
   const navigate = useNavigate();
 
@@ -28,29 +33,37 @@ const Explore = () => {
     isLoading: isLoadingExplorePosts,
   } = useMultipleData({
     pageSize: 8,
-    path: "getExplorePostsData",
+    path: "getUsersPosts",
   });
 
-  const fetchFilteredUsersData = async (page = null) => {
+  const fetchFilteredFollowers = async (page) => {
+    if (searchBarValue.length === 0) return;
+    setIsLoadingFiltered(true);
     const url =
       BASE_URL +
-      `/getFollowers?page=${page || filteredUsersPage}&pageSize=${5}`;
+      `/getAllUsers?page=${
+        page ? 1 : filterFollowersPage
+      }&pageSize=${3}&value=${searchBarValue}&identifier=${
+        userLoggedInData.username
+      }`;
     try {
-      setIsLoadingFilteredUsers(true);
       const response = await getMultipleData(url);
-      if (!page) {
-        setFilteredUsersPage(filteredUsersPage + 1);
-        setFilteredUsers({
-          data: [...filteredUsers.data, ...response.data.response.data],
-          module: response.data.response.module,
-        });
-      } else {
-        setFilteredUsers({
-          data: response.data.response.data,
-          module: response.data.response.module,
-        });
-      }
-      setIsLoadingFilteredUsers(false);
+      setFilteredFollowersData((prevState) => {
+        if (page) {
+          return {
+            data: response.data.response.data,
+            module: response.data.response.module,
+          };
+        } else {
+          return {
+            ...prevState,
+            data: [...prevState.data, ...response.data.response.data],
+            module: response.data.response.module,
+          };
+        }
+      });
+      setFilterFollowersPage((prevPage) => prevPage + 1);
+      setIsLoadingFiltered(false);
     } catch (err) {
       console.log(err);
     }
@@ -61,8 +74,15 @@ const Explore = () => {
   }, []);
 
   useEffect(() => {
-    if (searchBarValue === 0) return;
-    fetchFilteredUsersData(1);
+    if (searchBarValue.length === 0) {
+      setFilteredFollowersData({
+        data: [],
+        module: "",
+      });
+      return;
+    }
+    setFilterFollowersPage(1);
+    fetchFilteredFollowers(1);
   }, [searchBarValue]);
 
   const onSearchBarChange = (value) => {
@@ -82,38 +102,63 @@ const Explore = () => {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        marginLeft: "340px",
+        backgroundColor: "rgb(220,220,220)",
+      }}
+    >
       <FlexBox direction={"column"}>
         <div>
           <SearchBar
             onSearchBarChange={onSearchBarChange}
             inputValue={searchBarValue}
           />
-          <FlexBox direction={"column"}>
-            <EndlessScroll
-              loadMore={() => fetchFilteredUsersData()}
-              dataLength={filteredUsers.data.length}
-              isLoading={isLoadingFilteredUsers}
-              useWindow={false}
-              totalCount={filteredUsers.data[0].filteredUsersCount}
-            >
-              <div style={{ height: "400px" }}>
-                <FlatList
-                  data={filteredUsers.data}
-                  renderItem={(user) => (
-                    <User
-                      key={user.followId}
-                      data={user}
-                      onUserClick={onUserClick}
-                      userId={userLoggedInData.userId}
-                      updateFollowers={updateFollowers}
-                      type={"Followers"}
+          {searchBarValue.length !== 0 && (
+            <FlexBox direction={"column"}>
+              <EndlessScroll
+                loadMore={() => fetchFilteredFollowers()}
+                dataLength={filteredFollowersData.data.length}
+                isLoading={isLoadingFiltered}
+                useWindow={false}
+                totalCount={filteredFollowersData.data?.[0]?.filteredCount}
+              >
+                <div
+                  style={{
+                    height: "300px",
+                    backgroundColor: "white",
+                    overflowY: "auto",
+                    position: "absolute",
+                    marginLeft: "30px",
+                    width: "79%",
+                    zIndex: 100000,
+                    borderRadius: "15px",
+                    transition: "all ease 1s",
+                  }}
+                >
+                  <FlexBox
+                    direction={"column"}
+                    padding={"medium"}
+                    gap={"medium"}
+                  >
+                    <FlatList
+                      data={filteredFollowersData.data}
+                      renderItem={(user) => (
+                        <User
+                          key={user.followId}
+                          data={user}
+                          onUserClick={onUserClick}
+                          userId={userLoggedInData.userId}
+                          updateFollowers={updateFollowers}
+                          type={"Followers"}
+                        />
+                      )}
                     />
-                  )}
-                />
-              </div>
-            </EndlessScroll>
-          </FlexBox>
+                  </FlexBox>
+                </div>
+              </EndlessScroll>
+            </FlexBox>
+          )}
         </div>
         <EndlessScroll
           loadMore={() => getExplorePosts()}
@@ -122,7 +167,7 @@ const Explore = () => {
           useWindow={false}
           totalCount={explorePosts.count}
         >
-          <FlexBox wrap gap={"small"}>
+          <FlexBox wrap gap={"small"} justifyContent={"center"}>
             <FlatList
               data={explorePosts.data}
               renderItem={(post) => (
@@ -132,7 +177,6 @@ const Explore = () => {
                   imageUrl={formatImgUrl(post.postImage)}
                   commentCount={post.comments}
                   likeCount={post.likeCount}
-                  action={onOpenPost}
                 />
               )}
             />

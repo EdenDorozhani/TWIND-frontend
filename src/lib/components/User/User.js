@@ -4,6 +4,7 @@ import Avatar from "../Avatar";
 import TextButton from "../TextButton";
 import SimpleText from "../SimpleText";
 import Button from "../Button";
+import { formatImgUrl } from "../../helpers";
 
 const User = ({ data, onUserClick, userId, updateFollowers, type }) => {
   const [isFollow, setIsFollow] = useState(data.followedByUser || "0");
@@ -24,6 +25,7 @@ const User = ({ data, onUserClick, userId, updateFollowers, type }) => {
   } else {
     condition = data.userId !== userId;
   }
+
   return (
     <FlexBox
       key={data.likeId}
