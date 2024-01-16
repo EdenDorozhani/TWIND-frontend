@@ -8,6 +8,7 @@ import PostModal from "./pages/PostModal/PostModal";
 import RootProfile from "./roots/RootProfile";
 import EditProfile from "./pages/EditProfile/EditProfile";
 import ManagePost from "./pages/ManagePost/ManagePost";
+import Explore from "./pages/Explore/Explore";
 
 const Router = () => {
   const router = createBrowserRouter([
@@ -39,6 +40,7 @@ const Router = () => {
               ],
             },
             { path: "edit-profile", element: <EditProfile /> },
+            { path: "explore", element: <Explore /> },
           ],
         },
       ],
