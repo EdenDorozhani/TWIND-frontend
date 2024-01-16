@@ -90,10 +90,10 @@ const EditProfile = () => {
         ...determineData.values,
         userId: userLoggedInData.userId,
       },
-      navigateTo: `/twind/${userLoggedInData.username}`,
     });
     if (!dataToStore) return;
     storeData(dataToStore.data.response);
+    navigate(`/twind/${dataToStore.data.response.username}`);
   };
 
   const onPreviousPage = () => {

@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import FileInput from "../../lib/components/InputTypes/FileInput";
 import FlexBox from "../../lib/components/FlexBox";
@@ -19,6 +19,7 @@ const ManagePost = () => {
   const [inputValue, setInputValue] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const { postId } = useParams();
+  const location = useLocation();
 
   const {
     register,
@@ -58,8 +59,8 @@ const ManagePost = () => {
   };
 
   useEffect(() => {
-    if (!postId) return;
     setInputValue({});
+    if (!postId) return;
     fetchPostData();
   }, [postId]);
 
@@ -97,6 +98,7 @@ const ManagePost = () => {
               backendErrors={backendErrors["postImage"]}
               inputValue={inputValue["postImage"]}
               isLoading={isLoading}
+              postId={postId}
             />
             <div style={{ borderLeft: "1px solid black" }}>
               <FlexBox

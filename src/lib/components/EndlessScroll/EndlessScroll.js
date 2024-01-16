@@ -9,12 +9,18 @@ const EndlessScroll = ({
   isLoading,
 }) => {
   const shouldInterruptInfinityScroll = () => {
-    return isLoading ? () => {} : loadMore;
+    let funct;
+    if (isLoading) {
+      funct = () => {};
+    } else {
+      funct = loadMore;
+    }
+    return funct;
   };
 
   return (
     <InfiniteScroll
-      loadMore={shouldInterruptInfinityScroll}
+      loadMore={shouldInterruptInfinityScroll()}
       hasMore={totalCount > dataLength}
       useWindow={useWindow}
     >

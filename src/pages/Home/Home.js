@@ -32,7 +32,7 @@ const Home = () => {
     isLoading,
     setData: setPostsData,
   } = useMultipleData({
-    pageSize: 10,
+    pageSize: 2,
     path: "getPosts",
   });
 

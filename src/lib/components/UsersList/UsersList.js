@@ -84,21 +84,24 @@ const UsersList = ({
           <SimpleText content={type} fontWeight={"bolder"} />
         </FlexBox>
       </div>
-      {/* <SearchBar
-        inputValue={inputValue}
-        onSearchBarChange={onSearchBarChange}
-      /> */}
-      <EndlessScroll
-        loadMore={shouldInterrupt}
-        dataLength={data.length}
-        isLoading={isLoading}
-        totalCount={count}
+      {type === "Followers" && (
+        <SearchBar
+          inputValue={inputValue}
+          onSearchBarChange={onSearchBarChange}
+        />
+      )}
+      <div
+        style={{
+          height: "340px",
+          overflowY: "scroll",
+        }}
       >
-        <div
-          style={{
-            overflowY: "auto",
-            height: "340px",
-          }}
+        <EndlessScroll
+          useWindow={false}
+          loadMore={shouldInterrupt}
+          dataLength={data.length}
+          isLoading={isLoading}
+          totalCount={count}
         >
           <FlexBox direction={"column"} padding={"medium"} gap={"medium"}>
             {data.length === 0 ? (
@@ -120,8 +123,8 @@ const UsersList = ({
               )}
             />
           </FlexBox>
-        </div>
-      </EndlessScroll>
+        </EndlessScroll>
+      </div>
     </>
   );
 };

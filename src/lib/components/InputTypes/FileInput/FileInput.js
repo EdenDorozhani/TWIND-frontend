@@ -13,12 +13,16 @@ const FileInput = ({
   backendErrors,
   inputValue,
   isLoading,
+  postId,
 }) => {
   const [image, setImage] = useState();
 
   useEffect(() => {
+    if (!postId) {
+      return setImage();
+    }
     setImage(inputValue);
-  }, [isLoading]);
+  }, [isLoading, postId]);
 
   const onChangeHandler = (e) => {
     const selectedFile = e.target.files[0];

@@ -21,10 +21,18 @@ import { Follow } from "../../context/FollowProvider";
 import Modal from "../../lib/components/Modal";
 import UsersList from "../../lib/components/UsersList";
 import useModal from "../../hooks/useModal";
+import { BASE_URL } from "../../axiosConfig";
+import { getMultipleData } from "../../hooks/useMultipleData/useMultipleData.action";
 
 const Profile = () => {
   const [profileUserData, setProfileUserData] = useState({});
   const [searchBarValue, setSearchBarValue] = useState("");
+  const [filterFollowersPage, setFilterFollowersPage] = useState(1);
+  const [isLoadingFiltered, setIsLoadingFiltered] = useState(false);
+  const [filteredFollowersData, setFilteredFollowersData] = useState({
+    data: [],
+    module: "",
+  });
   const [isFollow, setIsFollow] = useState();
   const { username } = useParams();
   const navigate = useNavigate();
@@ -32,6 +40,7 @@ const Profile = () => {
   const { userLoggedInData } = useLoggedInUser();
   const { isFollowed } = useContext(Follow);
   const { isVisible, closeModal, openModal } = useModal();
+
   const {
     data: profilePostsData,
     getDataPagination: getProfilePosts,
@@ -48,9 +57,8 @@ const Profile = () => {
     isLoading: isLoadingFollowers,
     resetPage: resetFollowersPage,
     resetData: resetFollowersData,
-    setData: setFollowersData,
   } = useMultipleData({
-    pageSize: 12,
+    pageSize: 3,
     path: "getFollowers",
   });
 
@@ -58,6 +66,39 @@ const Profile = () => {
     try {
       const response = await getProfileData(username);
       setProfileUserData(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const fetchFilteredFollowers = async (page) => {
+    if (searchBarValue.length === 0) return;
+    setIsLoadingFiltered(true);
+    const url =
+      BASE_URL +
+      `/getFollowers?page=${
+        page ? 1 : filterFollowersPage
+      }&pageSize=${3}&identifier=${
+        profileUserData.userId
+      }&value=${searchBarValue}`;
+    try {
+      const response = await getMultipleData(url);
+      setFilteredFollowersData((prevState) => {
+        if (page) {
+          return {
+            data: response.data.response.data,
+            module: response.data.response.module,
+          };
+        } else {
+          return {
+            ...prevState,
+            data: [...prevState.data, ...response.data.response.data],
+            module: response.data.response.module,
+          };
+        }
+      });
+      setFilterFollowersPage((prevPage) => prevPage + 1);
+      setIsLoadingFiltered(false);
     } catch (err) {
       console.log(err);
     }
@@ -78,15 +119,8 @@ const Profile = () => {
 
   useEffect(() => {
     if (!followers.module) return;
-    const fetchData = async () => {
-      const response = await getFollowers(
-        profileUserData.userId,
-        "",
-        searchBarValue
-      );
-      setFollowersData((prevState) => ({ ...prevState, data: response }));
-    };
-    fetchData();
+    setFilterFollowersPage(1);
+    fetchFilteredFollowers(1);
   }, [searchBarValue]);
 
   useEffect(() => {
@@ -132,21 +166,26 @@ const Profile = () => {
   const onSearchBarChange = (value) => {
     setSearchBarValue(value);
   };
+  const scrollCondition = searchBarValue.length !== 0;
+
+  console.log(filteredFollowersData.data?.[0]?.filteredCount);
 
   return (
     <>
       <Modal isVisible={isVisible} onClose={closeFollowersModal}>
         <UsersList
           type={"Followers"}
-          count={profileUserData.followersCount}
-          data={followers.data}
-          isLoading={isLoadingFollowers}
-          shouldInterrupt={() =>
-            getFollowers(
-              profileUserData.userId,
-              "",
-              searchBarValue ? searchBarValue : null
-            )
+          count={
+            scrollCondition
+              ? filteredFollowersData.data?.[0]?.filteredCount
+              : profileUserData.followersCount
+          }
+          data={scrollCondition ? filteredFollowersData.data : followers.data}
+          isLoading={scrollCondition ? isLoadingFiltered : isLoadingFollowers}
+          shouldInterrupt={
+            scrollCondition
+              ? () => fetchFilteredFollowers("")
+              : () => getFollowers(profileUserData.userId)
           }
           updateFollowers={updateFollowers}
           userId={userLoggedInData.userId}
