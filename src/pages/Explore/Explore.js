@@ -20,6 +20,7 @@ const Explore = () => {
   const [filteredFollowersData, setFilteredFollowersData] = useState({
     data: [],
     module: "",
+    count: null,
   });
   const [isLoadingFiltered, setIsLoadingFiltered] = useState(false);
   const [searchBarValue, setSearchBarValue] = useState("");
@@ -48,20 +49,13 @@ const Explore = () => {
       }`;
     try {
       const response = await getMultipleData(url);
-      setFilteredFollowersData((prevState) => {
-        if (page) {
-          return {
-            data: response.data.response.data,
-            module: response.data.response.module,
-          };
-        } else {
-          return {
-            ...prevState,
-            data: [...prevState.data, ...response.data.response.data],
-            module: response.data.response.module,
-          };
-        }
-      });
+      setFilteredFollowersData((prevState) => ({
+        data: page
+          ? response.data.response.data
+          : [...prevState.data, ...response.data.response.data],
+        module: response.data.response.module,
+        count: response.data.response.count,
+      }));
       setFilterFollowersPage((prevPage) => prevPage + 1);
       setIsLoadingFiltered(false);
     } catch (err) {
@@ -101,6 +95,9 @@ const Explore = () => {
     navigate(`${username}`);
   };
 
+  const onPostsClick = (postId) => {
+    navigate(`/twind/p/${postId}`);
+  };
   return (
     <div
       style={{
@@ -121,7 +118,7 @@ const Explore = () => {
                 dataLength={filteredFollowersData.data.length}
                 isLoading={isLoadingFiltered}
                 useWindow={false}
-                totalCount={filteredFollowersData.data?.[0]?.filteredCount}
+                totalCount={filteredFollowersData.count}
               >
                 <div
                   style={{
@@ -150,7 +147,7 @@ const Explore = () => {
                           onUserClick={onUserClick}
                           userId={userLoggedInData.userId}
                           updateFollowers={updateFollowers}
-                          type={"Followers"}
+                          type={"Users"}
                         />
                       )}
                     />
@@ -177,6 +174,7 @@ const Explore = () => {
                   imageUrl={formatImgUrl(post.postImage)}
                   commentCount={post.comments}
                   likeCount={post.likeCount}
+                  action={onPostsClick}
                 />
               )}
             />

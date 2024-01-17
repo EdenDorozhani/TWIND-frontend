@@ -9,22 +9,23 @@ import { formatImgUrl } from "../../helpers";
 const User = ({ data, onUserClick, userId, updateFollowers, type }) => {
   const [isFollow, setIsFollow] = useState(data.followedByUser || "0");
 
+  let identifier;
+  if (type === "Followers") {
+    identifier = data.followingId;
+  } else {
+    identifier = data.userId;
+  }
+
   const toggleFollow = () => {
     if (isFollow === "0") {
       setIsFollow("1");
     } else {
       setIsFollow("0");
     }
-    updateFollowers(isFollow, data.followingId);
+    updateFollowers(isFollow, identifier);
   };
 
-  let condition;
-
-  if (type === "Followers") {
-    condition = data.followingId !== userId;
-  } else {
-    condition = data.userId !== userId;
-  }
+  const condition = identifier !== userId;
 
   return (
     <FlexBox
