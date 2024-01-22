@@ -19,7 +19,6 @@ const ManagePost = () => {
   const [inputValue, setInputValue] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const { postId } = useParams();
-  const location = useLocation();
 
   const {
     register,
@@ -67,7 +66,7 @@ const ManagePost = () => {
   const onInputChange = (name, value) => {
     setInputValue({ ...inputValue, [name]: value });
   };
-
+  console.log(inputValue);
   const onFormSubmit = async () => {
     submit({ dataToSend: { ...inputValue, postId }, navigateTo: "/twind" });
   };

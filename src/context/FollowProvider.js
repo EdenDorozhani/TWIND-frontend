@@ -3,7 +3,7 @@ import { createContext, useEffect, useState } from "react";
 export const Follow = createContext({});
 
 const FollowProvider = ({ children }) => {
-  const [isFollowed, setIsFollowed] = useState(false);
+  const [isFollowed, setIsFollowed] = useState("0");
 
   const setFollow = (isFollow) => {
     setIsFollowed(isFollow);

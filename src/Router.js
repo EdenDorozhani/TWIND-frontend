@@ -9,6 +9,7 @@ import RootProfile from "./roots/RootProfile";
 import EditProfile from "./pages/EditProfile/EditProfile";
 import ManagePost from "./pages/ManagePost/ManagePost";
 import Explore from "./pages/Explore/Explore";
+import RootExplore from "./roots/RootExplore";
 
 const Router = () => {
   const router = createBrowserRouter([
@@ -40,7 +41,11 @@ const Router = () => {
               ],
             },
             { path: "edit-profile", element: <EditProfile /> },
-            { path: "explore", element: <Explore /> },
+            {
+              path: "explore",
+              element: <RootExplore />,
+              children: [{ path: "p/:postId", element: <PostModal /> }],
+            },
           ],
         },
       ],

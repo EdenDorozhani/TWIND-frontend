@@ -33,7 +33,7 @@ const Profile = () => {
     data: [],
     module: "",
   });
-  const [isFollow, setIsFollow] = useState();
+  const [isFollow, setIsFollow] = useState("0");
   const { username } = useParams();
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -124,7 +124,7 @@ const Profile = () => {
   }, [searchBarValue]);
 
   useEffect(() => {
-    setIsFollow(isFollowed || profileUserData.followedByUser);
+    setIsFollow(isFollowed !== "0" || profileUserData.followedByUser);
   }, [profileUserData.followedByUser, isFollowed]);
 
   const onOpenPost = (postId) => {

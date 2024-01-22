@@ -15,6 +15,7 @@ import "react-toastify/dist/ReactToastify.css";
 import EndlessScroll from "../../lib/components/EndlessScroll";
 import { postFollowers } from "../Home/Home.actions";
 import { formatImgUrl } from "../../lib/helpers";
+import SimpleText from "../../lib/components/SimpleText";
 
 const Explore = () => {
   const [filteredFollowersData, setFilteredFollowersData] = useState({
@@ -34,7 +35,7 @@ const Explore = () => {
     isLoading: isLoadingExplorePosts,
   } = useMultipleData({
     pageSize: 8,
-    path: "getUsersPosts",
+    path: "getAllPosts",
   });
 
   const fetchFilteredFollowers = async (page) => {
@@ -92,12 +93,14 @@ const Explore = () => {
   };
 
   const onUserClick = (username) => {
-    navigate(`${username}`);
+    navigate(`/twind/${username}`);
   };
 
   const onPostsClick = (postId) => {
-    navigate(`/twind/p/${postId}`);
+    navigate(`p/${postId}`);
   };
+
+  const isUsersListVisible = searchBarValue.length !== 0;
   return (
     <div
       style={{
@@ -111,7 +114,7 @@ const Explore = () => {
             onSearchBarChange={onSearchBarChange}
             inputValue={searchBarValue}
           />
-          {searchBarValue.length !== 0 && (
+          {isUsersListVisible && (
             <FlexBox direction={"column"}>
               <EndlessScroll
                 loadMore={() => fetchFilteredFollowers()}
@@ -130,28 +133,34 @@ const Explore = () => {
                     width: "79%",
                     zIndex: 100000,
                     borderRadius: "15px",
-                    transition: "all ease 1s",
                   }}
                 >
-                  <FlexBox
-                    direction={"column"}
-                    padding={"medium"}
-                    gap={"medium"}
-                  >
-                    <FlatList
-                      data={filteredFollowersData.data}
-                      renderItem={(user) => (
-                        <User
-                          key={user.followId}
-                          data={user}
-                          onUserClick={onUserClick}
-                          userId={userLoggedInData.userId}
-                          updateFollowers={updateFollowers}
-                          type={"Users"}
-                        />
-                      )}
+                  {filteredFollowersData.data.length === 0 ? (
+                    <SimpleText
+                      content={"No users with this username."}
+                      style={{ textAlign: "center" }}
                     />
-                  </FlexBox>
+                  ) : (
+                    <FlexBox
+                      direction={"column"}
+                      padding={"medium"}
+                      gap={"medium"}
+                    >
+                      <FlatList
+                        data={filteredFollowersData.data}
+                        renderItem={(user) => (
+                          <User
+                            key={user.followId}
+                            data={user}
+                            onUserClick={onUserClick}
+                            userId={userLoggedInData.userId}
+                            updateFollowers={updateFollowers}
+                            type={"Users"}
+                          />
+                        )}
+                      />
+                    </FlexBox>
+                  )}
                 </div>
               </EndlessScroll>
             </FlexBox>

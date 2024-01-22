@@ -218,7 +218,7 @@ const PostModal = () => {
       const response = await getMultipleData(url);
       setRepliesData((prevState) => ({
         ...prevState,
-        [id]: [...(prevState[id] || []), ...response.data.response.replies],
+        [id]: [...(prevState[id] || []), ...response.data.response.data],
       }));
     } catch (err) {
       console.log(err);
@@ -243,7 +243,7 @@ const PostModal = () => {
     }
     updateFollowers(isFollowed, singlePost.creatorId);
   };
-
+  console.log(isFollowed);
   return (
     <>
       <ModalOverlay action={onCloseModal}>

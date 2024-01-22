@@ -18,7 +18,7 @@ const PostHeader = ({
   toggleFollow,
 }) => {
   const content =
-    !!unknown && creatorId !== userId ? (
+    unknown && creatorId !== userId ? (
       <TextButton
         content={"follow"}
         size={"s"}
