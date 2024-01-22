@@ -27,6 +27,7 @@ const UserAuth = ({
   textContent,
   backendErrors,
   mandatory,
+  onForgetPasswordClick,
 }) => {
   return (
     <div className={classes.pageContainer}>
@@ -61,9 +62,21 @@ const UserAuth = ({
             backendErrors={backendErrors}
             mandatory={mandatory}
           />
+
           <FlexBox justifyContent="around" alignItems="center" padding="large">
             <TextButton content={textContent} action={onNavigateTo} />
+
             <Button content={buttonContent} />
+            {buttonContent === "Login" ? (
+              <TextButton
+                content={"Forgot password"}
+                size={"s"}
+                color={"black"}
+                action={onForgetPasswordClick}
+              />
+            ) : (
+              ""
+            )}
           </FlexBox>
         </form>
       </div>

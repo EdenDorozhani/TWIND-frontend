@@ -25,6 +25,7 @@ import { BASE_URL } from "../../axiosConfig";
 import { getMultipleData } from "../../hooks/useMultipleData/useMultipleData.action";
 import { postFollowers } from "../Home/Home.actions";
 import { Follow } from "../../context/FollowProvider";
+import { postLikes } from "../../hooks/useLikeAction/useLikeAction.action";
 
 const PostModal = () => {
   const [singlePost, setSinglePost] = useState({});
@@ -42,11 +43,12 @@ const PostModal = () => {
     register,
     formState: { errors },
     handleSubmit,
+    control,
   } = useForm({ resolver: yupResolver(addCommentValidationSchema) });
 
   const { closeModal, isVisible, openModal } = useModal();
 
-  const { backendErrors, submit } = useDataPoster({
+  const { backendErrors, submit, setBackendErrors } = useDataPoster({
     urlPath: "postComment",
     requestHeader: "json",
   });
@@ -116,7 +118,6 @@ const PostModal = () => {
         userId: userLoggedInData.userId,
         reply: replyId,
       },
-      toastScc: true,
     });
     if (!response) return;
     if (replyId) {
@@ -132,6 +133,7 @@ const PostModal = () => {
         count: prevState.count + 1,
       }));
     }
+    setBackendErrors({});
     setInputValue({});
     setReplyId();
   };
@@ -243,7 +245,24 @@ const PostModal = () => {
     }
     updateFollowers(isFollowed, singlePost.creatorId);
   };
-  console.log(isFollowed);
+
+  const onUserClickAction = (username) => {
+    navigate(`/twind/${username}`);
+  };
+
+  const updateLikes = async (id, isLiked) => {
+    try {
+      await postLikes(
+        id,
+        userLoggedInData.userId,
+        isLiked,
+        "updateCommentLikes"
+      );
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
   return (
     <>
       <ModalOverlay action={onCloseModal}>
@@ -260,6 +279,9 @@ const PostModal = () => {
             onReply={onReply}
             onDotsIconClick={onDotsIconClick}
             onShowReplies={onShowReplies}
+            onUserClickAction={onUserClickAction}
+            updateLikes={updateLikes}
+            toggleFollow={toggleFollow}
             singlePostData={singlePost}
             errors={errors}
             inputValue={inputValue["comment"]}
@@ -271,7 +293,6 @@ const PostModal = () => {
             backendErrors={backendErrors}
             repliesData={repliesData}
             isLoadingComments={isLoadingComments}
-            toggleFollow={toggleFollow}
             isFollow={isFollowed}
           />
         </div>
@@ -300,6 +321,7 @@ const PostModal = () => {
             data={likesData.data}
             updateFollowers={updateFollowers}
             userId={userLoggedInData?.userId}
+            onUserClick={onUserClickAction}
           />
         )}
       </Modal>

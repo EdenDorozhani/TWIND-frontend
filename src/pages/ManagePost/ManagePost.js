@@ -66,7 +66,6 @@ const ManagePost = () => {
   const onInputChange = (name, value) => {
     setInputValue({ ...inputValue, [name]: value });
   };
-  console.log(inputValue);
   const onFormSubmit = async () => {
     submit({ dataToSend: { ...inputValue, postId }, navigateTo: "/twind" });
   };

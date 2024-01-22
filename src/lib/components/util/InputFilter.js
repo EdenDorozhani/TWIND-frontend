@@ -6,7 +6,6 @@ import TextAreaInput from "../InputTypes/TextAreaInput";
 
 const InputFilter = ({
   inputProps,
-  defaultValues,
   onInputChange,
   errors,
   register,
@@ -22,7 +21,6 @@ const InputFilter = ({
       input = (
         <SimpleInput
           name={inputProps.name}
-          defaultValue={defaultValues}
           onChangeAction={onInputChange}
           register={register}
           errors={errors[inputProps.name]}

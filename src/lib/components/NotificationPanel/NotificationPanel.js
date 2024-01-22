@@ -8,7 +8,7 @@ const NotificationPanel = ({ author, imageSrc }) => {
       style={{
         borderLeft: "1px solid rgb(9, 121, 84, 0.3)",
         position: "fixed",
-        width: "300px",
+        width: "371px",
         height: "100vh",
         right: 0,
       }}
@@ -19,10 +19,34 @@ const NotificationPanel = ({ author, imageSrc }) => {
       <FlexBox direction={"column"}>
         <div style={{ borderBottom: "1px solid rgb(9, 121, 84, 0.3)" }}>
           <FlexBox padding={"medium"} direction={"column"} gap={"medium"}>
-            <SimpleText content={"Today"} color={"black"} />
+            <SimpleText content={"New"} color={"black"} />
             <Description
               author={author}
-              description={"liked your photo!"}
+              description={"liked your post"}
+              notification={true}
+              avatarSrc={"Dawda"}
+              imageSrc={imageSrc}
+            />
+          </FlexBox>
+        </div>
+        <div style={{ borderBottom: "1px solid rgb(9, 121, 84, 0.3)" }}>
+          <FlexBox padding={"medium"} direction={"column"} gap={"medium"}>
+            <SimpleText content={"This month"} color={"black"} />
+            <Description
+              author={author}
+              description={"liked your comment"}
+              notification={true}
+              avatarSrc={"Dawda"}
+              imageSrc={imageSrc}
+            />
+          </FlexBox>
+        </div>
+        <div style={{ borderBottom: "1px solid rgb(9, 121, 84, 0.3)" }}>
+          <FlexBox padding={"medium"} direction={"column"} gap={"medium"}>
+            <SimpleText content={"Earlier"} color={"black"} />
+            <Description
+              author={author}
+              description={"commented on your post"}
               notification={true}
               avatarSrc={"Dawda"}
               imageSrc={imageSrc}

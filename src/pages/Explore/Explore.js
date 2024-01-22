@@ -73,6 +73,7 @@ const Explore = () => {
       setFilteredFollowersData({
         data: [],
         module: "",
+        count: null,
       });
       return;
     }
@@ -104,7 +105,7 @@ const Explore = () => {
   return (
     <div
       style={{
-        marginLeft: "340px",
+        marginLeft: "371px",
         backgroundColor: "rgb(220,220,220)",
       }}
     >

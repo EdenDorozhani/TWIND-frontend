@@ -26,12 +26,16 @@ const useMultipleData = ({ pageSize, path }) => {
     setPage(1);
   };
 
-  const getDataPagination = async (identifier, conditionalPath = null) => {
+  const getDataPagination = async (
+    identifier,
+    conditionalPath = null,
+    initialPage = null
+  ) => {
     const url =
       BASE_URL +
-      `/${!path ? conditionalPath : path}?page=${page}&pageSize=${pageSize}${
-        !!identifier ? `&identifier=${identifier}` : ""
-      }`;
+      `/${!path ? conditionalPath : path}?page=${
+        initialPage || page
+      }&pageSize=${pageSize}${!!identifier ? `&identifier=${identifier}` : ""}`;
     setIsLoading(true);
     try {
       const response = await getMultipleData(url);

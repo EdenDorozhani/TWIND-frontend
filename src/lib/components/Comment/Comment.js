@@ -33,15 +33,30 @@ const Comment = ({
   repliesCount,
   onDotsIconClick,
   replyId,
+  onUserClickAction,
+  updateLikes,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const { isLiked, likeCount, toggleLike } = useLikeAction({
-    likedByUser: likedByUser || "0",
-    likes: commentLikes || 0,
-    id: replyId || commentId,
-    userId,
-    type: "updateCommentLikes",
-  });
+  const [isLiked, setIsLiked] = useState(likedByUser || "0");
+  const [likeCount, setLikeCount] = useState(commentLikes || 0);
+  // const { isLiked, likeCount, toggleLike } = useLikeAction({
+  //   likedByUser: likedByUser || "0",
+  //   likes: commentLikes || 0,
+  //   id: replyId || commentId,
+  //   userId,
+  //   type: "updateCommentLikes",
+  // });
+
+  const toggleLike = () => {
+    if (isLiked === "0") {
+      setLikeCount(likeCount + 1);
+      setIsLiked("1");
+    } else {
+      setLikeCount(likeCount - 1);
+      setIsLiked("0");
+    }
+    updateLikes(replyId || commentId, isLiked);
+  };
 
   const replyAction = () => {
     onReply(author, commentId);
@@ -82,6 +97,7 @@ const Comment = ({
                 author={author}
                 description={caption}
                 avatarSrc={avatarSrc}
+                action={() => onUserClickAction(author)}
               />
               <FlexBox gap={"medium"} padding={"small"}>
                 <SimpleText
@@ -152,6 +168,8 @@ const Comment = ({
                     onReply={onReply}
                     authorId={comment.userId}
                     onDotsIconClick={onDotsIconClick}
+                    onUserClickAction={onUserClickAction}
+                    updateLikes={updateLikes}
                   />
                 )}
               />

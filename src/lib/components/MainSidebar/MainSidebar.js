@@ -12,7 +12,7 @@ const MainSidebar = ({ sideBarLinks, action }) => {
         borderRight: "1px solid rgb(9, 121, 84, 0.3)",
         height: "100vh",
         display: "flex",
-        width: "300px",
+        width: "330px",
         flexDirection: "column",
         padding: "0px 20px",
         gap: "100px",

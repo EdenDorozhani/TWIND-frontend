@@ -28,17 +28,27 @@ const Home = () => {
 
   const {
     data: postsData,
-    getDataPagination: getDataPaginationPosts,
+    getDataPagination: getFollowingPost,
     isLoading,
     setData: setPostsData,
   } = useMultipleData({
     pageSize: 2,
-    path: "getPosts",
+    path: "getFollowingPostsData",
+  });
+
+  const {
+    data: notificationsData,
+    getDataPagination: getNotificationsData,
+    isLoading: isLoadingNotifications,
+    setData: setNotificationsData,
+  } = useMultipleData({
+    pageSize: 2,
+    path: "getNotifications",
   });
 
   const {
     data: postsLikesData,
-    getDataPagination: getDataPaginationLikes,
+    getDataPagination: getLikesData,
     resetData: resetLikesData,
     resetPage: resetLikesPage,
     isLoading: isLoadingLikes,
@@ -51,7 +61,8 @@ const Home = () => {
   const { onDelete } = useDataDeleter({ path: "deletePost" });
 
   useEffect(() => {
-    getDataPaginationPosts();
+    getFollowingPost();
+    getNotificationsData();
   }, []);
 
   const onPostModal = (postId) => {
@@ -60,7 +71,7 @@ const Home = () => {
 
   const openLikesModal = (postId) => {
     setPostId(postId);
-    getDataPaginationLikes(postId);
+    getLikesData(postId);
     openModal();
   };
 
@@ -126,7 +137,7 @@ const Home = () => {
             onUserClick={onUsernamesClick}
             type={postsLikesData.module}
             count={postsLikesData.count}
-            shouldInterrupt={() => getDataPaginationLikes(postId)}
+            shouldInterrupt={() => getLikesData(postId)}
             data={postsLikesData.data}
             isLoading={isLoadingLikes}
             userId={userLoggedInData?.userId}
@@ -135,7 +146,7 @@ const Home = () => {
         )}
       </Modal>
       <EndlessScroll
-        loadMore={getDataPaginationPosts}
+        loadMore={getFollowingPost}
         isLoading={isLoading}
         dataLength={postsData.data.length}
         totalCount={postsData.count}
@@ -167,7 +178,7 @@ const Home = () => {
               )}
             />
           </FlexBox>
-          <NotificationPanel author={"edorozhani"} imageSrc={"d"} />
+          <NotificationPanel author={"edorozhani"} />
         </FlexBox>
       </EndlessScroll>
     </>

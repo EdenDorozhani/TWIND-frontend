@@ -3,16 +3,28 @@ import UserAuth from "../../lib/components/UserAuth";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { loginFormValidationSchema, LOGIN_INPUTS } from "./pageHelpers";
+import { pageHelpers } from "./pageHelpers";
 import useDataPoster from "../../hooks/useDataPoster/useDataPoster";
+import Modal from "../../lib/components/Modal/Modal";
+import ChangeCredentials from "../../lib/components/ChangeCredentials";
+import useModal from "../../hooks/useModal";
 
 const Authentication = () => {
   const [inputValue, setInputValue] = useState({});
+  const [credentialsInputsValue, setCredentialsInputsValue] = useState({});
+  const [status, setStatus] = useState("login");
+  const { isVisible, openModal, closeModal } = useModal({});
   const navigate = useNavigate();
 
-  const { submit } = useDataPoster({
+  const determineData = pageHelpers.determineDataToPost(
+    status,
+    inputValue,
+    credentialsInputsValue
+  );
+
+  const { submit, setBackendErrors, backendErrors } = useDataPoster({
     requestHeader: "json",
-    urlPath: "login",
+    urlPath: status,
   });
 
   const {
@@ -20,7 +32,10 @@ const Authentication = () => {
     formState: { errors },
     handleSubmit,
     control,
-  } = useForm({ resolver: yupResolver(loginFormValidationSchema) });
+    reset,
+  } = useForm({
+    resolver: yupResolver(pageHelpers.determineSchema(status)),
+  });
 
   useEffect(() => {
     if (localStorage.getItem("session")) {
@@ -34,9 +49,8 @@ const Authentication = () => {
 
   const onFormSubmit = async () => {
     const response = await submit({
-      dataToSend: inputValue,
-      navigateTo: "/twind",
-      toastErr: true,
+      dataToSend: determineData.values,
+      ...determineData,
     });
     if (!response.data) return;
     localStorage.setItem("session", response.data.response.token);
@@ -46,14 +60,55 @@ const Authentication = () => {
     navigate("/signup");
   };
 
+  const resetData = () => {
+    setCredentialsInputsValue({});
+    setStatus("login");
+    reset();
+    setBackendErrors({});
+    closeModal();
+  };
+
+  const onForgetPasswordClick = (status) => {
+    setStatus(status);
+    openModal();
+  };
+
+  const onCloseForgetPasswordClick = () => {
+    resetData();
+  };
+
+  const onCredentialsInputChange = (name, value) => {
+    setCredentialsInputsValue({ ...credentialsInputsValue, [name]: value });
+    if (errors) setBackendErrors({});
+  };
+
+  const credentialsModalContent = pageHelpers.updateModalContent(status);
+
+  const onEditCredentials = async () => {
+    const response = submit({
+      dataToSend: determineData.values,
+    });
+    if (!response) return;
+    resetData();
+  };
   return (
     <>
-      {/* <ScreenLoader isLoading /> */}
+      <Modal isVisible={isVisible} onClose={onCloseForgetPasswordClick}>
+        <ChangeCredentials
+          credentialsModalContent={credentialsModalContent}
+          handleSubmit={handleSubmit(onEditCredentials)}
+          inputValue={credentialsInputsValue}
+          onInputChange={onCredentialsInputChange}
+          errors={errors}
+          register={register}
+          backendErrors={backendErrors}
+        />
+      </Modal>
       <UserAuth
         buttonContent="Login"
         textContent="create account"
         mainTextContent="Login"
-        inputList={LOGIN_INPUTS}
+        inputList={pageHelpers.LOGIN_INPUTS}
         onInputChange={onInputChange}
         onFormSubmit={handleSubmit(onFormSubmit)}
         inputValue={inputValue}
@@ -65,6 +120,7 @@ const Authentication = () => {
         register={register}
         control={control}
         errors={errors}
+        onForgetPasswordClick={() => onForgetPasswordClick("forgotPassword")}
       />
     </>
   );

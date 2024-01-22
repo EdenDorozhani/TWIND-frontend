@@ -106,7 +106,13 @@ const EditProfile = () => {
   };
 
   const onEditCredentials = async () => {
-    submit();
+    const response = await submit({
+      dataToSend: {
+        ...determineData.values,
+        userId: userLoggedInData.userId,
+      },
+    });
+    if (!response) return;
     resetData();
   };
 

@@ -5,6 +5,6 @@ export const getMultipleData = async (url) => {
     const response = await axios.get(url);
     return response;
   } catch (err) {
-    throw Error(err.response.data.message);
+    throw err;
   }
 };

@@ -53,7 +53,7 @@ const SimpleInput = ({
       <FlexBox alignItems={"center"}>
         <input
           {...register(name, {
-            onfocus: (event) => true,
+            onfocus: () => true,
             onChange: onChangeHanlder,
           })}
           autoComplete="off"

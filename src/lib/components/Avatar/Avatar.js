@@ -18,7 +18,7 @@ const Avatar = ({ src, size, onClickAction }) => {
   }
 
   const onClick = () => {
-    onClickAction();
+    !!onClickAction && onClickAction();
   };
 
   return (

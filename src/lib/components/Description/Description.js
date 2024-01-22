@@ -13,15 +13,24 @@ const Description = ({
   action,
 }) => {
   return (
-    <FlexBox gap={"medium"} alignItems={"center"}>
-      {!!avatarSrc && <Avatar size={"m"} src={avatarSrc} />}
-      <SimpleText color={"black"} size={"s"}>
-        <TextButton content={author} action={action} />
-        {textTruncated ? textTruncated.formatedText : description}
-      </SimpleText>
+    <FlexBox gap={"medium"}>
+      {!!avatarSrc && (
+        <Avatar size={"m"} src={avatarSrc} onClickAction={action} />
+      )}
+      <div style={{ marginTop: "5px" }}>
+        <SimpleText
+          color={"black"}
+          size={"s"}
+          style={{ wordBreak: "break-word" }}
+        >
+          <TextButton content={author} action={action} />
+          {textTruncated ? textTruncated.formatedText : description}
+        </SimpleText>
+      </div>
+
       {textTruncated && textTruncated.moreText}
       {!!notification && (
-        <img style={{ width: "50px", height: "50px" }} src={imageSrc} />
+        <img style={{ minWidth: "50px", height: "50px" }} src={imageSrc} />
       )}
     </FlexBox>
   );

@@ -9,13 +9,13 @@ const EDIT_PROFILE_INPUTS = [
   { name: "userImgURL", type: "photo" },
 ];
 
-const PASSWORD_INPUTS = [
+const CHANGE_PASSWORD_INPUTS = [
   { name: "currentPassword", type: "password" },
   { name: "newPassword", type: "password" },
   { name: "confirmPassword", type: "password" },
 ];
 
-const EMAIL_INPUTS = [
+const CHANGE_EMAIL_INPUTS = [
   { name: "currentEmail", type: "email" },
   { name: "newEmail", type: "email" },
 ];
@@ -68,14 +68,14 @@ const updateModalContent = (modalStatus) => {
     case "changePassword":
       return (obj = {
         title: "Change Password",
-        inputList: PASSWORD_INPUTS,
+        inputList: CHANGE_PASSWORD_INPUTS,
         description:
           "Password must be at least 8 characters long and include at least one letter and one number.",
       });
     case "changeEmail":
       return (obj = {
         title: "Change Email",
-        inputList: EMAIL_INPUTS,
+        inputList: CHANGE_EMAIL_INPUTS,
         description: "Email must be of this format: example@gmail.com",
       });
   }
@@ -109,11 +109,9 @@ const determineDataToPost = (
 
 export const pageHelpers = {
   EDIT_PROFILE_INPUTS,
-  PASSWORD_INPUTS,
-  EMAIL_INPUTS,
+  CHANGE_PASSWORD_INPUTS,
+  CHANGE_EMAIL_INPUTS,
   editProfileValidationSchema,
-  emailValidationSchema,
-  passwordValidationSchema,
   updateModalContent,
   determineSchema,
   determineDataToPost,

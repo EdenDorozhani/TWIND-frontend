@@ -21,7 +21,6 @@ const SinglePost = ({
   onSendComment,
   onInputChange,
   register,
-  errors,
   toggleLike,
   isLiked,
   likeCount,
@@ -41,6 +40,8 @@ const SinglePost = ({
   shouldInterrupt,
   toggleFollow,
   isFollow,
+  onUserClickAction,
+  updateLikes,
 }) => {
   return (
     <FlexBox>
@@ -48,8 +49,7 @@ const SinglePost = ({
         style={{
           objectFit: "cover",
           maxWidth: "800px",
-          minWidth: "500px",
-          maxHeight: "840px",
+          maxHeight: "850px",
         }}
         src={formatImgUrl(singlePostData.postImage)}
       />
@@ -75,6 +75,9 @@ const SinglePost = ({
                 toggleFollow={toggleFollow}
                 userId={userId}
                 creatorId={singlePostData.creatorId}
+                onUserClickAction={() =>
+                  onUserClickAction(singlePostData.username)
+                }
               />
             </div>
             {singlePostData.caption && (
@@ -88,6 +91,7 @@ const SinglePost = ({
                   avatarSrc={formatImgUrl(singlePostData.userImgURL)}
                   author={singlePostData.username}
                   description={singlePostData.caption}
+                  action={() => onUserClickAction(singlePostData.username)}
                 />
               </div>
             )}
@@ -132,6 +136,8 @@ const SinglePost = ({
                           repliesCount={comment.totalReplies}
                           repliesData={repliesData?.[comment.commentId]}
                           onDotsIconClick={onDotsIconClick}
+                          onUserClickAction={onUserClickAction}
+                          updateLikes={updateLikes}
                         />
                       )}
                     />
@@ -184,10 +190,9 @@ const SinglePost = ({
                 button={inputValue?.length > 0 ? true : false}
                 noBreak
                 textButtonContent={"Post"}
-                errors={errors["comment"]}
                 textButtonAction={onSendComment}
                 replyInputRef={replyInputRef}
-                backendErrors={backendErrors["comment"]}
+                backendErrors={backendErrors["description"]}
               />
             </form>
           </FlexBox>

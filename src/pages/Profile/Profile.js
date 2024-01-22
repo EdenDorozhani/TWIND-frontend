@@ -47,7 +47,7 @@ const Profile = () => {
     isLoading: isLoadingProfile,
     setData,
   } = useMultipleData({
-    pageSize: 12,
+    pageSize: 8,
     path: "getProfilePostsData",
   });
 
@@ -114,7 +114,11 @@ const Profile = () => {
 
   useEffect(() => {
     fetchProfileUserData();
-    getProfilePosts(username);
+    const fetch = async () => {
+      const response = await getProfilePosts(username, "", 1);
+      setData((prevState) => ({ ...prevState, data: response }));
+    };
+    fetch();
   }, [username]);
 
   useEffect(() => {
@@ -169,6 +173,12 @@ const Profile = () => {
   const onSearchBarChange = (value) => {
     setSearchBarValue(value);
   };
+
+  const onUserClick = (username) => {
+    navigate(`/twind/${username}`);
+    closeFollowersModal();
+  };
+
   const scrollCondition = searchBarValue.length !== 0;
 
   return (
@@ -192,9 +202,10 @@ const Profile = () => {
           userId={userLoggedInData.userId}
           onSearchBarChange={onSearchBarChange}
           inputValue={searchBarValue}
+          onUserClick={onUserClick}
         />
       </Modal>
-      <div style={{ paddingLeft: "340px", paddingRight: "40px" }}>
+      <div style={{ paddingLeft: "460px" }}>
         <div
           style={{
             display: "flex",

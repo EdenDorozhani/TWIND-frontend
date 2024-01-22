@@ -10,7 +10,6 @@ const PostActions = ({
   cancelDelete,
   type,
 }) => {
-  console.log(type);
   return (
     <>
       {popUpVisible ? (
