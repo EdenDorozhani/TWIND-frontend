@@ -1,4 +1,4 @@
-import { FormikContext } from "formik";
+import classes from "./Description.module.css";
 import Avatar from "../Avatar";
 import FlexBox from "../FlexBox";
 import SimpleText from "../SimpleText";
@@ -13,6 +13,7 @@ const Description = ({
   avatarSrc,
   action,
   timePassed,
+  onPostClick,
 }) => {
   return (
     <FlexBox gap={"medium"}>
@@ -33,13 +34,9 @@ const Description = ({
       {textTruncated && textTruncated.moreText}
       {!!notification && !!imageSrc && (
         <img
-          style={{
-            minWidth: "50px",
-            maxWidth: "50px",
-            height: "50px",
-            objectFit: "cover",
-          }}
+          className={classes.notificationImage}
           src={imageSrc}
+          onClick={onPostClick}
         />
       )}
     </FlexBox>

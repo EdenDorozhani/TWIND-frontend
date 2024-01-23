@@ -3,34 +3,13 @@ import SimpleText from "../SimpleText";
 import NotificationsFilter from "../NotificationsFilter";
 import FlatList from "../util/FlatList";
 
-const NotificationPanel = ({ data }) => {
-  const currentDate = new Date();
-
-  const newData = data.filter((e) => {
-    const notificationDate = new Date(e.createdAt);
-    const timeDifferenceInSeconds = Math.floor(
-      (currentDate - notificationDate) / 1000
-    );
-    return timeDifferenceInSeconds < 86400;
-  });
-
-  const thisMonthData = data.filter((e) => {
-    const notificationDate = new Date(e.createdAt);
-    const timeDifferenceInSeconds = Math.floor(
-      (currentDate - notificationDate) / 1000
-    );
-    return timeDifferenceInSeconds > 86400 && timeDifferenceInSeconds < 2678400;
-  });
-
-  const earlierData = data.filter((e) => {
-    const notificationDate = new Date(e.createdAt);
-    const timeDifferenceInSeconds = Math.floor(
-      (currentDate - notificationDate) / 1000
-    );
-    return timeDifferenceInSeconds > 2678400;
-  });
-  console.log(newData);
-
+const NotificationPanel = ({
+  newData,
+  thisMonthData,
+  earlierData,
+  onNotificationClick,
+  onUsernamesClick,
+}) => {
   return (
     <div
       style={{
@@ -53,6 +32,8 @@ const NotificationPanel = ({ data }) => {
               data={newData}
               renderItem={(notification) => (
                 <NotificationsFilter
+                  onUsernamesClick={onUsernamesClick}
+                  onNotificationClick={onNotificationClick}
                   key={notification._key || ""}
                   data={notification}
                 />
@@ -67,6 +48,8 @@ const NotificationPanel = ({ data }) => {
               data={thisMonthData}
               renderItem={(notification) => (
                 <NotificationsFilter
+                  onUsernamesClick={onUsernamesClick}
+                  onNotificationClick={onNotificationClick}
                   key={notification._key || ""}
                   data={notification}
                 />
@@ -81,6 +64,8 @@ const NotificationPanel = ({ data }) => {
               data={earlierData}
               renderItem={(notification) => (
                 <NotificationsFilter
+                  onUsernamesClick={onUsernamesClick}
+                  onNotificationClick={onNotificationClick}
                   key={notification._key || ""}
                   data={notification}
                 />

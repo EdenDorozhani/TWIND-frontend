@@ -119,6 +119,35 @@ const Home = () => {
       toast.error(err.message);
     }
   };
+  const currentDate = new Date();
+
+  const newData = notificationsData.data.filter((e) => {
+    const notificationDate = new Date(e.createdAt);
+    const timeDifferenceInSeconds = Math.floor(
+      (currentDate - notificationDate) / 1000
+    );
+    return timeDifferenceInSeconds < 86400;
+  });
+
+  const thisMonthData = notificationsData.data.filter((e) => {
+    const notificationDate = new Date(e.createdAt);
+    const timeDifferenceInSeconds = Math.floor(
+      (currentDate - notificationDate) / 1000
+    );
+    return timeDifferenceInSeconds > 86400 && timeDifferenceInSeconds < 2678400;
+  });
+
+  const earlierData = notificationsData.data.filter((e) => {
+    const notificationDate = new Date(e.createdAt);
+    const timeDifferenceInSeconds = Math.floor(
+      (currentDate - notificationDate) / 1000
+    );
+    return timeDifferenceInSeconds > 2678400;
+  });
+
+  const onNotificationClick = (identifier) => {
+    navigate(`/twind/p/${identifier}`);
+  };
 
   return (
     <>
@@ -178,7 +207,13 @@ const Home = () => {
               )}
             />
           </FlexBox>
-          <NotificationPanel data={notificationsData.data} />
+          <NotificationPanel
+            newData={newData}
+            earlierData={earlierData}
+            thisMonthData={thisMonthData}
+            onNotificationClick={onNotificationClick}
+            onUsernamesClick={onUsernamesClick}
+          />
         </FlexBox>
       </EndlessScroll>
     </>

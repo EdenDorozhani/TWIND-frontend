@@ -2,7 +2,11 @@ import Description from "./Description";
 import { formatImgUrl } from "../helpers";
 import { getPassedTime } from "./Post/helpers";
 
-const NotificationsFilter = ({ data }) => {
+const NotificationsFilter = ({
+  data,
+  onNotificationClick,
+  onUsernamesClick,
+}) => {
   const truncatedDescription =
     data.description?.length > 60
       ? data.description.slice(0, 60) + "..."
@@ -26,6 +30,8 @@ const NotificationsFilter = ({ data }) => {
             avatarSrc={formatImgUrl(data.userImgURL)}
             imageSrc={formatImgUrl(data.postImage)}
             timePassed={getPassedTime(data.createdAt)}
+            action={() => onUsernamesClick(data.username)}
+            onPostClick={() => onNotificationClick(data.postId)}
           />
         ));
       case "comments":
@@ -43,6 +49,8 @@ const NotificationsFilter = ({ data }) => {
             avatarSrc={formatImgUrl(data.userImgURL)}
             imageSrc={formatImgUrl(data.postImage)}
             timePassed={getPassedTime(data.createdAt)}
+            action={() => onUsernamesClick(data.username)}
+            onPostClick={() => onNotificationClick(data.postId)}
           />
         ));
       case "commentLikes":
@@ -60,6 +68,8 @@ const NotificationsFilter = ({ data }) => {
             avatarSrc={formatImgUrl(data.userImgURL)}
             imageSrc={formatImgUrl(data.postImage)}
             timePassed={getPassedTime(data.createdAt)}
+            action={() => onUsernamesClick(data.username)}
+            onPostClick={() => onNotificationClick(data.postId)}
           />
         ));
       case "followers":
@@ -76,6 +86,7 @@ const NotificationsFilter = ({ data }) => {
             notification={true}
             avatarSrc={formatImgUrl(data.userImgURL)}
             timePassed={getPassedTime(data.createdAt)}
+            action={() => onUsernamesClick(data.username)}
           />
         ));
     }
