@@ -178,7 +178,7 @@ const Home = () => {
               )}
             />
           </FlexBox>
-          <NotificationPanel author={"edorozhani"} />
+          <NotificationPanel data={notificationsData.data} />
         </FlexBox>
       </EndlessScroll>
     </>

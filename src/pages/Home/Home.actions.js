@@ -15,3 +15,13 @@ export const postFollowers = async (followerId, followingId, isFollow) => {
     throw err;
   }
 };
+
+export const getNotificationsData = async () => {
+  const url = BASE_URL + `/getNotifications`;
+
+  try {
+    await axios.get(url);
+  } catch (err) {
+    throw err;
+  }
+};

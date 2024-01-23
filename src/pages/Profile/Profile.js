@@ -38,7 +38,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { userLoggedInData } = useLoggedInUser();
-  const { isFollowed } = useContext(Follow);
+  const { isFollowed, setFollow } = useContext(Follow);
   const { isVisible, closeModal, openModal } = useModal();
 
   const {
@@ -128,8 +128,8 @@ const Profile = () => {
   }, [searchBarValue]);
 
   useEffect(() => {
-    setIsFollow(isFollowed !== "0" || profileUserData.followedByUser);
-  }, [profileUserData.followedByUser, isFollowed]);
+    setFollow(profileUserData.followedByUser);
+  }, [profileUserData.followedByUser]);
 
   const onOpenPost = (postId) => {
     navigate(`p/${postId}`);
@@ -148,12 +148,12 @@ const Profile = () => {
   };
 
   const toggleFollow = () => {
-    if (isFollow === "0") {
-      setIsFollow("1");
+    if (isFollowed === "0") {
+      setFollow("1");
     } else {
-      setIsFollow("0");
+      setFollow("0");
     }
-    updateFollowers(isFollow, profileUserData.userId);
+    updateFollowers(isFollowed, profileUserData.userId);
   };
 
   const openFollowersModal = async () => {
@@ -235,8 +235,8 @@ const Profile = () => {
                   <Button content={"Edit profile"} action={onEditNavigation} />
                 ) : (
                   <Button
-                    content={isFollow === "0" ? "Follow" : "Following"}
-                    color={isFollow === "0" ? "" : "gray"}
+                    content={isFollowed === "0" ? "Follow" : "Following"}
+                    color={isFollowed === "0" ? "" : "gray"}
                     action={toggleFollow}
                   />
                 )}
@@ -247,7 +247,7 @@ const Profile = () => {
                   size={"m"}
                 />
                 <TextButton
-                  content={`${profileUserData.followersCount} followers`}
+                  content={`${profileUserData.followersCount} following`}
                   fontWeight={"thin"}
                   action={openFollowersModal}
                 />

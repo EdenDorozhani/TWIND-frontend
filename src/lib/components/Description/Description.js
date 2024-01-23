@@ -1,3 +1,4 @@
+import { FormikContext } from "formik";
 import Avatar from "../Avatar";
 import FlexBox from "../FlexBox";
 import SimpleText from "../SimpleText";
@@ -11,6 +12,7 @@ const Description = ({
   textTruncated,
   avatarSrc,
   action,
+  timePassed,
 }) => {
   return (
     <FlexBox gap={"medium"}>
@@ -26,11 +28,19 @@ const Description = ({
           <TextButton content={author} action={action} />
           {textTruncated ? textTruncated.formatedText : description}
         </SimpleText>
+        {!!notification && <SimpleText color={"fade"} content={timePassed} />}
       </div>
-
       {textTruncated && textTruncated.moreText}
-      {!!notification && (
-        <img style={{ minWidth: "50px", height: "50px" }} src={imageSrc} />
+      {!!notification && !!imageSrc && (
+        <img
+          style={{
+            minWidth: "50px",
+            maxWidth: "50px",
+            height: "50px",
+            objectFit: "cover",
+          }}
+          src={imageSrc}
+        />
       )}
     </FlexBox>
   );
