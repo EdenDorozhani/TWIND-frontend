@@ -23,6 +23,7 @@ import UsersList from "../../lib/components/UsersList";
 import useModal from "../../hooks/useModal";
 import { BASE_URL } from "../../axiosConfig";
 import { getMultipleData } from "../../hooks/useMultipleData/useMultipleData.action";
+import { determineResponseData } from "./pageHelpers";
 
 const Profile = () => {
   const [profileUserData, setProfileUserData] = useState({});
@@ -32,32 +33,22 @@ const Profile = () => {
   const [filteredFollowersData, setFilteredFollowersData] = useState({
     data: [],
     module: "",
+    count: "",
   });
-  const [isFollow, setIsFollow] = useState("0");
+
   const { username } = useParams();
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { userLoggedInData } = useLoggedInUser();
-  const { isFollowed, setFollow } = useContext(Follow);
-  const { isVisible, closeModal, openModal } = useModal();
 
-  const {
-    data: profilePostsData,
-    getDataPagination: getProfilePosts,
-    isLoading: isLoadingProfile,
-    setData,
-  } = useMultipleData({
+  const { isFollowed, setFollow } = useContext(Follow);
+  const { userLoggedInData } = useLoggedInUser();
+
+  const { isVisible, closeModal, openModal } = useModal();
+  const { multipleData: profilePosts } = useMultipleData({
     pageSize: 8,
     path: "getProfilePostsData",
   });
-
-  const {
-    data: followers,
-    getDataPagination: getFollowers,
-    isLoading: isLoadingFollowers,
-    resetPage: resetFollowersPage,
-    resetData: resetFollowersData,
-  } = useMultipleData({
+  const { multipleData: followers } = useMultipleData({
     pageSize: 3,
     path: "getFollowers",
   });
@@ -71,31 +62,28 @@ const Profile = () => {
     }
   };
 
+  const scrollCondition = searchBarValue.length !== 0;
+
   const fetchFilteredFollowers = async (page) => {
-    if (searchBarValue.length === 0) return;
+    if (!scrollCondition) return;
+    const correctPage = page ? 1 : filterFollowersPage;
     setIsLoadingFiltered(true);
     const url =
       BASE_URL +
-      `/getFollowers?page=${
-        page ? 1 : filterFollowersPage
-      }&pageSize=${3}&identifier=${
+      `/getFollowers?page=${correctPage}&pageSize=${3}&identifier=${
         profileUserData.userId
       }&value=${searchBarValue}`;
     try {
       const response = await getMultipleData(url);
       setFilteredFollowersData((prevState) => {
-        if (page) {
-          return {
-            data: response.data.response.data,
-            module: response.data.response.module,
-          };
-        } else {
-          return {
-            ...prevState,
-            data: [...prevState.data, ...response.data.response.data],
-            module: response.data.response.module,
-          };
-        }
+        return {
+          ...prevState,
+          data: page
+            ? response.data.response.data
+            : [...prevState.data, ...response.data.response.data],
+          module: response.data.response.module,
+          count: response.data.response.count,
+        };
       });
       setFilterFollowersPage((prevPage) => prevPage + 1);
       setIsLoadingFiltered(false);
@@ -106,7 +94,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (state === null) return;
-    setData((prevState) => ({
+    profilePosts.setResponseData((prevState) => ({
       ...prevState,
       data: prevState.data.filter((post) => +state.postId !== post.postId),
     }));
@@ -115,14 +103,17 @@ const Profile = () => {
   useEffect(() => {
     fetchProfileUserData();
     const fetch = async () => {
-      const response = await getProfilePosts(username, "", 1);
-      setData((prevState) => ({ ...prevState, data: response }));
+      const response = await profilePosts.getDataPagination(username, "", 1);
+      profilePosts.setResponseData((prevState) => ({
+        ...prevState,
+        data: response,
+      }));
     };
     fetch();
   }, [username]);
 
   useEffect(() => {
-    if (!followers.module) return;
+    if (!followers.responseData.module) return;
     setFilterFollowersPage(1);
     fetchFilteredFollowers(1);
   }, [searchBarValue]);
@@ -157,13 +148,12 @@ const Profile = () => {
   };
 
   const openFollowersModal = async () => {
-    getFollowers(profileUserData.userId);
+    followers.getDataPagination(profileUserData.userId);
     openModal();
   };
 
   const closeFollowersModal = () => {
-    resetFollowersPage();
-    resetFollowersData();
+    followers.resetState();
     setFilterFollowersPage(1);
     setFilteredFollowersData({ data: [], module: "" });
     setSearchBarValue("");
@@ -179,30 +169,28 @@ const Profile = () => {
     closeFollowersModal();
   };
 
-  const scrollCondition = searchBarValue.length !== 0;
+  const determineResData = determineResponseData({
+    fetchFilteredFollowers,
+    filteredFollowersData,
+    followers,
+    isLoadingFiltered,
+    profileUserData,
+    scrollCondition,
+  });
 
   return (
     <>
       <Modal isVisible={isVisible} onClose={closeFollowersModal}>
         <UsersList
-          type={"Followers"}
-          count={
-            scrollCondition
-              ? filteredFollowersData.data?.[0]?.filteredCount
-              : profileUserData.followersCount
-          }
-          data={scrollCondition ? filteredFollowersData.data : followers.data}
-          isLoading={scrollCondition ? isLoadingFiltered : isLoadingFollowers}
-          shouldInterrupt={
-            scrollCondition
-              ? () => fetchFilteredFollowers()
-              : () => getFollowers(profileUserData.userId)
-          }
+          shouldInterrupt={determineResData.shouldInterrupt}
+          isLoading={determineResData.isLoading}
+          responseData={determineResData.responseData}
           updateFollowers={updateFollowers}
           userId={userLoggedInData.userId}
           onSearchBarChange={onSearchBarChange}
           inputValue={searchBarValue}
           onUserClick={onUserClick}
+          type="Followers"
         />
       </Modal>
       <div style={{ paddingLeft: "460px" }}>
@@ -243,7 +231,7 @@ const Profile = () => {
               </FlexBox>
               <FlexBox gap={"large"} alignItems={"center"}>
                 <SimpleText
-                  content={`${profilePostsData.count} posts`}
+                  content={`${profilePosts.responseData.count} posts`}
                   size={"m"}
                 />
                 <TextButton
@@ -262,7 +250,7 @@ const Profile = () => {
             </FlexBox>
           </FlexBox>
           <FlexBox direction={"column"} alignItems={"center"} gap={"medium"}>
-            {profilePostsData.data.length === 0 ? (
+            {profilePosts.responseData.data.length === 0 ? (
               <SimpleText content={"You have no posts."} size={"l"} />
             ) : (
               <div style={{ borderTop: "1px solid green" }}>
@@ -274,23 +262,19 @@ const Profile = () => {
             )}
             <div style={{ width: "100%" }}>
               <EndlessScroll
-                loadMore={() => getProfilePosts(username)}
-                dataLength={profilePostsData.data.length}
-                totalCount={profilePostsData.count}
-                isLoading={isLoadingProfile}
+                loadMore={() => profilePosts.getDataPagination(username)}
+                dataLength={profilePosts.responseData.data.length}
+                totalCount={profilePosts.responseData.count}
+                isLoading={profilePosts.isLoading}
               >
                 <FlexBox wrap gap={"small"}>
                   <FlatList
-                    data={profilePostsData.data}
+                    data={profilePosts.responseData.data}
                     renderItem={(post) => (
                       <PostsGrid
                         key={post.postId}
-                        postId={post.postId}
-                        imageUrl={formatImgUrl(post.postImage)}
-                        commentCount={post.comments}
-                        likeCount={post.likeCount}
+                        postData={post}
                         action={onOpenPost}
-                        images={profilePostsData.data}
                       />
                     )}
                   />

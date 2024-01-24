@@ -9,8 +9,6 @@ const FollowProvider = ({ children }) => {
     setIsFollowed(isFollow);
   };
 
-  console.log(isFollowed);
-
   const providerValue = {
     setFollow,
     isFollowed,

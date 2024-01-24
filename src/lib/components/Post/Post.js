@@ -10,48 +10,49 @@ import { useState } from "react";
 import { getPassedTime, textTruncation } from "./helpers";
 import PostHeader from "../PostHeader";
 import Description from "../Description";
-import useLikeAction from "../../../hooks/useLikeAction";
+import { formatImgUrl } from "../../helpers";
 
 const Post = ({
-  author,
-  caption,
-  postImg,
-  postId,
-  location,
-  userImg,
-  createdAt,
-  likes,
-  likedByUser,
   onPostModal,
-  commentsCount,
   userId,
   openLikesModal,
   onUsernamesClick,
   onDotsIconClick,
-  creatorId,
+  postData,
+  updateLikes,
 }) => {
   const [fullContent, setFullContent] = useState(false);
-  const { isLiked, likeCount, toggleLike } = useLikeAction({
-    id: postId,
-    likedByUser,
-    likes,
-    userId: userId,
-    type: "updatePostLikes",
-  });
+  const [isLiked, setIsLiked] = useState(postData.likedByUser || "0");
+  const [likesCount, setLikeCount] = useState(postData.likesCount || 0);
+
+  const toggleLike = () => {
+    if (isLiked === "0") {
+      setLikeCount(likesCount + 1);
+      setIsLiked("1");
+    } else {
+      setLikeCount(likesCount - 1);
+      setIsLiked("0");
+    }
+    updateLikes(postData.postId, isLiked);
+  };
 
   const textButtonAction = () => {
     setFullContent(true);
   };
 
-  const textTruncated = textTruncation(caption, fullContent, textButtonAction);
-  const passedTime = getPassedTime(createdAt);
+  const textTruncated = textTruncation(
+    postData.caption,
+    fullContent,
+    textButtonAction
+  );
+  const passedTime = getPassedTime(postData.createdAt);
 
   const onMessageClick = () => {
-    onPostModal(postId, isLiked, likeCount);
+    onPostModal(postData.postId);
   };
 
   const onOpenModal = () => {
-    openLikesModal(postId);
+    openLikesModal(postData.postId);
   };
 
   return (
@@ -65,18 +66,18 @@ const Post = ({
     >
       <FlexBox direction={"column"} gap={"medium"}>
         <PostHeader
-          author={author}
-          location={location}
+          author={postData.username}
+          location={postData.location}
           passedTime={passedTime}
-          userImg={userImg}
-          onUserClickAction={() => onUsernamesClick(author)}
-          onIconClick={() => onDotsIconClick(postId)}
-          creatorId={creatorId}
+          userImg={formatImgUrl(postData.userImgURL)}
+          onUserClickAction={() => onUsernamesClick(postData.username)}
+          onIconClick={() => onDotsIconClick(postData.postId)}
+          creatorId={postData.creatorId}
           userId={userId}
         />
         <img
           style={{ height: "410px", width: "100%", objectFit: "cover" }}
-          src={postImg}
+          src={formatImgUrl(postData.postImage)}
         />
         <FlexBox gap={"large"}>
           <Icon
@@ -95,18 +96,20 @@ const Post = ({
         <FlexBox direction={"column"} gap={"small"}>
           <FlexBox>
             <TextButton
-              content={likeCount === 0 ? "" : `${likeCount} likes`}
+              content={likesCount === 0 ? "" : `${likesCount} likes`}
               action={onOpenModal}
             />
           </FlexBox>
           <Description
-            author={author}
+            author={postData.username}
             textTruncated={textTruncated}
-            action={() => onUsernamesClick(author)}
+            action={() => onUsernamesClick(postData.username)}
           />
           <TextButton
             content={
-              commentsCount !== 0 ? `View all ${commentsCount} comments` : ""
+              postData.commentsCount !== 0
+                ? `View all ${postData.commentsCount} comments`
+                : ""
             }
             color={"fade"}
             action={onMessageClick}

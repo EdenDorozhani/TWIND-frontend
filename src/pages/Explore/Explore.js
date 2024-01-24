@@ -14,7 +14,6 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import EndlessScroll from "../../lib/components/EndlessScroll";
 import { postFollowers } from "../Home/Home.actions";
-import { formatImgUrl } from "../../lib/helpers";
 import SimpleText from "../../lib/components/SimpleText";
 
 const Explore = () => {
@@ -29,11 +28,7 @@ const Explore = () => {
   const { userLoggedInData } = useLoggedInUser();
   const navigate = useNavigate();
 
-  const {
-    data: explorePosts,
-    getDataPagination: getExplorePosts,
-    isLoading: isLoadingExplorePosts,
-  } = useMultipleData({
+  const { multipleData: allPosts } = useMultipleData({
     pageSize: 8,
     path: "getAllPosts",
   });
@@ -65,7 +60,7 @@ const Explore = () => {
   };
 
   useEffect(() => {
-    getExplorePosts();
+    allPosts.getDataPagination();
   }, []);
 
   useEffect(() => {
@@ -168,22 +163,19 @@ const Explore = () => {
           )}
         </div>
         <EndlessScroll
-          loadMore={() => getExplorePosts()}
-          dataLength={explorePosts.data.length}
-          isLoading={isLoadingExplorePosts}
+          loadMore={() => allPosts.getDataPagination()}
+          dataLength={allPosts.responseData.data.length}
+          isLoading={allPosts.isLoading}
           useWindow={false}
-          totalCount={explorePosts.count}
+          totalCount={allPosts.responseData.count}
         >
           <FlexBox wrap gap={"small"} justifyContent={"center"}>
             <FlatList
-              data={explorePosts.data}
+              data={allPosts.responseData.data}
               renderItem={(post) => (
                 <PostsGrid
                   key={post.postId}
-                  postId={post.postId}
-                  imageUrl={formatImgUrl(post.postImage)}
-                  commentCount={post.comments}
-                  likeCount={post.likeCount}
+                  postData={post}
                   action={onPostsClick}
                 />
               )}

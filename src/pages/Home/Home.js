@@ -14,55 +14,42 @@ import PostActions from "../../lib/components/PostActions";
 import useDataDeleter from "../../hooks/useDataDeleter";
 import EndlessScroll from "../../lib/components/EndlessScroll";
 import { postFollowers } from "./Home.actions";
+import { dateRangeFilter } from "./pageHelpers";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { postLikes } from "../../hooks/useLikeAction/useLikeAction.action";
 
 const Home = () => {
   const [postId, setPostId] = useState();
-  const [popUpVisible, setPopUpVisible] = useState(false);
+  const [isPopUpVisible, setIsPopUpVisible] = useState(false);
   const navigate = useNavigate();
 
   const { userLoggedInData } = useLoggedInUser();
 
   const { openModal, closeModal, isVisible } = useModal();
 
-  const {
-    data: postsData,
-    getDataPagination: getFollowingPost,
-    isLoading,
-    setData: setPostsData,
-  } = useMultipleData({
+  const { onDelete } = useDataDeleter({ path: "deletePost" });
+
+  const { multipleData: followingPosts } = useMultipleData({
     pageSize: 2,
     path: "getFollowingPostsData",
   });
 
-  const {
-    data: notificationsData,
-    getDataPagination: getNotificationsData,
-    isLoading: isLoadingNotifications,
-    setData: setNotificationsData,
-  } = useMultipleData({
-    pageSize: 2,
-    path: "getNotifications",
-  });
-
-  const {
-    data: postsLikesData,
-    getDataPagination: getLikesData,
-    resetData: resetLikesData,
-    resetPage: resetLikesPage,
-    isLoading: isLoadingLikes,
-  } = useMultipleData({
+  const { multipleData: postsLikes } = useMultipleData({
     pageSize: 12,
-    identifier: postId,
     path: "getPostsLikes",
   });
 
-  const { onDelete } = useDataDeleter({ path: "deletePost" });
+  const { multipleData: notifications } = useMultipleData({
+    pageSize: 12,
+    path: "getNotifications",
+  });
+
+  const dateRangeData = dateRangeFilter(notifications);
 
   useEffect(() => {
-    getFollowingPost();
-    getNotificationsData();
+    followingPosts.getDataPagination();
+    notifications.getDataPagination();
   }, []);
 
   const onPostModal = (postId) => {
@@ -71,15 +58,14 @@ const Home = () => {
 
   const openLikesModal = (postId) => {
     setPostId(postId);
-    getLikesData(postId);
+    postsLikes.getDataPagination(postId);
     openModal();
   };
 
   const closeModalHandler = () => {
     setPostId();
-    resetLikesPage();
-    resetLikesData();
-    setPopUpVisible(false);
+    postsLikes.resetState();
+    setIsPopUpVisible(false);
     closeModal();
   };
 
@@ -97,7 +83,7 @@ const Home = () => {
   };
 
   const onDeletePost = () => {
-    setPopUpVisible(true);
+    setIsPopUpVisible(true);
   };
 
   const confirmDelete = async () => {
@@ -106,7 +92,7 @@ const Home = () => {
       identifier: postId,
     });
     if (!response) return;
-    setPostsData((prevState) => ({
+    followingPosts.setResponseData((prevState) => ({
       ...prevState,
       data: prevState.data.filter((post) => post.postId !== postId),
     }));
@@ -119,98 +105,69 @@ const Home = () => {
       toast.error(err.message);
     }
   };
-  const currentDate = new Date();
-
-  const newData = notificationsData.data.filter((e) => {
-    const notificationDate = new Date(e.createdAt);
-    const timeDifferenceInSeconds = Math.floor(
-      (currentDate - notificationDate) / 1000
-    );
-    return timeDifferenceInSeconds < 86400;
-  });
-
-  const thisMonthData = notificationsData.data.filter((e) => {
-    const notificationDate = new Date(e.createdAt);
-    const timeDifferenceInSeconds = Math.floor(
-      (currentDate - notificationDate) / 1000
-    );
-    return timeDifferenceInSeconds > 86400 && timeDifferenceInSeconds < 2678400;
-  });
-
-  const earlierData = notificationsData.data.filter((e) => {
-    const notificationDate = new Date(e.createdAt);
-    const timeDifferenceInSeconds = Math.floor(
-      (currentDate - notificationDate) / 1000
-    );
-    return timeDifferenceInSeconds > 2678400;
-  });
 
   const onNotificationClick = (identifier) => {
     navigate(`/twind/p/${identifier}`);
   };
 
+  const updateLikes = async (id, isLiked) => {
+    try {
+      await postLikes(id, userLoggedInData.userId, isLiked, "updatePostLikes");
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
   return (
     <>
       <Modal isVisible={isVisible} onClose={closeModalHandler}>
-        {!postsLikesData.module ? (
+        {!postsLikes.responseData.module ? (
           <PostActions
             editAction={nvaigateToEditPage}
             deleteAction={onDeletePost}
-            popUpVisible={popUpVisible}
+            isPopUpVisible={isPopUpVisible}
             cancelDelete={closeModalHandler}
             confirmDelete={confirmDelete}
             type={"post"}
           />
         ) : (
           <UsersList
-            onUserClick={onUsernamesClick}
-            type={postsLikesData.module}
-            count={postsLikesData.count}
-            shouldInterrupt={() => getLikesData(postId)}
-            data={postsLikesData.data}
-            isLoading={isLoadingLikes}
+            responseData={postsLikes.responseData}
+            isLoading={postsLikes.isLoading}
             userId={userLoggedInData?.userId}
+            shouldInterrupt={() => postsLikes.getDataPagination(postId)}
+            onUserClick={onUsernamesClick}
             updateFollowers={updateFollowers}
           />
         )}
       </Modal>
       <EndlessScroll
-        loadMore={getFollowingPost}
-        isLoading={isLoading}
-        dataLength={postsData.data.length}
-        totalCount={postsData.count}
+        loadMore={() => followingPosts.getDataPagination()}
+        isLoading={followingPosts.isLoading}
+        dataLength={followingPosts.responseData.data.length}
+        totalCount={followingPosts.responseData.count}
       >
         <FlexBox justifyContent={"center"}>
           <FlexBox padding={"extra large"} direction={"column"} gap={"large"}>
             <FlatList
-              data={postsData.data}
+              data={followingPosts.responseData.data}
               renderItem={(post) => (
                 <Post
                   key={post.postId}
-                  caption={post.caption}
-                  location={post.location}
-                  postImg={formatImgUrl(post.postImage)}
-                  postId={post.postId}
-                  userImg={formatImgUrl(post.userImgURL)}
-                  author={post.username}
-                  createdAt={post.createdAt}
-                  likes={post.likes}
-                  likedByUser={post.likedByUser}
-                  onPostModal={onPostModal}
-                  commentsCount={post.comments}
+                  postData={post}
                   userId={userLoggedInData?.userId}
-                  creatorId={post.creatorId}
+                  onPostModal={onPostModal}
                   openLikesModal={openLikesModal}
                   onUsernamesClick={onUsernamesClick}
                   onDotsIconClick={onDotsIconClick}
+                  updateLikes={updateLikes}
                 />
               )}
             />
           </FlexBox>
           <NotificationPanel
-            newData={newData}
-            earlierData={earlierData}
-            thisMonthData={thisMonthData}
+            notificationsData={notifications}
+            dateRangeData={dateRangeData}
             onNotificationClick={onNotificationClick}
             onUsernamesClick={onUsernamesClick}
           />

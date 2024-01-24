@@ -18,10 +18,13 @@ import { formatImgUrl } from "../../lib/helpers";
 import Modal from "../../lib/components/Modal/Modal";
 import ChangeCredentials from "../../lib/components/ChangeCredentials";
 import useDataPoster from "../../hooks/useDataPoster/useDataPoster";
+import DangerPopUp from "../../lib/components/DangerPopUp";
+import useDataDeleter from "../../hooks/useDataDeleter";
 
 const EditProfile = () => {
   const [inputValue, setInputValue] = useState({});
   const [credentialsInputsValue, setCredentialsInputsValue] = useState({});
+  const [isPopUpVisible, setIsPopUpVisible] = useState(false);
   const [modalStatus, setModalStatus] = useState("editProfile");
   const [isLoading, setIsLoading] = useState(false);
   const { userLoggedInData, storeData } = useLoggedInUser();
@@ -33,6 +36,8 @@ const EditProfile = () => {
     inputValue,
     credentialsInputsValue
   );
+
+  const { onDelete } = useDataDeleter({ path: "deleteAccount" });
 
   const { backendErrors, submit, setBackendErrors } = useDataPoster({
     requestHeader: determineData.headers,
@@ -77,6 +82,7 @@ const EditProfile = () => {
     setBackendErrors({});
     setModalStatus("editProfile");
     closeModal();
+    setIsPopUpVisible(false);
   };
 
   const onInputChange = (name, value) => {
@@ -128,18 +134,39 @@ const EditProfile = () => {
 
   const credentialsModalContent = pageHelpers.updateModalContent(modalStatus);
 
+  const confirmDeleteAction = () => {
+    localStorage.removeItem("session");
+    navigate("/");
+  };
+
+  const confirmDelete = async () => {
+    onDelete({
+      action: confirmDeleteAction,
+      identifier: userLoggedInData.userId,
+    });
+  };
+
   return (
     <>
       <Modal isVisible={isVisible} onClose={onCloseCredentialsModal}>
-        <ChangeCredentials
-          credentialsModalContent={credentialsModalContent}
-          handleSubmit={handleSubmit(onEditCredentials)}
-          inputValue={credentialsInputsValue}
-          onInputChange={onCredentialsInputChange}
-          errors={errors}
-          register={register}
-          backendErrors={backendErrors}
-        />
+        {modalStatus === "deleteProfile" ? (
+          <DangerPopUp
+            isPopUpVisible={isPopUpVisible}
+            cancel={onCloseCredentialsModal}
+            type={"Account"}
+            confirm={confirmDelete}
+          />
+        ) : (
+          <ChangeCredentials
+            credentialsModalContent={credentialsModalContent}
+            handleSubmit={handleSubmit(onEditCredentials)}
+            inputValue={credentialsInputsValue}
+            onInputChange={onCredentialsInputChange}
+            errors={errors}
+            register={register}
+            backendErrors={backendErrors}
+          />
+        )}
       </Modal>
       <div
         style={{
@@ -148,7 +175,7 @@ const EditProfile = () => {
           flexDirection: "column",
           alignItems: "center",
           gap: "50px",
-          paddingTop: "50px",
+          paddingTop: "25px",
         }}
       >
         <SimpleText color={"fade"} content={"Edit profile"} size={"l"} />
@@ -199,6 +226,19 @@ const EditProfile = () => {
             <FlexBox justifyContent={"between"} padding={"medium"}>
               <SimpleText content={"Change E-mail"} />
               <Icon iconName={faRightToBracket} />
+            </FlexBox>
+          </div>
+          <div
+            style={{
+              border: "1px solid red",
+              width: "320px",
+              borderRadius: "15px",
+            }}
+            onClick={() => onOpenCredentialsModal("deleteProfile")}
+          >
+            <FlexBox justifyContent={"between"} padding={"medium"}>
+              <SimpleText content={"Delete Account"} color={"danger"} />
+              <Icon iconName={faRightToBracket} color={"danger"} />
             </FlexBox>
           </div>
         </FlexBox>

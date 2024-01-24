@@ -3,12 +3,13 @@ import SimpleText from "../SimpleText";
 import FlexBox from "../FlexBox";
 import Icon from "../Icon";
 import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { formatImgUrl } from "../../helpers";
 
-const PostsGrid = ({ imageUrl, likeCount, commentCount, action, postId }) => {
+const PostsGrid = ({ action, postData }) => {
   const [isShown, setIsShown] = useState(false);
 
   const onOpenPost = () => {
-    action(postId);
+    action(postData.postId);
   };
 
   return (
@@ -38,19 +39,19 @@ const PostsGrid = ({ imageUrl, likeCount, commentCount, action, postId }) => {
           <FlexBox alignItems={"center"}>
             <Icon color={"white"} iconName={faHeart} />
             <SimpleText
-              content={likeCount}
+              content={postData.likesCount}
               color={"white"}
               fontWeight={"bolder"}
             />
           </FlexBox>
           <FlexBox>
             <Icon color={"white"} iconName={faComment} />
-            <SimpleText content={commentCount} color={"white"} />
+            <SimpleText content={postData.commentsCount} color={"white"} />
           </FlexBox>
         </div>
       )}
       <img
-        src={imageUrl}
+        src={formatImgUrl(postData.postImage)}
         style={{
           width: "100%",
           height: "100%",

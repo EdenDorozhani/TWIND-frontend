@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { BASE_URL } from "../../axiosConfig";
 
 const useMultipleData = ({ pageSize, path }) => {
-  const [data, setData] = useState({
+  const [responseData, setResponseData] = useState({
     data: [],
     count: "",
     module: "",
@@ -14,20 +14,17 @@ const useMultipleData = ({ pageSize, path }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
 
-  const resetData = () => {
-    setData({
+  const resetState = () => {
+    setResponseData({
       data: [],
       count: "",
       module: "",
     });
-  };
-
-  const resetPage = () => {
     setPage(1);
   };
 
   const getDataPagination = async (
-    identifier,
+    identifier = null,
     conditionalPath = null,
     initialPage = null
   ) => {
@@ -35,32 +32,35 @@ const useMultipleData = ({ pageSize, path }) => {
       BASE_URL +
       `/${!path ? conditionalPath : path}?page=${
         initialPage || page
-      }&pageSize=${pageSize}${!!identifier ? `&identifier=${identifier}` : ""}`;
+      }&pageSize=${pageSize}${identifier ? `&identifier=${identifier}` : ""}`;
     setIsLoading(true);
     try {
       const response = await getMultipleData(url);
       const { response: resData } = response?.data;
-      setData((prevState) => ({
+      setResponseData((prevState) => ({
         data: [...prevState.data, ...resData.data],
         count: resData.count,
         module: resData.module,
       }));
-      setIsLoading(false);
       setPage(page + 1);
+      setIsLoading(false);
       return response.data.response.data;
     } catch (err) {
       toast.error(err.message);
     }
   };
 
-  return {
-    getDataPagination,
-    data,
-    setData,
+  const multipleData = {
+    responseData,
     isLoading,
-    resetData,
-    resetPage,
+    setResponseData,
+    getDataPagination,
+    resetState,
     setPage,
+  };
+
+  return {
+    multipleData,
   };
 };
 

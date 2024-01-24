@@ -1,44 +1,24 @@
 import FlexBox from "../FlexBox";
-import SimpleText from "../SimpleText";
+import DangerPopUp from "../DangerPopUp";
 import TextButton from "../TextButton";
 
 const PostActions = ({
   editAction,
   deleteAction,
-  popUpVisible,
+  isPopUpVisible,
   confirmDelete,
   cancelDelete,
   type,
 }) => {
   return (
     <>
-      {popUpVisible ? (
-        <FlexBox
-          alignItems={"center"}
-          direction={"column"}
-          justifyContent={"center"}
-          padding={"large"}
-          gap={"large"}
-        >
-          <SimpleText content={`Delete ${type}?`} size={"l"} color={"black"} />
-          <SimpleText
-            content={`Are you sure you want to delete this ${type}?`}
-            color={"black"}
-          />
-          <FlexBox gap={"extra large"}>
-            <TextButton
-              content={"Cancel"}
-              color={"black"}
-              action={cancelDelete}
-            />
-            <TextButton
-              content={"Delete"}
-              color={"danger"}
-              action={confirmDelete}
-            />
-          </FlexBox>
-        </FlexBox>
-      ) : (
+      <DangerPopUp
+        cancel={cancelDelete}
+        confirm={confirmDelete}
+        isPopUpVisible={isPopUpVisible}
+        type={type}
+      />
+      {!isPopUpVisible && (
         <>
           {type === "post" && (
             <div
@@ -51,7 +31,7 @@ const PostActions = ({
                 <TextButton content={"Edit"} action={editAction} />
               </FlexBox>
             </div>
-          )}{" "}
+          )}
           <div
             style={{
               padding: "10px",

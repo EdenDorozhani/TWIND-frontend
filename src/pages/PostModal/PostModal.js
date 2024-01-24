@@ -30,7 +30,7 @@ import { postLikes } from "../../hooks/useLikeAction/useLikeAction.action";
 const PostModal = () => {
   const [singlePost, setSinglePost] = useState({});
   const [inputValue, setInputValue] = useState({});
-  const [popUpVisible, setPopUpVisible] = useState(false);
+  const [isPopUpVisible, setIsPopUpVisible] = useState(false);
   const [commentId, setCommentId] = useState();
   const [replyId, setReplyId] = useState();
   const [repliesData, setRepliesData] = useState({});
@@ -39,11 +39,11 @@ const PostModal = () => {
   const { postId } = useParams();
   const { userLoggedInData } = useLoggedInUser();
   const { setFollow, isFollowed } = useContext(Follow);
+
   const {
     register,
     formState: { errors },
     handleSubmit,
-    control,
   } = useForm({ resolver: yupResolver(addCommentValidationSchema) });
 
   const { closeModal, isVisible, openModal } = useModal();
@@ -53,23 +53,12 @@ const PostModal = () => {
     requestHeader: "json",
   });
 
-  const {
-    data: commentsData,
-    getDataPagination: getPaginationCommentsData,
-    setData: setDataComments,
-    isLoading: isLoadingComments,
-  } = useMultipleData({
+  const { multipleData: comments } = useMultipleData({
     pageSize: 8,
     path: "getComments",
   });
 
-  const {
-    data: likesData,
-    getDataPagination: getPaginationLikesData,
-    isLoading: isLoadingLikes,
-    resetData: resetLikesData,
-    resetPage: resetLikesPage,
-  } = useMultipleData({
+  const { multipleData: likes } = useMultipleData({
     pageSize: 8,
   });
 
@@ -94,7 +83,7 @@ const PostModal = () => {
   };
 
   useEffect(() => {
-    getPaginationCommentsData(postId);
+    comments.getDataPagination(postId);
     getData();
   }, []);
 
@@ -121,13 +110,13 @@ const PostModal = () => {
     });
     if (!response) return;
     if (replyId) {
-      setTotalReplies(setDataComments, replyId, "increase");
+      setTotalReplies(comments.setResponseData, replyId, "increase");
       setRepliesData((prevState) => ({
         ...prevState,
         [replyId]: [response.data.response, ...(prevState[replyId] || [])],
       }));
     } else {
-      setDataComments((prevState) => ({
+      comments.setResponseData((prevState) => ({
         ...prevState,
         data: [response.data.response, ...prevState.data],
         count: prevState.count + 1,
@@ -149,21 +138,20 @@ const PostModal = () => {
 
   const openCommentsLikesModal = (commentId) => {
     setCommentId(commentId);
-    getPaginationLikesData(commentId, "getCommentsLikes");
+    likes.getDataPagination(commentId, "getCommentsLikes");
     openModal();
   };
 
   const openPostLikesModal = () => {
-    getPaginationLikesData(postId, "getPostsLikes");
+    likes.getDataPagination(postId, "getPostsLikes");
     openModal();
   };
 
   const closeCommentsLikesModal = () => {
     setCommentId();
     setReplyId();
-    resetLikesPage();
-    resetLikesData();
-    setPopUpVisible(false);
+    likes.resetState();
+    setIsPopUpVisible(false);
     closeModal();
   };
 
@@ -178,7 +166,7 @@ const PostModal = () => {
   };
 
   const onDeletePost = () => {
-    setPopUpVisible(true);
+    setIsPopUpVisible(true);
   };
 
   const confirmDeletePost = async () => {
@@ -194,9 +182,9 @@ const PostModal = () => {
         );
         return { ...prevState, [commentId]: state };
       });
-      setTotalReplies(setDataComments, commentId, "decrease");
+      setTotalReplies(comments.setResponseData, commentId, "decrease");
     } else if (!replyId && !!commentId) {
-      setDataComments((prevState) => ({
+      comments.setResponseData((prevState) => ({
         ...prevState,
         data: prevState.data.filter(
           (comment) => comment.commentId !== commentId
@@ -272,7 +260,7 @@ const PostModal = () => {
             onSendComment={handleSubmit(onSendComment)}
             register={register}
             handleReplyClick={handleReplyClick}
-            shouldInterrupt={() => getPaginationCommentsData(postId)}
+            shouldInterrupt={() => comments.getPaginationCommentsData(postId)}
             openCommentsLikesModal={openCommentsLikesModal}
             openPostLikesModal={openPostLikesModal}
             toggleLike={toggleLike}
@@ -287,38 +275,36 @@ const PostModal = () => {
             inputValue={inputValue["comment"]}
             isLiked={isLiked}
             likeCount={likeCount}
-            comments={commentsData}
+            comments={comments.responseData}
             replyInputRef={replyInputRef}
             userId={userLoggedInData.userId}
             backendErrors={backendErrors}
             repliesData={repliesData}
-            isLoadingComments={isLoadingComments}
+            isLoadingComments={comments.isLoading}
             isFollow={isFollowed}
           />
         </div>
       </ModalOverlay>
       <Modal isVisible={isVisible} onClose={closeCommentsLikesModal}>
-        {!likesData.module ? (
+        {!likes.responseData.module ? (
           <PostActions
             deleteAction={onDeletePost}
             editAction={onNavigateToEditPage}
-            popUpVisible={popUpVisible}
+            isPopUpVisible={isPopUpVisible}
             cancelDelete={closeCommentsLikesModal}
             confirmDelete={confirmDeletePost}
             type={commentId ? "comment" : "post"}
           />
         ) : (
           <UsersList
-            type={likesData.module}
-            count={likesData.count}
-            isLoading={isLoadingLikes}
+            responseData={likes.responseData}
+            isLoading={likes.isLoading}
             shouldInterrupt={() =>
-              getPaginationLikesData(
+              likes.getDataPagination(
                 commentId || postId,
                 commentId ? "getCommentsLikes" : "getPostsLikes"
               )
             }
-            data={likesData.data}
             updateFollowers={updateFollowers}
             userId={userLoggedInData?.userId}
             onUserClick={onUserClickAction}

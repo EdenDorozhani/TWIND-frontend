@@ -6,17 +6,18 @@ import SearchBar from "../InputTypes/SearchBar/SearchBar";
 import User from "../User/User";
 
 const UsersList = ({
-  type,
   shouldInterrupt,
-  count,
-  data,
   onUserClick,
   isLoading,
   userId,
   updateFollowers,
   inputValue,
   onSearchBarChange,
+  responseData,
+  type,
 }) => {
+  const module = type ? type : responseData.module;
+
   return (
     <>
       <div
@@ -25,10 +26,10 @@ const UsersList = ({
         }}
       >
         <FlexBox justifyContent={"center"} padding={"small"}>
-          <SimpleText content={type} fontWeight={"bolder"} />
+          <SimpleText content={module} fontWeight={"bolder"} />
         </FlexBox>
       </div>
-      {type === "Followers" && (
+      {module === "Followers" && (
         <SearchBar
           inputValue={inputValue}
           onSearchBarChange={onSearchBarChange}
@@ -43,26 +44,26 @@ const UsersList = ({
         <EndlessScroll
           useWindow={false}
           loadMore={shouldInterrupt}
-          dataLength={data.length}
+          dataLength={responseData.data.length}
           isLoading={isLoading}
-          totalCount={count}
+          totalCount={responseData.count}
         >
           <FlexBox direction={"column"} padding={"medium"} gap={"medium"}>
-            {data.length === 0 ? (
+            {responseData.data.length === 0 ? (
               <FlexBox justifyContent={"center"}>
-                <SimpleText content={`No ${type}.`} />
+                <SimpleText content={`No ${module}.`} />
               </FlexBox>
             ) : null}
             <FlatList
-              data={data}
+              data={responseData.data}
               renderItem={(curr) => (
                 <User
-                  key={type === "Followers" ? curr.followId : curr.likeId}
+                  key={module === "Followers" ? curr.followId : curr.likeId}
                   data={curr}
                   onUserClick={onUserClick}
                   userId={userId}
                   updateFollowers={updateFollowers}
-                  type={type}
+                  type={module}
                 />
               )}
             />
