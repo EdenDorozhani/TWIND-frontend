@@ -23,30 +23,35 @@ const useMultipleData = ({ pageSize, path }) => {
     setPage(1);
   };
 
-  const getDataPagination = async (
-    identifier = null,
-    conditionalPath = null,
-    initialPage = null
-  ) => {
+  const getDataPagination = async ({
+    identifier,
+    conditionalPath,
+    initialPage,
+    userLoggedIn,
+  }) => {
     const url =
       BASE_URL +
-      `/${!path ? conditionalPath : path}?page=${
+      `/${conditionalPath || path}?page=${
         initialPage || page
-      }&pageSize=${pageSize}${identifier ? `&identifier=${identifier}` : ""}`;
+      }&pageSize=${pageSize}${identifier ? `&identifier=${identifier}` : ""}${
+        userLoggedIn ? `&userLoggedIn=${userLoggedIn}` : ""
+      }`;
     setIsLoading(true);
     try {
       const response = await getMultipleData(url);
-      const { response: resData } = response?.data;
-      setResponseData((prevState) => ({
-        data: [...prevState.data, ...resData.data],
-        count: resData.count,
-        module: resData.module,
-      }));
-      setPage(page + 1);
-      setIsLoading(false);
-      return response.data.response.data;
+      if (response) {
+        const { response: resData } = response?.data;
+        setResponseData((prevState) => ({
+          data: [...prevState.data, ...resData.data],
+          count: resData.count,
+          module: resData.module,
+        }));
+        setPage(page + 1);
+        setIsLoading(false);
+        return response.data.response.data;
+      }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.response.data.message);
     }
   };
 
@@ -57,6 +62,8 @@ const useMultipleData = ({ pageSize, path }) => {
     getDataPagination,
     resetState,
     setPage,
+    setPage,
+    page,
   };
 
   return {

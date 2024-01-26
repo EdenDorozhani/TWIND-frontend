@@ -1,4 +1,4 @@
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import FileInput from "../../lib/components/InputTypes/FileInput";
 import FlexBox from "../../lib/components/FlexBox";
@@ -14,11 +14,15 @@ import { formatImgUrl } from "../../lib/helpers";
 import { getSinglePost } from "../PostModal/PostModal.actions";
 import AsyncInputPicker from "../../lib/components/InputTypes/AsyncInputPicker";
 import useDataPoster from "../../hooks/useDataPoster/useDataPoster";
+import useLoggedInUser from "../../context/useLoggedInUser";
 
 const ManagePost = () => {
   const [inputValue, setInputValue] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const { postId } = useParams();
+
+  const { userLoggedInData } = useLoggedInUser();
 
   const {
     register,
@@ -38,7 +42,7 @@ const ManagePost = () => {
   const fetchPostData = async () => {
     setIsLoading(true);
     try {
-      const response = await getSinglePost(postId);
+      const response = await getSinglePost(postId, userLoggedInData.userId);
       const keys = MANAGE_POST_INPUTS.map((input) => input.name);
       const defaultValues = keys.reduce(
         (acc, key) => ({ ...acc, [key]: response[key] }),
@@ -67,7 +71,9 @@ const ManagePost = () => {
     setInputValue({ ...inputValue, [name]: value });
   };
   const onFormSubmit = async () => {
-    submit({ dataToSend: { ...inputValue, postId }, navigateTo: "/twind" });
+    const state = postId ? false : true;
+    submit({ dataToSend: { ...inputValue, postId } });
+    navigate("/twind", { state: { isAdded: state } });
   };
 
   return (

@@ -15,7 +15,7 @@ const RootSidebar = () => {
       const response = await getUserData();
       storeData(response);
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.response.data.message);
     }
   };
 
@@ -23,6 +23,7 @@ const RootSidebar = () => {
     storeUserData();
   }, []);
 
+  console.log(userLoggedInData);
   const navigate = useNavigate();
 
   const onNavigate = onNavigateToLinks(

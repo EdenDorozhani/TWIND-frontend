@@ -103,7 +103,10 @@ const Profile = () => {
   useEffect(() => {
     fetchProfileUserData();
     const fetch = async () => {
-      const response = await profilePosts.getDataPagination(username, "", 1);
+      const response = await profilePosts.getDataPagination({
+        identifier: username,
+        initialPage: 1,
+      });
       profilePosts.setResponseData((prevState) => ({
         ...prevState,
         data: response,
@@ -147,8 +150,10 @@ const Profile = () => {
     updateFollowers(isFollowed, profileUserData.userId);
   };
 
+  console.log(profileUserData);
+
   const openFollowersModal = async () => {
-    followers.getDataPagination(profileUserData.userId);
+    followers.getDataPagination({ identifier: profileUserData.userId });
     openModal();
   };
 
@@ -262,7 +267,9 @@ const Profile = () => {
             )}
             <div style={{ width: "100%" }}>
               <EndlessScroll
-                loadMore={() => profilePosts.getDataPagination(username)}
+                loadMore={() =>
+                  profilePosts.getDataPagination({ identifier: username })
+                }
                 dataLength={profilePosts.responseData.data.length}
                 totalCount={profilePosts.responseData.count}
                 isLoading={profilePosts.isLoading}

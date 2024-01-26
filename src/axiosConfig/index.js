@@ -11,16 +11,25 @@ export const axiosConfigurations = (navigate) => {
     if (session) {
       config.headers["Authorization"] = `Bearer ${session}`;
     }
+
     return config;
   });
 
-  axios.interceptors.response.use((response) => {
-    if (!response.data.error) {
-      return response;
+  axios.interceptors.response.use(
+    (response) => {
+      if (response && response.data) {
+        return response;
+      } else {
+        return Promise.reject(new Error("Invalid response structure"));
+      }
+    },
+    (err) => {
+      if (err.response.status === 401) {
+        localStorage.clear();
+        navigate("/");
+      }
+
+      return Promise.reject(err);
     }
-    if (response.data.error.code === 401) {
-      localStorage.clear();
-      navigate("/");
-    }
-  });
+  );
 };

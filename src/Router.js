@@ -10,6 +10,7 @@ import EditProfile from "./pages/EditProfile/EditProfile";
 import ManagePost from "./pages/ManagePost/ManagePost";
 import Explore from "./pages/Explore/Explore";
 import RootExplore from "./roots/RootExplore";
+import ChangePassword from "./pages/ChangePassword";
 
 const Router = () => {
   const router = createBrowserRouter([
@@ -19,6 +20,7 @@ const Router = () => {
       children: [
         { index: true, element: <Login /> },
         { path: "signup", element: <Signup /> },
+        { path: "resetPassword", element: <ChangePassword /> },
         {
           path: "twind",
           element: <RootSidebar />,

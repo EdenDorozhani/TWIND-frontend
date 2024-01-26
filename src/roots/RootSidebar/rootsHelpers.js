@@ -8,7 +8,7 @@ export const getUserData = async () => {
     const response = await axios.get(url);
     return response.data.response;
   } catch (err) {
-    throw new Error(err.message);
+    throw err;
   }
 };
 

@@ -62,9 +62,9 @@ const Authentication = () => {
 
   const resetData = () => {
     setCredentialsInputsValue({});
-    setStatus("login");
     reset();
     setBackendErrors({});
+    setStatus("login");
     closeModal();
   };
 
@@ -82,26 +82,42 @@ const Authentication = () => {
     if (errors) setBackendErrors({});
   };
 
-  const credentialsModalContent = pageHelpers.updateModalContent(status);
-
-  const onEditCredentials = async () => {
-    const response = submit({
+  const onConfigureEmail = async () => {
+    const response = await submit({
       dataToSend: determineData.values,
     });
     if (!response) return;
     resetData();
   };
+
+  // const onChangePassword = async () => {
+  //   const response = await submit({
+  //     dataToSend: determineData.values,
+  //   });
+  //   if (!response) return;
+  //   resetData();
+  //   closeModal();
+  //   setStatus("login");
+  // };
+
+  const modalContent = {
+    title: "Enter your email",
+    inputList: pageHelpers.EMAIL_INPUT,
+    buttonContent: "Get reset password link",
+  };
+
   return (
     <>
       <Modal isVisible={isVisible} onClose={onCloseForgetPasswordClick}>
         <ChangeCredentials
-          credentialsModalContent={credentialsModalContent}
-          handleSubmit={handleSubmit(onEditCredentials)}
+          credentialsModalContent={modalContent}
+          handleSubmit={handleSubmit(onConfigureEmail)}
           inputValue={credentialsInputsValue}
           onInputChange={onCredentialsInputChange}
           errors={errors}
           register={register}
           backendErrors={backendErrors}
+          backButtonAction={onCloseForgetPasswordClick}
         />
       </Modal>
       <UserAuth
@@ -120,7 +136,7 @@ const Authentication = () => {
         register={register}
         control={control}
         errors={errors}
-        onForgetPasswordClick={() => onForgetPasswordClick("forgotPassword")}
+        onForgetPasswordClick={() => onForgetPasswordClick("configureEmail")}
       />
     </>
   );

@@ -3,8 +3,7 @@ import Post from "../../lib/components/Post";
 import NotificationPanel from "../../lib/components/NotificationPanel";
 import FlatList from "../../lib/components/util/FlatList";
 import FlexBox from "../../lib/components/FlexBox";
-import { useNavigate } from "react-router-dom";
-import { formatImgUrl } from "../../lib/helpers";
+import { useLocation, useNavigate } from "react-router-dom";
 import useMultipleData from "../../hooks/useMultipleData";
 import Modal from "../../lib/components/Modal";
 import useModal from "../../hooks/useModal";
@@ -23,6 +22,7 @@ const Home = () => {
   const [postId, setPostId] = useState();
   const [isPopUpVisible, setIsPopUpVisible] = useState(false);
   const navigate = useNavigate();
+  const { state } = useLocation();
 
   const { userLoggedInData } = useLoggedInUser();
 
@@ -48,9 +48,16 @@ const Home = () => {
   const dateRangeData = dateRangeFilter(notifications);
 
   useEffect(() => {
-    followingPosts.getDataPagination();
-    notifications.getDataPagination();
-  }, []);
+    if (!userLoggedInData.userId) return;
+    followingPosts.getDataPagination({ identifier: userLoggedInData.userId });
+    notifications.getDataPagination({ identifier: userLoggedInData.userId });
+    if (!!state?.postId) {
+      followingPosts.setResponseData((prevState) => ({
+        ...prevState,
+        data: prevState.data.filter((post) => post.postId !== postId),
+      }));
+    }
+  }, [userLoggedInData.userId]);
 
   const onPostModal = (postId) => {
     navigate(`p/${postId}`);
@@ -58,7 +65,7 @@ const Home = () => {
 
   const openLikesModal = (postId) => {
     setPostId(postId);
-    postsLikes.getDataPagination(postId);
+    postsLikes.getDataPagination({ identifier: postId });
     openModal();
   };
 
@@ -94,8 +101,12 @@ const Home = () => {
     if (!response) return;
     followingPosts.setResponseData((prevState) => ({
       ...prevState,
-      data: prevState.data.filter((post) => post.postId !== postId),
+      data: prevState.data.map((post, index, array) =>
+        post.postId === postId ? { ...post, notShow: true } : post
+      ),
     }));
+
+    followingPosts.setPage(1);
   };
 
   const updateFollowers = async (isFollow, id) => {
@@ -112,7 +123,7 @@ const Home = () => {
 
   const updateLikes = async (id, isLiked) => {
     try {
-      await postLikes(id, userLoggedInData.userId, isLiked, "updatePostLikes");
+      await postLikes(id, userLoggedInData?.userId, isLiked, "updatePostLikes");
     } catch (err) {
       toast.error(err.message);
     }
@@ -135,14 +146,20 @@ const Home = () => {
             responseData={postsLikes.responseData}
             isLoading={postsLikes.isLoading}
             userId={userLoggedInData?.userId}
-            shouldInterrupt={() => postsLikes.getDataPagination(postId)}
+            shouldInterrupt={() =>
+              postsLikes.getDataPagination({ identifier: postId })
+            }
             onUserClick={onUsernamesClick}
             updateFollowers={updateFollowers}
           />
         )}
       </Modal>
       <EndlessScroll
-        loadMore={() => followingPosts.getDataPagination()}
+        loadMore={() =>
+          followingPosts.getDataPagination({
+            identifier: userLoggedInData?.userId,
+          })
+        }
         isLoading={followingPosts.isLoading}
         dataLength={followingPosts.responseData.data.length}
         totalCount={followingPosts.responseData.count}
@@ -170,6 +187,7 @@ const Home = () => {
             dateRangeData={dateRangeData}
             onNotificationClick={onNotificationClick}
             onUsernamesClick={onUsernamesClick}
+            userId={userLoggedInData.userId}
           />
         </FlexBox>
       </EndlessScroll>

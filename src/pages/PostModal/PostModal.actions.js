@@ -1,8 +1,8 @@
 import axios from "axios";
 import { BASE_URL } from "../../axiosConfig";
 
-export const getSinglePost = async (postId) => {
-  const url = BASE_URL + `/getSinglePost?postId=${postId}`;
+export const getSinglePost = async (postId, userId) => {
+  const url = BASE_URL + `/getSinglePost?postId=${postId}&userId=${userId}`;
   try {
     const response = await axios.get(url);
     return response.data.response;

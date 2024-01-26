@@ -69,7 +69,6 @@ const EditProfile = () => {
         reset({ ...defaultValues, userImgURL: imageUrl });
         setIsLoading(false);
       } catch (err) {
-        console.log(err);
         setIsLoading(false);
       }
     };

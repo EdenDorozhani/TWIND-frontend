@@ -36,7 +36,7 @@ const PostModal = () => {
   const [repliesData, setRepliesData] = useState({});
   const replyInputRef = useRef(null);
   const navigate = useNavigate();
-  const { postId } = useParams();
+  const { postId, username } = useParams();
   const { userLoggedInData } = useLoggedInUser();
   const { setFollow, isFollowed } = useContext(Follow);
 
@@ -75,7 +75,7 @@ const PostModal = () => {
 
   const getData = async () => {
     try {
-      const response = await getSinglePost(postId);
+      const response = await getSinglePost(postId, userLoggedInData.userId);
       setSinglePost(response);
     } catch (err) {
       toast.error(err.message);
@@ -83,7 +83,10 @@ const PostModal = () => {
   };
 
   useEffect(() => {
-    comments.getDataPagination(postId);
+    comments.getDataPagination({
+      identifier: postId,
+      userLoggedIn: userLoggedInData.userId,
+    });
     getData();
   }, []);
 
@@ -138,12 +141,18 @@ const PostModal = () => {
 
   const openCommentsLikesModal = (commentId) => {
     setCommentId(commentId);
-    likes.getDataPagination(commentId, "getCommentsLikes");
+    likes.getDataPagination({
+      identifier: commentId,
+      conditionalPath: "getCommentsLikes",
+    });
     openModal();
   };
 
   const openPostLikesModal = () => {
-    likes.getDataPagination(postId, "getPostsLikes");
+    likes.getDataPagination({
+      identifier: postId,
+      conditionalPath: "getPostsLikes",
+    });
     openModal();
   };
 
@@ -193,7 +202,9 @@ const PostModal = () => {
       }));
       return;
     } else if (!commentId) {
-      navigate(`/twind/${userLoggedInData.username}`, { state: { postId } });
+      navigate(`/twind ${username ? `/${username}` : ""}`, {
+        state: { postId },
+      });
     }
   };
 
@@ -300,10 +311,12 @@ const PostModal = () => {
             responseData={likes.responseData}
             isLoading={likes.isLoading}
             shouldInterrupt={() =>
-              likes.getDataPagination(
-                commentId || postId,
-                commentId ? "getCommentsLikes" : "getPostsLikes"
-              )
+              likes.getDataPagination({
+                identifier: commentId || postId,
+                conditionalPath: commentId
+                  ? "getCommentsLikes"
+                  : "getPostsLikes",
+              })
             }
             updateFollowers={updateFollowers}
             userId={userLoggedInData?.userId}

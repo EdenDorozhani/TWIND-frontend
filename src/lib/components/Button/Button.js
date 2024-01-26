@@ -10,7 +10,7 @@ const Button = ({ content, action, color }) => {
   }
 
   return (
-    <button className={classList} onClick={onClickHandler}>
+    <button type="button" className={classList} onClick={onClickHandler}>
       {content}
     </button>
   );

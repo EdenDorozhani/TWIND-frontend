@@ -42,7 +42,7 @@ const Explore = () => {
         page ? 1 : filterFollowersPage
       }&pageSize=${3}&value=${searchBarValue}&identifier=${
         userLoggedInData.username
-      }`;
+      }&userLoggedIn=${userLoggedInData.userId}`;
     try {
       const response = await getMultipleData(url);
       setFilteredFollowersData((prevState) => ({
@@ -60,7 +60,7 @@ const Explore = () => {
   };
 
   useEffect(() => {
-    allPosts.getDataPagination();
+    allPosts.getDataPagination({});
   }, []);
 
   useEffect(() => {
@@ -163,7 +163,7 @@ const Explore = () => {
           )}
         </div>
         <EndlessScroll
-          loadMore={() => allPosts.getDataPagination()}
+          loadMore={() => allPosts.getDataPagination({})}
           dataLength={allPosts.responseData.data.length}
           isLoading={allPosts.isLoading}
           useWindow={false}

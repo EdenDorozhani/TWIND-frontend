@@ -5,11 +5,7 @@ const LOGIN_INPUTS = [
   { name: "password", type: "password" },
 ];
 
-const NEW_PASSWORD_INPUTS = [
-  { name: "email", type: "email" },
-  { name: "newPassword", type: "password" },
-  { name: "confirmPassword", type: "password" },
-];
+const EMAIL_INPUT = [{ name: "email", type: "email" }];
 
 const loginFormValidationSchema = yup.object({
   username: yup
@@ -28,43 +24,16 @@ const loginFormValidationSchema = yup.object({
     ),
 });
 
-const newPasswordValidationSchema = yup.object({
+const emailValidationSchema = yup.object({
   email: yup.string().required().email(),
-  newPassword: yup
-    .string()
-    .required()
-    .matches(
-      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-      "password must be at least 8 characters long and include at least one letter and one number"
-    ),
-  confirmPassword: yup
-    .string()
-    .oneOf(
-      [yup.ref("newPassword"), null],
-      "passwords do not match, please make sure your passwords match"
-    ),
 });
-
-const updateModalContent = (status) => {
-  let obj;
-  switch (status) {
-    case "forgotPassword":
-      return (obj = {
-        title: "New Password",
-        inputList: NEW_PASSWORD_INPUTS,
-        description:
-          "Password must be at least 8 characters long and include at least one letter and one number.",
-      });
-  }
-  return obj;
-};
 
 const determineSchema = (status) => {
   switch (status) {
     case "login":
       return loginFormValidationSchema;
-    case "forgotPassword":
-      return newPasswordValidationSchema;
+    case "configureEmail":
+      return emailValidationSchema;
   }
 };
 
@@ -85,7 +54,7 @@ const determineDataToPost = (status, inputValue, credentialsInputsValue) => {
 
 export const pageHelpers = {
   LOGIN_INPUTS,
-  updateModalContent,
+  EMAIL_INPUT,
   determineSchema,
   determineDataToPost,
 };

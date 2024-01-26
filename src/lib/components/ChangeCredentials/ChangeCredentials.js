@@ -12,6 +12,7 @@ const ChangeCredentials = ({
   register,
   handleSubmit,
   backendErrors,
+  backButtonAction,
 }) => {
   return (
     <form onSubmit={handleSubmit}>
@@ -26,6 +27,7 @@ const ChangeCredentials = ({
           content={credentialsModalContent.description}
           color={"fade"}
         />
+
         <FlatList
           data={credentialsModalContent.inputList}
           renderItem={(input) => (
@@ -40,7 +42,13 @@ const ChangeCredentials = ({
             />
           )}
         />
-        <Button content={"Submit"} />
+        <FlexBox gap={"extra large"}>
+          <Button content={"Back"} color={"gray"} action={backButtonAction} />
+          <Button
+            content={credentialsModalContent.buttonContent}
+            action={handleSubmit}
+          />
+        </FlexBox>
       </FlexBox>
     </form>
   );

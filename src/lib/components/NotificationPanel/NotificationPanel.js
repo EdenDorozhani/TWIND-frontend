@@ -9,6 +9,7 @@ const NotificationPanel = ({
   dateRangeData,
   onNotificationClick,
   onUsernamesClick,
+  userId,
 }) => {
   return (
     <div
@@ -28,7 +29,9 @@ const NotificationPanel = ({
         totalCount={notificationsData.responseData.count}
         dataLength={notificationsData.responseData.data.length}
         isLoading={notificationsData.isLoading}
-        loadMore={() => notificationsData.getDataPagination()}
+        loadMore={() =>
+          notificationsData.getDataPagination({ identifier: userId })
+        }
         useWindow={false}
       >
         <FlexBox direction={"column"}>

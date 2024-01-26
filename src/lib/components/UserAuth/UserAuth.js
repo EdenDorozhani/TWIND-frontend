@@ -12,10 +12,8 @@ const UserAuth = ({
   onNavigateTo,
   onFormSubmit,
   onInputChange,
-  defaultValues,
   buttonContent,
   inputValue,
-  filterOptions,
   flexDirection,
   flexAlign,
   flexJustify,
@@ -46,11 +44,7 @@ const UserAuth = ({
           <SimpleForm
             inputList={inputList}
             onInputChange={onInputChange}
-            defaultValues={defaultValues}
-            textContent={textContent}
-            buttonContent={buttonContent}
             inputValue={inputValue}
-            filterOptions={filterOptions}
             flexDirection={flexDirection}
             flexAlign={flexAlign}
             flexJustify={flexJustify}
@@ -62,11 +56,10 @@ const UserAuth = ({
             backendErrors={backendErrors}
             mandatory={mandatory}
           />
-
           <FlexBox justifyContent="around" alignItems="center" padding="large">
             <TextButton content={textContent} action={onNavigateTo} />
 
-            <Button content={buttonContent} />
+            <Button content={buttonContent} action={onFormSubmit} />
             {buttonContent === "Login" ? (
               <TextButton
                 content={"Forgot password"}

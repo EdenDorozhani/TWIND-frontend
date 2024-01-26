@@ -40,7 +40,7 @@ const useDataPoster = ({ requestHeader, urlPath }) => {
       }
       return response;
     } catch (err) {
-      if (toastErr) {
+      if (toastErr || err.response.data.message) {
         return toast.error(err.response.data.message);
       } else {
         const errors = fromArrayToObject(err.response.data.response);
