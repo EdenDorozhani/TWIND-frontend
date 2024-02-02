@@ -1,32 +1,7 @@
-import * as yup from "yup";
-
-import {
-  faHome,
-  faMagnifyingGlass,
-  faRightFromBracket,
-  faSquarePlus,
-} from "@fortawesome/free-solid-svg-icons";
-
-export const HOME_SIDEBAR_LINKS = (userPhoto) => {
-  return [
-    { content: "Home", icon: faHome, path: "" },
-    { content: "Explore", icon: faMagnifyingGlass, path: "explore" },
-    { content: "Create", icon: faSquarePlus, path: "create" },
-    { content: "Logout", icon: faRightFromBracket, path: "/" },
-    {
-      content: "Profile",
-      src: `http://localhost:3131/${userPhoto}`,
-      path: "twind/username",
-    },
-  ];
-};
-
-export const pageSize = 8;
-
 export const dateRangeFilter = (notifications) => {
   const currentDate = new Date();
 
-  const newData = notifications.responseData.data
+  const newData = notifications.paginationData.data
     .filter((e) => {
       const notificationDate = new Date(e.createdAt);
       const timeDifferenceInSeconds = Math.floor(
@@ -36,7 +11,7 @@ export const dateRangeFilter = (notifications) => {
     })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-  const thisMonthData = notifications.responseData.data
+  const thisMonthData = notifications.paginationData.data
     .filter((e) => {
       const notificationDate = new Date(e.createdAt);
       const timeDifferenceInSeconds = Math.floor(
@@ -48,7 +23,7 @@ export const dateRangeFilter = (notifications) => {
     })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-  const earlierData = notifications.responseData.data
+  const earlierData = notifications.paginationData.data
     .filter((e) => {
       const notificationDate = new Date(e.createdAt);
       const timeDifferenceInSeconds = Math.floor(

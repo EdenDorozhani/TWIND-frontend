@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classes from "./Icon.module.css";
 
-const IconButton = ({ iconName, action, color, size, type }) => {
+const Icon = ({ iconName, action, color, size, type }) => {
   let styleClass = [classes.icon];
 
   switch (size) {
@@ -62,4 +62,4 @@ const IconButton = ({ iconName, action, color, size, type }) => {
   );
 };
 
-export default IconButton;
+export default Icon;

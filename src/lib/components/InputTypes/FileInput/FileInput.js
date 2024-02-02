@@ -34,7 +34,7 @@ const FileInput = ({
   };
 
   return (
-    <FlexBox direction="column" gap="small">
+    <FlexBox direction="column" gap="s">
       {!!backendErrors && <ErrorText content={backendErrors} />}
       <div className={classes.inputFileContainer}>
         <label className={classes.costumFileInput}>

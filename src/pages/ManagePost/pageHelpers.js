@@ -7,7 +7,7 @@ export const MANAGE_POST_INPUTS = [
 ];
 
 export const managePostValidationSchema = yup.object({
-  postImage: yup.mixed().test("fileSize", "The file is too large", (value) => {
+  postImage: yup.mixed().test("file", "There is no file added", (value) => {
     if (value.length === 0) return false;
     return true;
   }),

@@ -58,8 +58,8 @@ const ChangePassword = () => {
         <FlexBox
           direction={"column"}
           alignItems={"center"}
-          gap={"large"}
-          padding={"extra large"}
+          gap={"l"}
+          padding={"xl"}
           style={{
             border: "1px solid white",
             margin: "0px 300px",
@@ -88,16 +88,13 @@ const ChangePassword = () => {
             flexDirection={"column"}
             flexAlign={"center"}
             flexJustify={"center"}
-            padding={"large"}
+            padding={"l"}
             errors={errors}
             register={register}
             control={control}
             backendErrors={backendErrors}
           />
-          <Button
-            content={"Change Password"}
-            action={handleSubmit(onFormSubmit)}
-          />
+          <Button content={"Change Password"} type={"submit"} />
         </FlexBox>
       </form>
     </div>

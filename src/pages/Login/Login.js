@@ -10,21 +10,17 @@ import ChangeCredentials from "../../lib/components/ChangeCredentials";
 import useModal from "../../hooks/useModal";
 
 const Authentication = () => {
-  const [inputValue, setInputValue] = useState({});
-  const [credentialsInputsValue, setCredentialsInputsValue] = useState({});
-  const [status, setStatus] = useState("login");
-  const { isVisible, openModal, closeModal } = useModal({});
+  const [loginInputsValue, setLoginInputsValue] = useState({});
+  const [resetPasswordInputValue, setResetPasswordInputValue] = useState({});
+  const [pageStatus, setPageStatus] = useState("login");
+
   const navigate = useNavigate();
 
-  const determineData = pageHelpers.determineDataToPost(
-    status,
-    inputValue,
-    credentialsInputsValue
-  );
+  const { isVisible, openModal, closeModal } = useModal({});
 
-  const { submit, setBackendErrors, backendErrors } = useDataPoster({
+  const { submit, isLoading } = useDataPoster({
     requestHeader: "json",
-    urlPath: status,
+    urlPath: pageStatus,
   });
 
   const {
@@ -34,25 +30,26 @@ const Authentication = () => {
     control,
     reset,
   } = useForm({
-    resolver: yupResolver(pageHelpers.determineSchema(status)),
+    resolver: yupResolver(pageHelpers.determineSchema(pageStatus)),
   });
 
+  //Dont let the user come to the login page if it's already logged in
   useEffect(() => {
     if (localStorage.getItem("session")) {
       navigate("twind");
     }
   }, []);
 
-  const onInputChange = (name, value) => {
-    setInputValue({ ...inputValue, [name]: value });
+  const onLoginInputsChange = (name, value) => {
+    setLoginInputsValue({ ...loginInputsValue, [name]: value });
   };
 
   const onFormSubmit = async () => {
     const response = await submit({
-      dataToSend: determineData.values,
-      ...determineData,
+      dataToSend: loginInputsValue,
+      navigateTo: "/twind",
     });
-    if (!response.data) return;
+    if (!response) return;
     localStorage.setItem("session", response.data.response.token);
   };
 
@@ -60,83 +57,61 @@ const Authentication = () => {
     navigate("/signup");
   };
 
+  //Reset states when you close the reset password modal
   const resetData = () => {
-    setCredentialsInputsValue({});
+    setResetPasswordInputValue({});
     reset();
-    setBackendErrors({});
-    setStatus("login");
+    setPageStatus("login");
     closeModal();
   };
 
   const onForgetPasswordClick = (status) => {
-    setStatus(status);
+    setPageStatus(status);
+    setLoginInputsValue({});
+    reset();
     openModal();
   };
 
-  const onCloseForgetPasswordClick = () => {
+  const onCloseModal = () => {
     resetData();
   };
 
-  const onCredentialsInputChange = (name, value) => {
-    setCredentialsInputsValue({ ...credentialsInputsValue, [name]: value });
-    if (errors) setBackendErrors({});
+  const onResetPasswordInputChange = (name, value) => {
+    setResetPasswordInputValue({ ...resetPasswordInputValue, [name]: value });
   };
 
-  const onConfigureEmail = async () => {
-    const response = await submit({
-      dataToSend: determineData.values,
+  const onResetPassword = async () => {
+    await submit({
+      dataToSend: resetPasswordInputValue,
     });
-    if (!response) return;
     resetData();
-  };
-
-  // const onChangePassword = async () => {
-  //   const response = await submit({
-  //     dataToSend: determineData.values,
-  //   });
-  //   if (!response) return;
-  //   resetData();
-  //   closeModal();
-  //   setStatus("login");
-  // };
-
-  const modalContent = {
-    title: "Enter your email",
-    inputList: pageHelpers.EMAIL_INPUT,
-    buttonContent: "Get reset password link",
   };
 
   return (
     <>
-      <Modal isVisible={isVisible} onClose={onCloseForgetPasswordClick}>
+      <Modal isVisible={isVisible} onClose={onCloseModal}>
         <ChangeCredentials
-          credentialsModalContent={modalContent}
-          handleSubmit={handleSubmit(onConfigureEmail)}
-          inputValue={credentialsInputsValue}
-          onInputChange={onCredentialsInputChange}
+          credentialsModalContent={pageHelpers.modalContent}
+          handleSubmit={handleSubmit(onResetPassword)}
+          inputValue={resetPasswordInputValue}
+          onInputChange={onResetPasswordInputChange}
           errors={errors}
           register={register}
-          backendErrors={backendErrors}
-          backButtonAction={onCloseForgetPasswordClick}
+          backButtonAction={onCloseModal}
         />
       </Modal>
       <UserAuth
-        buttonContent="Login"
-        textContent="create account"
-        mainTextContent="Login"
-        inputList={pageHelpers.LOGIN_INPUTS}
-        onInputChange={onInputChange}
-        onFormSubmit={handleSubmit(onFormSubmit)}
-        inputValue={inputValue}
-        flexDirection="column"
-        flexAlign="center"
-        flexJustify="around"
-        padding="extra large"
+        userAuthUIContent={pageHelpers.userAuthUIContent}
         onNavigateTo={onNavigateTo}
         register={register}
+        onInputChange={onLoginInputsChange}
+        onFormSubmit={handleSubmit(onFormSubmit)}
+        inputList={pageHelpers.LOGIN_INPUTS}
+        inputValue={loginInputsValue}
         control={control}
         errors={errors}
-        onForgetPasswordClick={() => onForgetPasswordClick("configureEmail")}
+        onForgetPasswordClick={() => onForgetPasswordClick("resetPassword")}
+        isLoadingButton={isLoading}
       />
     </>
   );

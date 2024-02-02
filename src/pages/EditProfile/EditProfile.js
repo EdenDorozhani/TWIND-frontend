@@ -11,7 +11,6 @@ import SimpleText from "../../lib/components/SimpleText";
 import Icon from "../../lib/components/Icon";
 import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
 import useModal from "../../hooks/useModal";
-import { getUserData } from "../../roots/RootSidebar/rootsHelpers";
 import useLoggedInUser from "../../context/useLoggedInUser";
 import ImageInput from "../../lib/components/InputTypes/ImageInput";
 import { formatImgUrl } from "../../lib/helpers";
@@ -20,28 +19,34 @@ import ChangeCredentials from "../../lib/components/ChangeCredentials";
 import useDataPoster from "../../hooks/useDataPoster/useDataPoster";
 import DangerPopUp from "../../lib/components/DangerPopUp";
 import useDataDeleter from "../../hooks/useDataDeleter";
+import { sidebarHelpers } from "../../routerRoots/RootSidebar/RootSidebarHelpers";
 
 const EditProfile = () => {
   const [inputValue, setInputValue] = useState({});
   const [credentialsInputsValue, setCredentialsInputsValue] = useState({});
   const [isPopUpVisible, setIsPopUpVisible] = useState(false);
-  const [modalStatus, setModalStatus] = useState("editProfile");
+  const [pageStatus, setPageStatus] = useState("editProfile");
   const [isLoading, setIsLoading] = useState(false);
   const { userLoggedInData, storeData } = useLoggedInUser();
   const { isVisible, openModal, closeModal } = useModal({});
   const navigate = useNavigate();
 
   const determineData = pageHelpers.determineDataToPost(
-    modalStatus,
+    pageStatus,
     inputValue,
     credentialsInputsValue
   );
 
   const { onDelete } = useDataDeleter({ path: "deleteAccount" });
 
+  const urlPath =
+    pageStatus === "editProfile"
+      ? `editProfile?identifier=${userLoggedInData.userId}`
+      : pageStatus;
+
   const { backendErrors, submit, setBackendErrors } = useDataPoster({
     requestHeader: determineData.headers,
-    urlPath: modalStatus,
+    urlPath,
   });
 
   const {
@@ -51,14 +56,14 @@ const EditProfile = () => {
     control,
     reset,
   } = useForm({
-    resolver: yupResolver(pageHelpers.determineSchema(modalStatus)),
+    resolver: yupResolver(pageHelpers.determineSchema(pageStatus)),
   });
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await getUserData();
+        const response = await sidebarHelpers.getUserData();
         const keys = pageHelpers.EDIT_PROFILE_INPUTS.map((input) => input.name);
         const defaultValues = keys.reduce(
           (acc, key) => ({ ...acc, [key]: response[key] }),
@@ -79,7 +84,7 @@ const EditProfile = () => {
     setCredentialsInputsValue({});
     reset();
     setBackendErrors({});
-    setModalStatus("editProfile");
+    setPageStatus("editProfile");
     closeModal();
     setIsPopUpVisible(false);
   };
@@ -91,10 +96,7 @@ const EditProfile = () => {
 
   const onEditProfile = async () => {
     const dataToStore = await submit({
-      dataToSend: {
-        ...determineData.values,
-        userId: userLoggedInData.userId,
-      },
+      dataToSend: determineData.values,
     });
     if (!dataToStore) return;
     storeData(dataToStore.data.response);
@@ -122,7 +124,7 @@ const EditProfile = () => {
   };
 
   const onOpenCredentialsModal = (type) => {
-    setModalStatus(type);
+    setPageStatus(type);
     reset();
     openModal();
   };
@@ -131,7 +133,7 @@ const EditProfile = () => {
     resetData();
   };
 
-  const credentialsModalContent = pageHelpers.updateModalContent(modalStatus);
+  const credentialsModalContent = pageHelpers.updateModalContent(pageStatus);
 
   const confirmDeleteAction = () => {
     localStorage.removeItem("session");
@@ -148,7 +150,7 @@ const EditProfile = () => {
   return (
     <>
       <Modal isVisible={isVisible} onClose={onCloseCredentialsModal}>
-        {modalStatus === "deleteProfile" ? (
+        {pageStatus === "deleteProfile" ? (
           <DangerPopUp
             isPopUpVisible={isPopUpVisible}
             cancel={onCloseCredentialsModal}
@@ -164,17 +166,17 @@ const EditProfile = () => {
             errors={errors}
             register={register}
             backendErrors={backendErrors}
+            backButtonAction={onCloseCredentialsModal}
           />
         )}
       </Modal>
       <div
         style={{
-          height: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "50px",
-          paddingTop: "25px",
+          gap: "30px",
+          padding: "15px 0px",
         }}
       >
         <SimpleText color={"fade"} content={"Edit profile"} size={"l"} />
@@ -185,6 +187,7 @@ const EditProfile = () => {
             register={register}
             inputValue={inputValue["userImgURL"]}
             isLoading={isLoading}
+            backendErrors={backendErrors["userImgURL"]}
           />
           <SimpleForm
             inputList={pageHelpers.EDIT_PROFILE_INPUTS}
@@ -200,16 +203,16 @@ const EditProfile = () => {
             mandatory={true}
           />
         </form>
-        <FlexBox direction={"column"} gap={"medium"}>
+        <FlexBox direction={"column"} gap={"m"}>
           <div
             style={{
               border: "1px solid green",
               width: "320px",
               borderRadius: "15px",
             }}
-            onClick={() => onOpenCredentialsModal("changePassword")}
+            onClick={() => onOpenCredentialsModal("changePasswordFromProfile")}
           >
-            <FlexBox justifyContent={"between"} padding={"medium"}>
+            <FlexBox justifyContent={"between"} padding={"m"}>
               <SimpleText content={"Change Password"} />
               <Icon iconName={faRightToBracket} />
             </FlexBox>
@@ -222,7 +225,7 @@ const EditProfile = () => {
             }}
             onClick={() => onOpenCredentialsModal("changeEmail")}
           >
-            <FlexBox justifyContent={"between"} padding={"medium"}>
+            <FlexBox justifyContent={"between"} padding={"m"}>
               <SimpleText content={"Change E-mail"} />
               <Icon iconName={faRightToBracket} />
             </FlexBox>
@@ -235,13 +238,13 @@ const EditProfile = () => {
             }}
             onClick={() => onOpenCredentialsModal("deleteProfile")}
           >
-            <FlexBox justifyContent={"between"} padding={"medium"}>
+            <FlexBox justifyContent={"between"} padding={"m"}>
               <SimpleText content={"Delete Account"} color={"danger"} />
               <Icon iconName={faRightToBracket} color={"danger"} />
             </FlexBox>
           </div>
         </FlexBox>
-        <FlexBox gap={"extra large"}>
+        <FlexBox gap={"xl"}>
           <Button content={"Back"} action={onPreviousPage} />
           <Button content={"Submit"} action={handleSubmit(onEditProfile)} />
         </FlexBox>

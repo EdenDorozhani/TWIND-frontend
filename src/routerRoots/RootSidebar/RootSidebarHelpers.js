@@ -1,8 +1,13 @@
-import { HOME_SIDEBAR_LINKS } from "../../pages/Home/pageHelpers";
+import {
+  faHome,
+  faMagnifyingGlass,
+  faRightFromBracket,
+  faSquarePlus,
+} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { BASE_URL } from "../../axiosConfig";
 
-export const getUserData = async () => {
+const getUserData = async () => {
   const url = BASE_URL + "/getUserLoggedInData";
   try {
     const response = await axios.get(url);
@@ -12,7 +17,21 @@ export const getUserData = async () => {
   }
 };
 
-export const onNavigateToLinks = (navigate, userLoggedIn, userPhoto) => {
+const HOME_SIDEBAR_LINKS = (userPhoto) => {
+  return [
+    { content: "Home", icon: faHome, path: "" },
+    { content: "Explore", icon: faMagnifyingGlass, path: "explore" },
+    { content: "Create", icon: faSquarePlus, path: "create" },
+    { content: "Logout", icon: faRightFromBracket, path: "/" },
+    {
+      content: "Profile",
+      src: `http://localhost:3131/${userPhoto}`,
+      path: "twind/username",
+    },
+  ];
+};
+
+const onNavigateToLinks = (navigate, userLoggedIn, userPhoto) => {
   return HOME_SIDEBAR_LINKS(userPhoto).reduce((acc, link) => {
     let action;
 
@@ -50,4 +69,10 @@ export const onNavigateToLinks = (navigate, userLoggedIn, userPhoto) => {
     }
     return { ...acc, [link.path]: action };
   }, {});
+};
+
+export const sidebarHelpers = {
+  getUserData,
+  onNavigateToLinks,
+  HOME_SIDEBAR_LINKS,
 };

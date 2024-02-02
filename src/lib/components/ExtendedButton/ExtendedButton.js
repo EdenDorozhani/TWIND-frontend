@@ -13,7 +13,6 @@ const ExtendedButton = ({
   iconColor,
   textSize,
   gap,
-  justifyContent,
   iconSize,
   src,
   action,

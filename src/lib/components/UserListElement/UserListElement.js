@@ -5,8 +5,16 @@ import TextButton from "../TextButton";
 import SimpleText from "../SimpleText";
 import Button from "../Button";
 import { formatImgUrl } from "../../helpers";
+import { motion } from "framer-motion";
 
-const User = ({ data, onUserClick, userId, updateFollowers, type }) => {
+const UserListElement = ({
+  data,
+  onUserClick,
+  userId,
+  updateFollowers,
+  type,
+  updateFollowingCount,
+}) => {
   const [isFollow, setIsFollow] = useState(data.followedByUser || "0");
 
   let identifier;
@@ -22,19 +30,15 @@ const User = ({ data, onUserClick, userId, updateFollowers, type }) => {
     } else {
       setIsFollow("0");
     }
+    !!updateFollowingCount && updateFollowingCount(isFollow);
     updateFollowers(isFollow, identifier);
   };
 
   const condition = identifier !== userId;
 
   return (
-    <FlexBox
-      key={data.likeId}
-      alignItems={"center"}
-      gap={"large"}
-      justifyContent={"between"}
-    >
-      <FlexBox gap={"medium"} alignItems={"center"}>
+    <FlexBox alignItems={"center"} gap={"l"} justifyContent={"between"}>
+      <FlexBox gap={"m"} alignItems={"center"}>
         <Avatar
           size={"m"}
           src={formatImgUrl(data.userImgURL)}
@@ -60,4 +64,4 @@ const User = ({ data, onUserClick, userId, updateFollowers, type }) => {
   );
 };
 
-export default User;
+export default UserListElement;

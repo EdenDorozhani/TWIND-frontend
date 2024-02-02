@@ -9,7 +9,7 @@ import {
 } from "./pageHelpers";
 import { getSinglePost } from "./PostModal.actions";
 import SinglePost from "../../lib/components/SinglePost";
-import useMultipleData from "../../hooks/useMultipleData";
+import usePaginationData from "../../hooks/usePaginationData";
 import useLikeAction from "../../hooks/useLikeAction";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,10 +22,11 @@ import PostActions from "../../lib/components/PostActions";
 import useDataPoster from "../../hooks/useDataPoster/useDataPoster";
 import useDataDeleter from "../../hooks/useDataDeleter";
 import { BASE_URL } from "../../axiosConfig";
-import { getMultipleData } from "../../hooks/useMultipleData/useMultipleData.action";
+import { getPaginationData } from "../../hooks/usePaginationData/usePaginationData.action";
 import { postFollowers } from "../Home/Home.actions";
 import { Follow } from "../../context/FollowProvider";
 import { postLikes } from "../../hooks/useLikeAction/useLikeAction.action";
+import { motion } from "framer-motion";
 
 const PostModal = () => {
   const [singlePost, setSinglePost] = useState({});
@@ -34,9 +35,12 @@ const PostModal = () => {
   const [commentId, setCommentId] = useState();
   const [replyId, setReplyId] = useState();
   const [repliesData, setRepliesData] = useState({});
+  const [isSinglePostLoading, setIsSinglePostLoading] = useState(false);
+
   const replyInputRef = useRef(null);
   const navigate = useNavigate();
   const { postId, username } = useParams();
+
   const { userLoggedInData } = useLoggedInUser();
   const { setFollow, isFollowed } = useContext(Follow);
 
@@ -47,19 +51,16 @@ const PostModal = () => {
   } = useForm({ resolver: yupResolver(addCommentValidationSchema) });
 
   const { closeModal, isVisible, openModal } = useModal();
-
   const { backendErrors, submit, setBackendErrors } = useDataPoster({
     urlPath: "postComment",
     requestHeader: "json",
   });
-
-  const { multipleData: comments } = useMultipleData({
-    pageSize: 8,
+  const { costumeData: comments } = usePaginationData({
+    pageSize: 2,
     path: "getComments",
   });
-
-  const { multipleData: likes } = useMultipleData({
-    pageSize: 8,
+  const { costumeData: likes } = usePaginationData({
+    pageSize: 3,
   });
 
   const { onDelete } = useDataDeleter({
@@ -73,22 +74,26 @@ const PostModal = () => {
     userId: userLoggedInData.userId,
   });
 
-  const getData = async () => {
+  const getSinglePostData = async () => {
+    setIsSinglePostLoading(true);
     try {
       const response = await getSinglePost(postId, userLoggedInData.userId);
       setSinglePost(response);
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setIsSinglePostLoading(false);
     }
   };
 
   useEffect(() => {
+    if (!userLoggedInData.userId) return;
     comments.getDataPagination({
       identifier: postId,
       userLoggedIn: userLoggedInData.userId,
     });
-    getData();
-  }, []);
+    getSinglePostData();
+  }, [userLoggedInData.userId]);
 
   useEffect(() => {
     setFollow(singlePost.followedByUser);
@@ -113,13 +118,13 @@ const PostModal = () => {
     });
     if (!response) return;
     if (replyId) {
-      setTotalReplies(comments.setResponseData, replyId, "increase");
+      setTotalReplies(comments.setPaginationData, replyId, "increase");
       setRepliesData((prevState) => ({
         ...prevState,
         [replyId]: [response.data.response, ...(prevState[replyId] || [])],
       }));
     } else {
-      comments.setResponseData((prevState) => ({
+      comments.setPaginationData((prevState) => ({
         ...prevState,
         data: [response.data.response, ...prevState.data],
         count: prevState.count + 1,
@@ -156,7 +161,7 @@ const PostModal = () => {
     openModal();
   };
 
-  const closeCommentsLikesModal = () => {
+  const closeLikesAndActionModal = () => {
     setCommentId();
     setReplyId();
     likes.resetState();
@@ -164,7 +169,7 @@ const PostModal = () => {
     closeModal();
   };
 
-  const onDotsIconClick = (commentId, replyId) => {
+  const onOpenActionsModal = (commentId, replyId) => {
     setCommentId(commentId);
     setReplyId(replyId);
     openModal();
@@ -178,10 +183,11 @@ const PostModal = () => {
     setIsPopUpVisible(true);
   };
 
-  const confirmDeletePost = async () => {
+  const confirmDelete = async () => {
+    console.log(replyId, commentId, postId);
     const response = onDelete({
       identifier: replyId || commentId || postId,
-      action: closeCommentsLikesModal,
+      action: closeLikesAndActionModal,
     });
     if (!response) return;
     if (replyId) {
@@ -191,18 +197,15 @@ const PostModal = () => {
         );
         return { ...prevState, [commentId]: state };
       });
-      setTotalReplies(comments.setResponseData, commentId, "decrease");
+      setTotalReplies(comments.setPaginationData, commentId, "decrease");
     } else if (!replyId && !!commentId) {
-      comments.setResponseData((prevState) => ({
-        ...prevState,
-        data: prevState.data.filter(
-          (comment) => comment.commentId !== commentId
-        ),
-        count: prevState.count - 1,
-      }));
-      return;
+      return comments.onDeleteFrontEnd({
+        identifier: commentId,
+        key: "commentId",
+      });
     } else if (!commentId) {
-      navigate(`/twind ${username ? `/${username}` : ""}`, {
+      console.log(username);
+      navigate(`/twind${username ? `/${username}` : ""}`, {
         state: { postId },
       });
     }
@@ -216,13 +219,13 @@ const PostModal = () => {
       BASE_URL +
       `/getReplies?page=${page}&pageSize=${pageSize}&identifier=${id}`;
     try {
-      const response = await getMultipleData(url);
+      const response = await getPaginationData(url);
       setRepliesData((prevState) => ({
         ...prevState,
         [id]: [...(prevState[id] || []), ...response.data.response.data],
       }));
     } catch (err) {
-      console.log(err);
+      toast.error(err.response.data.message);
     }
   };
 
@@ -264,66 +267,83 @@ const PostModal = () => {
 
   return (
     <>
-      <ModalOverlay action={onCloseModal}>
-        <div style={{ backgroundColor: "white" }}>
-          <SinglePost
-            onInputChange={onInputChange}
-            onSendComment={handleSubmit(onSendComment)}
-            register={register}
-            handleReplyClick={handleReplyClick}
-            shouldInterrupt={() => comments.getPaginationCommentsData(postId)}
-            openCommentsLikesModal={openCommentsLikesModal}
-            openPostLikesModal={openPostLikesModal}
-            toggleLike={toggleLike}
-            onReply={onReply}
-            onDotsIconClick={onDotsIconClick}
-            onShowReplies={onShowReplies}
-            onUserClickAction={onUserClickAction}
-            updateLikes={updateLikes}
-            toggleFollow={toggleFollow}
-            singlePostData={singlePost}
-            errors={errors}
-            inputValue={inputValue["comment"]}
-            isLiked={isLiked}
-            likeCount={likeCount}
-            comments={comments.responseData}
-            replyInputRef={replyInputRef}
-            userId={userLoggedInData.userId}
-            backendErrors={backendErrors}
-            repliesData={repliesData}
-            isLoadingComments={comments.isLoading}
-            isFollow={isFollowed}
-          />
-        </div>
-      </ModalOverlay>
-      <Modal isVisible={isVisible} onClose={closeCommentsLikesModal}>
-        {!likes.responseData.module ? (
-          <PostActions
-            deleteAction={onDeletePost}
-            editAction={onNavigateToEditPage}
-            isPopUpVisible={isPopUpVisible}
-            cancelDelete={closeCommentsLikesModal}
-            confirmDelete={confirmDeletePost}
-            type={commentId ? "comment" : "post"}
-          />
-        ) : (
-          <UsersList
-            responseData={likes.responseData}
-            isLoading={likes.isLoading}
-            shouldInterrupt={() =>
-              likes.getDataPagination({
-                identifier: commentId || postId,
-                conditionalPath: commentId
-                  ? "getCommentsLikes"
-                  : "getPostsLikes",
-              })
-            }
-            updateFollowers={updateFollowers}
-            userId={userLoggedInData?.userId}
-            onUserClick={onUserClickAction}
-          />
-        )}
-      </Modal>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.1 }}
+      >
+        <ModalOverlay action={onCloseModal} isVisible={isVisible}>
+          {!isSinglePostLoading ? (
+            <div style={{ backgroundColor: "white" }}>
+              <SinglePost
+                onInputChange={onInputChange}
+                onSendComment={handleSubmit(onSendComment)}
+                register={register}
+                handleReplyClick={handleReplyClick}
+                shouldInterrupt={() =>
+                  comments.getDataPagination({
+                    identifier: postId,
+                    userLoggedIn: userLoggedInData.userId,
+                  })
+                }
+                openCommentsLikesModal={openCommentsLikesModal}
+                openPostLikesModal={openPostLikesModal}
+                toggleLike={toggleLike}
+                onReply={onReply}
+                onOpenActionsModal={onOpenActionsModal}
+                onShowReplies={onShowReplies}
+                onUserClickAction={onUserClickAction}
+                updateLikes={updateLikes}
+                toggleFollow={toggleFollow}
+                singlePostData={singlePost}
+                errors={errors}
+                inputValue={inputValue["comment"]}
+                isLiked={isLiked}
+                likeCount={likeCount}
+                comments={comments.paginationData}
+                replyInputRef={replyInputRef}
+                userId={userLoggedInData.userId}
+                backendErrors={backendErrors}
+                repliesData={repliesData}
+                isLoadingComments={comments.isLoading}
+                isFollow={isFollowed}
+              />
+            </div>
+          ) : null}
+        </ModalOverlay>
+      </motion.div>
+      {!likes.isLoading ? (
+        <Modal isVisible={isVisible} onClose={closeLikesAndActionModal}>
+          {!likes.paginationData.module ? (
+            <PostActions
+              deleteAction={onDeletePost}
+              editAction={onNavigateToEditPage}
+              isPopUpVisible={isPopUpVisible}
+              cancelDelete={closeLikesAndActionModal}
+              confirmDelete={confirmDelete}
+              type={commentId ? "comment" : "post"}
+            />
+          ) : (
+            <UsersList
+              paginationData={likes}
+              isLoading={likes.isLoading}
+              shouldInterruptScroll={() =>
+                likes.getDataPagination({
+                  identifier: commentId || postId,
+                  conditionalPath: commentId
+                    ? "getCommentsLikes"
+                    : "getPostsLikes",
+                })
+              }
+              updateFollowers={updateFollowers}
+              userId={userLoggedInData?.userId}
+              onUserClick={onUserClickAction}
+              configurationData={likes}
+            />
+          )}
+        </Modal>
+      ) : null}
     </>
   );
 };

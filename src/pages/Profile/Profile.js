@@ -7,13 +7,13 @@ import SimpleText from "../../lib/components/SimpleText";
 import TextButton from "../../lib/components/TextButton";
 import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import useMultipleData from "../../hooks/useMultipleData";
-import FlatList from "../../lib/components/util/FlatList";
+import usePaginationData from "../../hooks/usePaginationData";
+import FlatList from "../../lib/components/FlatList";
 import { formatImgUrl } from "../../lib/helpers";
 import PostsGrid from "../../lib/components/PostsGrid";
 import { getProfileData } from "./Profile.actions";
 import useLoggedInUser from "../../context/useLoggedInUser";
-import EndlessScroll from "../../lib/components/EndlessScroll";
+import ScrollPagination from "../../lib/components/ScrollPagination";
 import { postFollowers } from "../Home/Home.actions";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,20 +21,11 @@ import { Follow } from "../../context/FollowProvider";
 import Modal from "../../lib/components/Modal";
 import UsersList from "../../lib/components/UsersList";
 import useModal from "../../hooks/useModal";
-import { BASE_URL } from "../../axiosConfig";
-import { getMultipleData } from "../../hooks/useMultipleData/useMultipleData.action";
-import { determineResponseData } from "./pageHelpers";
+import { determineFollowersPaginationData } from "./pageHelpers";
+import useFilteredPaginationData from "../../hooks/useFilteredPaginationData/useFilteredPaginationData";
 
 const Profile = () => {
   const [profileUserData, setProfileUserData] = useState({});
-  const [searchBarValue, setSearchBarValue] = useState("");
-  const [filterFollowersPage, setFilterFollowersPage] = useState(1);
-  const [isLoadingFiltered, setIsLoadingFiltered] = useState(false);
-  const [filteredFollowersData, setFilteredFollowersData] = useState({
-    data: [],
-    module: "",
-    count: "",
-  });
 
   const { username } = useParams();
   const navigate = useNavigate();
@@ -44,12 +35,18 @@ const Profile = () => {
   const { userLoggedInData } = useLoggedInUser();
 
   const { isVisible, closeModal, openModal } = useModal();
-  const { multipleData: profilePosts } = useMultipleData({
-    pageSize: 8,
+
+  const { costumeData: profilePosts } = usePaginationData({
+    pageSize: 1,
     path: "getProfilePostsData",
   });
-  const { multipleData: followers } = useMultipleData({
-    pageSize: 3,
+  const { costumeData: followers } = usePaginationData({
+    pageSize: 1,
+    path: "getFollowers",
+  });
+  const { filteredPaginationData } = useFilteredPaginationData({
+    identifier: profileUserData.userId,
+    pageSize: 1,
     path: "getFollowers",
   });
 
@@ -62,64 +59,19 @@ const Profile = () => {
     }
   };
 
-  const scrollCondition = searchBarValue.length !== 0;
-
-  const fetchFilteredFollowers = async (page) => {
-    if (!scrollCondition) return;
-    const correctPage = page ? 1 : filterFollowersPage;
-    setIsLoadingFiltered(true);
-    const url =
-      BASE_URL +
-      `/getFollowers?page=${correctPage}&pageSize=${3}&identifier=${
-        profileUserData.userId
-      }&value=${searchBarValue}`;
-    try {
-      const response = await getMultipleData(url);
-      setFilteredFollowersData((prevState) => {
-        return {
-          ...prevState,
-          data: page
-            ? response.data.response.data
-            : [...prevState.data, ...response.data.response.data],
-          module: response.data.response.module,
-          count: response.data.response.count,
-        };
-      });
-      setFilterFollowersPage((prevPage) => prevPage + 1);
-      setIsLoadingFiltered(false);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   useEffect(() => {
     if (state === null) return;
-    profilePosts.setResponseData((prevState) => ({
-      ...prevState,
-      data: prevState.data.filter((post) => +state.postId !== post.postId),
-    }));
+    profilePosts.onDeleteFrontEnd({ identifier: +state.postId, key: "postId" });
   }, [state]);
 
   useEffect(() => {
     fetchProfileUserData();
-    const fetch = async () => {
-      const response = await profilePosts.getDataPagination({
-        identifier: username,
-        initialPage: 1,
-      });
-      profilePosts.setResponseData((prevState) => ({
-        ...prevState,
-        data: response,
-      }));
-    };
-    fetch();
+    profilePosts.resetState();
+    profilePosts.getDataPagination({
+      identifier: username,
+      initialLastElementId: true,
+    });
   }, [username]);
-
-  useEffect(() => {
-    if (!followers.responseData.module) return;
-    setFilterFollowersPage(1);
-    fetchFilteredFollowers(1);
-  }, [searchBarValue]);
 
   useEffect(() => {
     setFollow(profileUserData.followedByUser);
@@ -129,7 +81,7 @@ const Profile = () => {
     navigate(`p/${postId}`);
   };
 
-  const onEditNavigation = () => {
+  const onEditProfileNavigation = () => {
     navigate("/twind/edit-profile");
   };
 
@@ -150,55 +102,61 @@ const Profile = () => {
     updateFollowers(isFollowed, profileUserData.userId);
   };
 
-  console.log(profileUserData);
-
   const openFollowersModal = async () => {
-    followers.getDataPagination({ identifier: profileUserData.userId });
+    followers.getDataPagination({
+      identifier: profileUserData.userId,
+      withPages: true,
+    });
     openModal();
   };
 
   const closeFollowersModal = () => {
     followers.resetState();
-    setFilterFollowersPage(1);
-    setFilteredFollowersData({ data: [], module: "" });
-    setSearchBarValue("");
+    filteredPaginationData.resetState();
     closeModal();
   };
 
   const onSearchBarChange = (value) => {
-    setSearchBarValue(value);
+    filteredPaginationData.getSearchBarValue(value);
   };
 
-  const onUserClick = (username) => {
+  const onUserProfileNavigation = (username) => {
     navigate(`/twind/${username}`);
     closeFollowersModal();
   };
 
-  const determineResData = determineResponseData({
-    fetchFilteredFollowers,
-    filteredFollowersData,
+  const updateFollowingCount = (actionType) => {
+    setProfileUserData((prevState) => ({
+      ...prevState,
+      followersCount:
+        actionType == 1
+          ? prevState.followersCount - 1
+          : prevState.followersCount + 1,
+    }));
+  };
+
+  const determineFollowersData = determineFollowersPaginationData({
+    filteredPaginationData,
     followers,
-    isLoadingFiltered,
     profileUserData,
-    scrollCondition,
   });
 
   return (
     <>
       <Modal isVisible={isVisible} onClose={closeFollowersModal}>
         <UsersList
-          shouldInterrupt={determineResData.shouldInterrupt}
-          isLoading={determineResData.isLoading}
-          responseData={determineResData.responseData}
+          configurationData={determineFollowersData}
+          shouldInterruptScroll={determineFollowersData.shouldInterrupt}
           updateFollowers={updateFollowers}
           userId={userLoggedInData.userId}
           onSearchBarChange={onSearchBarChange}
-          inputValue={searchBarValue}
-          onUserClick={onUserClick}
+          inputValue={filteredPaginationData.searchBarValue}
+          onUserClick={onUserProfileNavigation}
           type="Followers"
+          updateFollowingCount={updateFollowingCount}
         />
       </Modal>
-      <div style={{ paddingLeft: "460px" }}>
+      <div style={{ marginLeft: "370px" }}>
         <div
           style={{
             display: "flex",
@@ -207,17 +165,13 @@ const Profile = () => {
             gap: "80px",
           }}
         >
-          <FlexBox gap={"extra large"}>
+          <FlexBox gap={"xl"}>
             <Avatar
               size={"xl"}
               src={formatImgUrl(profileUserData.userImgURL)}
             />
-            <FlexBox
-              direction={"column"}
-              justifyContent={"center"}
-              gap={"large"}
-            >
-              <FlexBox gap={"medium"}>
+            <FlexBox direction={"column"} justifyContent={"center"} gap={"l"}>
+              <FlexBox gap={"m"}>
                 <SimpleText
                   content={profileUserData.username}
                   color={"black"}
@@ -225,7 +179,10 @@ const Profile = () => {
                   fontWeight={"bold"}
                 />
                 {userLoggedInData.username === username ? (
-                  <Button content={"Edit profile"} action={onEditNavigation} />
+                  <Button
+                    content={"Edit profile"}
+                    action={onEditProfileNavigation}
+                  />
                 ) : (
                   <Button
                     content={isFollowed === "0" ? "Follow" : "Following"}
@@ -234,9 +191,13 @@ const Profile = () => {
                   />
                 )}
               </FlexBox>
-              <FlexBox gap={"large"} alignItems={"center"}>
+              <FlexBox gap={"l"} alignItems={"center"}>
                 <SimpleText
-                  content={`${profilePosts.responseData.count} posts`}
+                  content={`${
+                    !profilePosts.paginationData.count
+                      ? 0
+                      : profilePosts.paginationData.count
+                  } posts`}
                   size={"m"}
                 />
                 <TextButton
@@ -245,7 +206,7 @@ const Profile = () => {
                   action={openFollowersModal}
                 />
               </FlexBox>
-              <FlexBox gap={"small"}>
+              <FlexBox gap={"s"}>
                 <SimpleText content={profileUserData.country} color={"black"} />
               </FlexBox>
 
@@ -254,29 +215,38 @@ const Profile = () => {
               </div>
             </FlexBox>
           </FlexBox>
-          <FlexBox direction={"column"} alignItems={"center"} gap={"medium"}>
-            {profilePosts.responseData.data.length === 0 ? (
-              <SimpleText content={"You have no posts."} size={"l"} />
+          <FlexBox direction={"column"} alignItems={"center"} gap={"m"}>
+            {profilePosts.paginationData.count === 0 ||
+            profilePosts.paginationData.isEmpty ? (
+              <SimpleText
+                content={`${
+                  profileUserData.username === userLoggedInData.username
+                    ? "You"
+                    : profileUserData.username
+                } have no posts`}
+                size={"l"}
+              />
             ) : (
               <div style={{ borderTop: "1px solid green" }}>
-                <FlexBox gap={"medium"} padding={"small"}>
+                <FlexBox gap={"m"} padding={"s"}>
                   <Icon iconName={faTableCells} size={"s"} />
                   <SimpleText content={"Posts"} size={"m"} />
                 </FlexBox>
               </div>
             )}
             <div style={{ width: "100%" }}>
-              <EndlessScroll
+              <ScrollPagination
                 loadMore={() =>
                   profilePosts.getDataPagination({ identifier: username })
                 }
-                dataLength={profilePosts.responseData.data.length}
-                totalCount={profilePosts.responseData.count}
+                dataLength={profilePosts.paginationData.data.length}
                 isLoading={profilePosts.isLoading}
+                totalCount={profilePosts.paginationData.count}
+                useWindow={true}
               >
-                <FlexBox wrap gap={"small"}>
+                <FlexBox wrap gap={"s"}>
                   <FlatList
-                    data={profilePosts.responseData.data}
+                    data={profilePosts.paginationData.data}
                     renderItem={(post) => (
                       <PostsGrid
                         key={post.postId}
@@ -286,7 +256,7 @@ const Profile = () => {
                     )}
                   />
                 </FlexBox>
-              </EndlessScroll>
+              </ScrollPagination>
             </div>
           </FlexBox>
         </div>

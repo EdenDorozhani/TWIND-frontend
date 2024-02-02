@@ -7,17 +7,17 @@ import FlexBox from "../FlexBox";
 import Icon from "../Icon";
 import TextButton from "../TextButton";
 import { useState } from "react";
-import { getPassedTime, textTruncation } from "./helpers";
+import { getPassedTime, textTruncation } from "../../helpers";
 import PostHeader from "../PostHeader";
 import Description from "../Description";
 import { formatImgUrl } from "../../helpers";
 
 const Post = ({
-  onPostModal,
+  onOpenPostModal,
   userId,
-  openLikesModal,
-  onUsernamesClick,
-  onDotsIconClick,
+  onOpenLikesModal,
+  navigateToUserProfile,
+  onPostOptionsClick,
   postData,
   updateLikes,
 }) => {
@@ -45,15 +45,6 @@ const Post = ({
     fullContent,
     textButtonAction
   );
-  const passedTime = getPassedTime(postData.createdAt);
-
-  const onMessageClick = () => {
-    onPostModal(postData.postId);
-  };
-
-  const onOpenModal = () => {
-    openLikesModal(postData.postId);
-  };
 
   return (
     <div
@@ -64,22 +55,24 @@ const Post = ({
         width: "400px",
       }}
     >
-      <FlexBox direction={"column"} gap={"medium"}>
+      <FlexBox direction={"column"} gap={"m"}>
         <PostHeader
           author={postData.username}
           location={postData.location}
-          passedTime={passedTime}
+          passedTime={getPassedTime(postData.createdAt)}
           userImg={formatImgUrl(postData.userImgURL)}
-          onUserClickAction={() => onUsernamesClick(postData.username)}
-          onIconClick={() => onDotsIconClick(postData.postId)}
+          onUserClickAction={() => navigateToUserProfile(postData.username)}
+          onIconClick={() => onPostOptionsClick(postData.postId)}
           creatorId={postData.creatorId}
           userId={userId}
         />
         <img
-          style={{ height: "410px", width: "100%", objectFit: "cover" }}
           src={formatImgUrl(postData.postImage)}
+          style={{ height: "410px", width: "100%", objectFit: "cover" }}
+          effect="black-and-white"
         />
-        <FlexBox gap={"large"}>
+
+        <FlexBox gap={"l"}>
           <Icon
             iconName={isLiked === "1" ? faHeartSolid : faHeartRegular}
             action={toggleLike}
@@ -90,21 +83,24 @@ const Post = ({
             iconName={faComment}
             size={"m"}
             type={"button"}
-            action={onMessageClick}
+            action={() => onOpenPostModal(postData.postId)}
           />
         </FlexBox>
-        <FlexBox direction={"column"} gap={"small"}>
+        <FlexBox direction={"column"} gap={"s"}>
           <FlexBox>
             <TextButton
               content={likesCount === 0 ? "" : `${likesCount} likes`}
-              action={onOpenModal}
+              action={() => onOpenLikesModal(postData.postId)}
             />
           </FlexBox>
-          <Description
-            author={postData.username}
-            textTruncated={textTruncated}
-            action={() => onUsernamesClick(postData.username)}
-          />
+          {textTruncated.formatedText && (
+            <Description
+              author={postData.username}
+              textTruncated={textTruncated}
+              action={() => navigateToUserProfile(postData.username)}
+            />
+          )}
+
           <TextButton
             content={
               postData.commentsCount !== 0
@@ -112,7 +108,7 @@ const Post = ({
                 : ""
             }
             color={"fade"}
-            action={onMessageClick}
+            action={() => onOpenPostModal(postData.postId)}
           />
         </FlexBox>
       </FlexBox>

@@ -1,25 +1,25 @@
-export const determineResponseData = ({
-  scrollCondition,
+export const determineFollowersPaginationData = ({
+  filteredPaginationData,
   followers,
-  filteredFollowersData,
-  isLoadingFiltered,
-  fetchFilteredFollowers,
   profileUserData,
 }) => {
   let obj;
 
-  if (scrollCondition) {
+  if (filteredPaginationData.scrollCondition) {
     obj = {
-      responseData: filteredFollowersData,
-      isLoading: isLoadingFiltered,
-      shouldInterrupt: () => fetchFilteredFollowers(),
+      paginationData: filteredPaginationData.filteredData,
+      isLoading: filteredPaginationData.isLoading,
+      shouldInterrupt: () => filteredPaginationData.getFilteredData({}),
     };
   } else {
     obj = {
-      responseData: followers.responseData,
+      paginationData: followers.paginationData,
       isLoading: followers.isLoading,
       shouldInterrupt: () =>
-        followers.getDataPagination(profileUserData.userId),
+        followers.getDataPagination({
+          identifier: profileUserData.userId,
+          withPages: true,
+        }),
     };
   }
 

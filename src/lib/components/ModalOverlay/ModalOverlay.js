@@ -3,7 +3,7 @@ import classes from "./Overlay.module.css";
 const ModalOverlay = ({ action, children }) => {
   const onClickHandler = (event) => {
     if (event.target === event.currentTarget) {
-      !!action && action();
+      action();
     }
   };
 

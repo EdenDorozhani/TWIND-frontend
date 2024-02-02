@@ -1,14 +1,11 @@
-import FlatList from "../util/FlatList";
+import FlatList from "../FlatList";
 import FlexBox from "../FlexBox";
-import InputFilter from "../util/InputFilter";
+import InputFilter from "../InputFilter";
 
 const SimpleForm = ({
   inputList,
   onInputChange,
   flexDirection,
-  flexAlign,
-  flexJustify,
-  padding,
   errors,
   register,
   control,
@@ -20,10 +17,10 @@ const SimpleForm = ({
   return (
     <FlexBox
       direction={flexDirection}
-      padding={padding}
-      alignItems={flexAlign}
-      justifyContent={flexJustify}
-      gap="large"
+      padding={"xl"}
+      alignItems={"center"}
+      justifyContent={"around"}
+      gap="l"
       wrap={flexWrap}
     >
       <FlatList

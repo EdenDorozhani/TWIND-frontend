@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const getMultipleData = async (url) => {
+export const getPaginationData = async (url) => {
   try {
     const response = await axios.get(url);
     return response;

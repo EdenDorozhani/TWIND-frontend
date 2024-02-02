@@ -17,6 +17,7 @@ const SimpleInput = ({
   replyInputRef,
   backendErrors,
   inputValue,
+  border,
 }) => {
   const getRef = () => {
     if (replyInputRef) {
@@ -34,12 +35,13 @@ const SimpleInput = ({
   const classNames = [
     classes.simpleInput,
     errors || backendErrors ? classes.danger : "",
+    border ? classes.border : "",
   ].join(" ");
 
   const placeholderEmal = name === "email" ? "e.g. example@gmail.com" : "";
 
   return (
-    <FlexBox direction={"column"} gap="small">
+    <FlexBox direction={"column"} gap="s">
       {lable ? (
         ""
       ) : (

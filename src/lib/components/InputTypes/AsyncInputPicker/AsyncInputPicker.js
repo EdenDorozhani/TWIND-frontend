@@ -18,7 +18,7 @@ const AsyncInputPicker = ({
 }) => {
   const options = useMemo(() => countryList().getData(), []);
   return (
-    <FlexBox direction={"column"} gap="small">
+    <FlexBox direction={"column"} gap="s">
       {mandatory ? (
         <>
           <SimpleText content={name} color={!!errors && "danger"} />

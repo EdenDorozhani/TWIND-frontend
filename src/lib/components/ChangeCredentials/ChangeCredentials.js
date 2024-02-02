@@ -1,7 +1,7 @@
 import FlexBox from "../FlexBox";
 import SimpleText from "../SimpleText";
-import FlatList from "../util/FlatList";
-import InputFilter from "../util/InputFilter";
+import FlatList from "../FlatList";
+import InputFilter from "../InputFilter";
 import Button from "../Button";
 
 const ChangeCredentials = ({
@@ -18,8 +18,8 @@ const ChangeCredentials = ({
     <form onSubmit={handleSubmit}>
       <FlexBox
         direction={"column"}
-        padding={"extra large"}
-        gap={"large"}
+        padding={"xl"}
+        gap={"l"}
         alignItems={"center"}
       >
         <SimpleText content={credentialsModalContent.title} color={"fade"} />
@@ -27,7 +27,6 @@ const ChangeCredentials = ({
           content={credentialsModalContent.description}
           color={"fade"}
         />
-
         <FlatList
           data={credentialsModalContent.inputList}
           renderItem={(input) => (
@@ -42,11 +41,16 @@ const ChangeCredentials = ({
             />
           )}
         />
-        <FlexBox gap={"extra large"}>
-          <Button content={"Back"} color={"gray"} action={backButtonAction} />
+        <FlexBox gap={"xl"}>
+          <Button
+            content={"Back"}
+            color={"gray"}
+            action={backButtonAction}
+            type="button"
+          />
           <Button
             content={credentialsModalContent.buttonContent}
-            action={handleSubmit}
+            type="submit"
           />
         </FlexBox>
       </FlexBox>

@@ -1,6 +1,6 @@
 import classes from "./Button.module.css";
 
-const Button = ({ content, action, color }) => {
+const Button = ({ content, action, color, type, disabled }) => {
   const onClickHandler = () => {
     !!action && action();
   };
@@ -10,7 +10,12 @@ const Button = ({ content, action, color }) => {
   }
 
   return (
-    <button type="button" className={classList} onClick={onClickHandler}>
+    <button
+      type={type}
+      disabled={disabled}
+      className={classList}
+      onClick={onClickHandler}
+    >
       {content}
     </button>
   );

@@ -1,22 +1,22 @@
 import FlexBox from "../FlexBox";
 import SimpleText from "../SimpleText";
-import FlatList from "../util/FlatList";
-import EndlessScroll from "../EndlessScroll";
+import FlatList from "../FlatList";
+import ScrollPagination from "../ScrollPagination";
 import SearchBar from "../InputTypes/SearchBar/SearchBar";
-import User from "../User/User";
+import UserListElement from "../UserListElement";
 
 const UsersList = ({
-  shouldInterrupt,
+  shouldInterruptScroll,
   onUserClick,
-  isLoading,
+  configurationData,
   userId,
   updateFollowers,
   inputValue,
   onSearchBarChange,
-  responseData,
   type,
+  updateFollowingCount,
 }) => {
-  const module = type ? type : responseData.module;
+  const module = type ? type : configurationData.paginationData.module;
 
   return (
     <>
@@ -25,7 +25,7 @@ const UsersList = ({
           borderBottom: "1px solid green",
         }}
       >
-        <FlexBox justifyContent={"center"} padding={"small"}>
+        <FlexBox justifyContent={"center"} padding={"s"}>
           <SimpleText content={module} fontWeight={"bolder"} />
         </FlexBox>
       </div>
@@ -41,34 +41,35 @@ const UsersList = ({
           overflowY: "scroll",
         }}
       >
-        <EndlessScroll
+        <ScrollPagination
+          loadMore={shouldInterruptScroll}
+          dataLength={configurationData.paginationData.data.length}
+          isLoading={configurationData.isLoading}
+          totalCount={configurationData.paginationData.count}
           useWindow={false}
-          loadMore={shouldInterrupt}
-          dataLength={responseData.data.length}
-          isLoading={isLoading}
-          totalCount={responseData.count}
         >
-          <FlexBox direction={"column"} padding={"medium"} gap={"medium"}>
-            {responseData.data.length === 0 ? (
+          <FlexBox direction={"column"} padding={"m"} gap={"m"}>
+            {configurationData.paginationData.data.length === 0 ? (
               <FlexBox justifyContent={"center"}>
                 <SimpleText content={`No ${module}.`} />
               </FlexBox>
             ) : null}
             <FlatList
-              data={responseData.data}
+              data={configurationData.paginationData.data}
               renderItem={(curr) => (
-                <User
+                <UserListElement
                   key={module === "Followers" ? curr.followId : curr.likeId}
                   data={curr}
                   onUserClick={onUserClick}
                   userId={userId}
                   updateFollowers={updateFollowers}
                   type={module}
+                  updateFollowingCount={updateFollowingCount}
                 />
               )}
             />
           </FlexBox>
-        </EndlessScroll>
+        </ScrollPagination>
       </div>
     </>
   );

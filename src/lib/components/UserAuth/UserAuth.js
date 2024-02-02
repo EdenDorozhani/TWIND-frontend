@@ -8,36 +8,25 @@ import classes from "./UserAuth.module.css";
 
 const UserAuth = ({
   inputList,
-  mainTextContent,
   onNavigateTo,
   onFormSubmit,
   onInputChange,
-  buttonContent,
   inputValue,
-  flexDirection,
-  flexAlign,
-  flexJustify,
-  padding,
   errors,
   register,
   control,
-  flexWrap,
-  textContent,
   backendErrors,
   mandatory,
   onForgetPasswordClick,
+  userAuthUIContent,
+  isLoadingButton,
 }) => {
   return (
     <div className={classes.pageContainer}>
       <div className={classes.userAuthContainer}>
-        <FlexBox
-          direction="column"
-          alignItems="center"
-          padding="small"
-          gap="small"
-        >
+        <FlexBox direction="column" alignItems="center" padding="s" gap="s">
           <MainLogo />
-          <SimpleText content={mainTextContent} size={"l"} />
+          <SimpleText content={userAuthUIContent.mainTextContent} size={"l"} />
           <SimpleText content={"to use Twind"} size={"m"} />
         </FlexBox>
         <form onSubmit={onFormSubmit}>
@@ -45,22 +34,25 @@ const UserAuth = ({
             inputList={inputList}
             onInputChange={onInputChange}
             inputValue={inputValue}
-            flexDirection={flexDirection}
-            flexAlign={flexAlign}
-            flexJustify={flexJustify}
-            padding={padding}
+            flexDirection={userAuthUIContent.flexDirection}
             errors={errors}
             register={register}
             control={control}
-            flexWrap={flexWrap}
+            flexWrap={userAuthUIContent.flexWrap}
             backendErrors={backendErrors}
             mandatory={mandatory}
           />
-          <FlexBox justifyContent="around" alignItems="center" padding="large">
-            <TextButton content={textContent} action={onNavigateTo} />
-
-            <Button content={buttonContent} action={onFormSubmit} />
-            {buttonContent === "Login" ? (
+          <FlexBox justifyContent="around" alignItems="center" padding="l">
+            <TextButton
+              content={userAuthUIContent.textContent}
+              action={onNavigateTo}
+            />
+            <Button
+              content={userAuthUIContent.buttonContent}
+              type={"submit"}
+              disabled={isLoadingButton}
+            />
+            {userAuthUIContent.buttonContent === "Login" ? (
               <TextButton
                 content={"Forgot password"}
                 size={"s"}

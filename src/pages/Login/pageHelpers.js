@@ -11,6 +11,8 @@ const loginFormValidationSchema = yup.object({
   username: yup
     .string()
     .required()
+    .min(2)
+    .max(30)
     .matches(
       /^[a-zA-Z0-9](?!.*[_.]{2})[a-zA-Z0-9._]{0,28}[a-zA-Z0-9]$/,
       "invalid username"
@@ -32,29 +34,29 @@ const determineSchema = (status) => {
   switch (status) {
     case "login":
       return loginFormValidationSchema;
-    case "configureEmail":
+    case "resetPassword":
       return emailValidationSchema;
   }
 };
 
-const determineDataToPost = (status, inputValue, credentialsInputsValue) => {
-  let obj;
-  if (status === "login") {
-    obj = {
-      ...obj,
-      values: inputValue,
-      navigateTo: "/twind",
-      toastErr: true,
-    };
-  } else {
-    obj = { ...obj, headers: "json", values: credentialsInputsValue };
-  }
-  return obj;
+const modalContent = {
+  title: "Enter your email",
+  inputList: EMAIL_INPUT,
+  buttonContent: "Get reset password link",
+};
+
+export const userAuthUIContent = {
+  buttonContent: "Login",
+  textContent: "create account",
+  mainTextContent: "Login",
+  flexDirection: "column",
+  flexWrap: false,
 };
 
 export const pageHelpers = {
+  determineSchema,
   LOGIN_INPUTS,
   EMAIL_INPUT,
-  determineSchema,
-  determineDataToPost,
+  modalContent,
+  userAuthUIContent,
 };

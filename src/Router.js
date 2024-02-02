@@ -1,22 +1,21 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import RootParent from "./roots/RootParent";
 import Login from "../src/pages/Login/Login";
 import Signup from "../src/pages/Signup/Signup";
-import RootSidebar from "./roots/RootSidebar";
-import RootHome from "./roots/RootHome";
 import PostModal from "./pages/PostModal/PostModal";
-import RootProfile from "./roots/RootProfile";
 import EditProfile from "./pages/EditProfile/EditProfile";
 import ManagePost from "./pages/ManagePost/ManagePost";
-import Explore from "./pages/Explore/Explore";
-import RootExplore from "./roots/RootExplore";
 import ChangePassword from "./pages/ChangePassword";
+import RootApp from "./routerRoots/RootApp";
+import RootSidebar from "./routerRoots/RootSidebar";
+import RootHome from "./routerRoots/RootHome";
+import RootProfile from "./routerRoots/RootProfile";
+import RootExplore from "./routerRoots/RootExplore";
 
 const Router = () => {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <RootParent />,
+      element: <RootApp />,
       children: [
         { index: true, element: <Login /> },
         { path: "signup", element: <Signup /> },

@@ -16,7 +16,7 @@ const Description = ({
   onPostClick,
 }) => {
   return (
-    <FlexBox gap={"medium"}>
+    <FlexBox gap={"m"}>
       {!!avatarSrc && (
         <Avatar size={"m"} src={avatarSrc} onClickAction={action} />
       )}

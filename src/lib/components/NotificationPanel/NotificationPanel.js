@@ -1,16 +1,20 @@
 import FlexBox from "../FlexBox";
 import SimpleText from "../SimpleText";
 import NotificationsFilter from "../NotificationsFilter";
-import FlatList from "../util/FlatList";
-import EndlessScroll from "../EndlessScroll/EndlessScroll";
+import FlatList from "../FlatList";
+import ScrollPagination from "../ScrollPagination";
 
 const NotificationPanel = ({
-  notificationsData,
+  notifications,
   dateRangeData,
-  onNotificationClick,
-  onUsernamesClick,
+  onNotificationPostClick,
+  navigateToUserProfile,
   userId,
 }) => {
+  const generateKey = (id) => {
+    return `${id}_${new Date().getTime()}`;
+  };
+
   return (
     <div
       style={{
@@ -19,32 +23,38 @@ const NotificationPanel = ({
         width: "371px",
         height: "100vh",
         right: 0,
-        overflowY: "auto",
+        overflowY: "sroll",
       }}
     >
-      <FlexBox padding={"medium"}>
+      <FlexBox padding={"m"}>
         <SimpleText content="Notifications" size={"l"} />
       </FlexBox>
-      <EndlessScroll
-        totalCount={notificationsData.responseData.count}
-        dataLength={notificationsData.responseData.data.length}
-        isLoading={notificationsData.isLoading}
-        loadMore={() =>
-          notificationsData.getDataPagination({ identifier: userId })
-        }
+      <ScrollPagination
+        dataLength={notifications.paginationData.data.length}
+        isLoading={notifications.isLoading}
+        totalCount={notifications.paginationData.count}
         useWindow={false}
+        loadMore={() =>
+          notifications.getDataPagination({
+            userLoggedIn: userId,
+            withPages: true,
+          })
+        }
       >
         <FlexBox direction={"column"}>
           <div style={{ borderBottom: "1px solid rgb(9, 121, 84, 0.3)" }}>
-            <FlexBox padding={"medium"} direction={"column"} gap={"medium"}>
+            <FlexBox padding={"m"} direction={"column"} gap={"m"}>
               <SimpleText content={"New"} color={"black"} size={"m"} />
+              {dateRangeData.newData.length === 0 && (
+                <SimpleText content={"No new notifications"} />
+              )}
               <FlatList
                 data={dateRangeData.newData}
                 renderItem={(notification) => (
                   <NotificationsFilter
-                    onUsernamesClick={onUsernamesClick}
-                    onNotificationClick={onNotificationClick}
-                    key={notification._key || ""}
+                    navigateToUserProfile={navigateToUserProfile}
+                    onNotificationPostClick={onNotificationPostClick}
+                    key={generateKey(Math.random())}
                     data={notification}
                   />
                 )}
@@ -52,15 +62,18 @@ const NotificationPanel = ({
             </FlexBox>
           </div>
           <div style={{ borderBottom: "1px solid rgb(9, 121, 84, 0.3)" }}>
-            <FlexBox padding={"medium"} direction={"column"} gap={"medium"}>
+            <FlexBox padding={"m"} direction={"column"} gap={"m"}>
               <SimpleText content={"This month"} color={"black"} size={"m"} />
+              {dateRangeData.thisMonthData.length === 0 && (
+                <SimpleText content={"No notifications for this month"} />
+              )}
               <FlatList
                 data={dateRangeData.thisMonthData}
                 renderItem={(notification) => (
                   <NotificationsFilter
-                    onUsernamesClick={onUsernamesClick}
-                    onNotificationClick={onNotificationClick}
-                    key={notification._key || ""}
+                    navigateToUserProfile={navigateToUserProfile}
+                    onNotificationPostClick={onNotificationPostClick}
+                    key={generateKey(Math.random())}
                     data={notification}
                   />
                 )}
@@ -68,15 +81,18 @@ const NotificationPanel = ({
             </FlexBox>
           </div>
           <div style={{ borderBottom: "1px solid rgb(9, 121, 84, 0.3)" }}>
-            <FlexBox padding={"medium"} direction={"column"} gap={"medium"}>
+            <FlexBox padding={"m"} direction={"column"} gap={"m"}>
               <SimpleText content={"Earlier"} color={"black"} size={"m"} />
+              {dateRangeData.earlierData.length === 0 && (
+                <SimpleText content={"No earlier notifications"} />
+              )}
               <FlatList
                 data={dateRangeData.earlierData}
                 renderItem={(notification) => (
                   <NotificationsFilter
-                    onUsernamesClick={onUsernamesClick}
-                    onNotificationClick={onNotificationClick}
-                    key={notification._key || ""}
+                    navigateToUserProfile={navigateToUserProfile}
+                    onNotificationPostClick={onNotificationPostClick}
+                    key={generateKey(Math.random())}
                     data={notification}
                   />
                 )}
@@ -84,7 +100,7 @@ const NotificationPanel = ({
             </FlexBox>
           </div>
         </FlexBox>
-      </EndlessScroll>
+      </ScrollPagination>
     </div>
   );
 };

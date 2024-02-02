@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const useDataPoster = ({ requestHeader, urlPath }) => {
   const [backendErrors, setBackendErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const setHeaderContentType = () => {
@@ -25,13 +26,9 @@ const useDataPoster = ({ requestHeader, urlPath }) => {
 
   const url = BASE_URL + `/${urlPath}`;
 
-  const submit = async ({
-    dataToSend,
-    navigateTo = null,
-    toastErr,
-    toastScc,
-  }) => {
+  const submit = async ({ dataToSend, navigateTo = null, toastScc }) => {
     const headers = setHeaderContentType();
+    setIsLoading(true);
     try {
       const response = await postAction({ dataToSend, headers, url });
       if (response.data.success) {
@@ -40,16 +37,22 @@ const useDataPoster = ({ requestHeader, urlPath }) => {
       }
       return response;
     } catch (err) {
-      if (toastErr || err.response.data.message) {
-        return toast.error(err.response.data.message);
-      } else {
+      console.log(err.response.data.response);
+      if (
+        err.response.data.response !== null &&
+        err.response.data.response.length !== 0
+      ) {
         const errors = fromArrayToObject(err.response.data.response);
         setBackendErrors(errors);
+      } else {
+        toast.error(err.response.data.message);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return { submit, backendErrors, setBackendErrors };
+  return { submit, backendErrors, setBackendErrors, isLoading };
 };
 
 export default useDataPoster;

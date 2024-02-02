@@ -65,18 +65,20 @@ const passwordValidationSchema = yup.object({
 const updateModalContent = (modalStatus) => {
   let obj;
   switch (modalStatus) {
-    case "changePassword":
+    case "changePasswordFromProfile":
       return (obj = {
         title: "Change Password",
         inputList: CHANGE_PASSWORD_INPUTS,
         description:
           "Password must be at least 8 characters long and include at least one letter and one number.",
+        buttonContent: "Submit",
       });
     case "changeEmail":
       return (obj = {
         title: "Change Email",
         inputList: CHANGE_EMAIL_INPUTS,
         description: "Email must be of this format: example@gmail.com",
+        buttonContent: "Submit",
       });
   }
   return obj;
@@ -84,7 +86,7 @@ const updateModalContent = (modalStatus) => {
 
 const determineSchema = (modalStatus) => {
   switch (modalStatus) {
-    case "changePassword":
+    case "changePasswordFromProfile":
       return passwordValidationSchema;
     case "changeEmail":
       return emailValidationSchema;

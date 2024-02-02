@@ -12,11 +12,23 @@ export const SIGNUP_INPUTS = [
 ];
 
 export const userDataFormValidationSchema = yup.object({
-  name: yup.string().required().min(2).max(20),
-  lastname: yup.string().required().min(3).max(20),
+  name: yup
+    .string()
+    .required()
+    .matches(/^[a-zA-Z]+$/, "name should include only letters")
+    .min(2)
+    .max(30),
+  lastname: yup
+    .string()
+    .required()
+    .matches(/^[a-zA-Z]+$/, "last name should include only letters")
+    .min(2)
+    .max(30),
   username: yup
     .string()
     .required()
+    .min(2)
+    .max(30)
     .matches(
       /^[a-zA-Z0-9](?!.*[_.]{2})[a-zA-Z0-9._]{0,28}[a-zA-Z0-9]$/,
       "invalid username"
@@ -27,14 +39,28 @@ export const userDataFormValidationSchema = yup.object({
     .required()
     .matches(
       /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-      "password must be at least 8 characters long and include at least one letter and one number"
+      "Password must be at least 8 characters long and include at least one letter and one number"
     ),
   confirmPassword: yup
     .string()
     .oneOf(
       [yup.ref("password"), null],
-      "passwords do not match, please make sure your passwords match"
+      "Passwords do not match, please make sure your passwords match"
     ),
   country: yup.string().required(),
   about: yup.string().max(250),
 });
+
+export const userAuthUIContent = {
+  flexDirection: "row",
+  buttonContent: "Submit",
+  textContent: "existing account",
+  mainTextContent: "Signup",
+  flexWrap: true,
+};
+
+export const signupPageHelpers = {
+  SIGNUP_INPUTS,
+  userAuthUIContent,
+  userDataFormValidationSchema,
+};

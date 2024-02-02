@@ -31,7 +31,7 @@ const PostHeader = ({
 
   return (
     <FlexBox justifyContent={"between"}>
-      <FlexBox gap={"medium"}>
+      <FlexBox gap={"m"}>
         <Avatar size={"m"} src={userImg} onClickAction={onUserClickAction} />
         <FlexBox direction={"column"} justifyContent={"center"}>
           <FlexBox>

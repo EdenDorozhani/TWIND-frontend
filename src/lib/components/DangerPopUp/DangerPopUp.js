@@ -10,15 +10,15 @@ const DangerPopUp = ({ type, cancel, confirm, isPopUpVisible }) => {
       alignItems={"center"}
       direction={"column"}
       justifyContent={"center"}
-      padding={"large"}
-      gap={"large"}
+      padding={"l"}
+      gap={"l"}
     >
       <SimpleText content={`Delete ${type}?`} size={"l"} color={"black"} />
       <SimpleText
         content={`Are you sure you want to delete this ${type}?`}
         color={"black"}
       />
-      <FlexBox gap={"extra large"}>
+      <FlexBox gap={"xl"}>
         <TextButton content={"Cancel"} color={"black"} action={cancel} />
         <TextButton content={"Delete"} color={"danger"} action={confirm} />
       </FlexBox>

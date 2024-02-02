@@ -1,5 +1,17 @@
 import classes from "./SimpleText.module.css";
-const SimpleText = ({ content, size, color, fontWeight, children, style }) => {
+const SimpleText = ({
+  content,
+  size,
+  color,
+  fontWeight,
+  children,
+  style,
+  isLoading,
+}) => {
+  if (isLoading) {
+    return;
+  }
+
   let styleClass = [classes.simpleText];
 
   switch (size) {

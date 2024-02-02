@@ -7,45 +7,29 @@ import FlexBox from "../FlexBox";
 import Icon from "../Icon";
 import SimpleText from "../SimpleText";
 import TextButton from "../TextButton";
-import { getPassedTime } from "../Post/helpers";
+import { getPassedTime } from "../../helpers";
 import Description from "../Description";
-import useLikeAction from "../../../hooks/useLikeAction";
 import { useState } from "react";
-import FlatList from "../util/FlatList";
+import FlatList from "../FlatList";
 import { formatImgUrl } from "../../helpers";
 
 const Comment = ({
-  author,
-  caption,
-  commentLikes,
-  likedByUser,
-  passedTime,
-  avatarSrc,
+  comments,
   userId,
-  commentId,
   onReply,
   handleReplyClick,
-  reply,
   openCommentsLikesModal,
-  authorId,
   onShowReplies,
   repliesData,
-  repliesCount,
-  onDotsIconClick,
-  replyId,
+  onOpenActionsModal,
   onUserClickAction,
   updateLikes,
+  replyId,
+  parentCommentId,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [isLiked, setIsLiked] = useState(likedByUser || "0");
-  const [likeCount, setLikeCount] = useState(commentLikes || 0);
-  // const { isLiked, likeCount, toggleLike } = useLikeAction({
-  //   likedByUser: likedByUser || "0",
-  //   likes: commentLikes || 0,
-  //   id: replyId || commentId,
-  //   userId,
-  //   type: "updateCommentLikes",
-  // });
+  const [isLiked, setIsLiked] = useState(comments.likedByUser || "0");
+  const [likeCount, setLikeCount] = useState(comments.commentsLikeCount || 0);
 
   const toggleLike = () => {
     if (isLiked === "0") {
@@ -55,128 +39,121 @@ const Comment = ({
       setLikeCount(likeCount - 1);
       setIsLiked("0");
     }
-    updateLikes(replyId || commentId, isLiked);
+    updateLikes(replyId || parentCommentId, isLiked);
   };
 
   const replyAction = () => {
-    onReply(author, commentId);
+    onReply(comments.username, parentCommentId);
     handleReplyClick();
   };
 
   const commentLikesAction = () => {
-    openCommentsLikesModal(replyId || commentId);
+    openCommentsLikesModal(replyId || parentCommentId);
   };
 
-  const conditinTextButton = isVisible && repliesData?.length == repliesCount;
+  const conditinTextButton =
+    isVisible && repliesData?.length == comments.totalReplies;
 
   const textButtonContent = `- ${
     conditinTextButton
       ? "Hide replies"
       : `View replies(${
           isVisible && !!repliesData
-            ? repliesCount - repliesData?.length
-            : repliesCount
+            ? comments.totalReplies - repliesData?.length
+            : comments.totalReplies
         })`
   }`;
   const onShowRepliesHandler = () => {
-    if (isVisible === true && repliesData?.length == repliesCount) {
+    if (isVisible === true && repliesData?.length == comments.totalReplies) {
       setIsVisible(false);
     } else {
       setIsVisible(true);
-      onShowReplies(commentId, repliesCount);
+      onShowReplies(parentCommentId, comments.totalReplies);
     }
   };
-
+  console.log(isVisible);
   return (
     <>
-      {!reply && (
-        <FlexBox direction={"column"}>
-          <FlexBox gap={"medium"} padding={"small"} justifyContent={"between"}>
-            <FlexBox direction={"column"}>
-              <Description
-                author={author}
-                description={caption}
-                avatarSrc={avatarSrc}
-                action={() => onUserClickAction(author)}
+      <FlexBox direction={"column"}>
+        <FlexBox gap={"m"} padding={"s"} justifyContent={"between"}>
+          <FlexBox direction={"column"}>
+            <Description
+              author={comments.username}
+              description={comments.description}
+              avatarSrc={formatImgUrl(comments.userImgURL)}
+              action={() => onUserClickAction(comments.username)}
+            />
+            <FlexBox gap={"m"} padding={"s"}>
+              <SimpleText
+                content={getPassedTime(comments.createdAt)}
+                size={"s"}
+                color={"fade"}
+                style={{ wordBreak: "keep-all" }}
               />
-              <FlexBox gap={"medium"} padding={"small"}>
-                <SimpleText
-                  content={passedTime}
-                  size={"s"}
+              <TextButton
+                content={"reply"}
+                size={"s"}
+                color={"fade"}
+                action={replyAction}
+                noBreak
+              />
+              <TextButton
+                content={!likeCount ? "" : `${likeCount} like`}
+                size={"s"}
+                color={"fade"}
+                action={commentLikesAction}
+                noBreak
+              />
+              {comments.userId === userId && (
+                <Icon
+                  iconName={faEllipsis}
+                  type={"button"}
+                  action={() => onOpenActionsModal(parentCommentId, replyId)}
                   color={"fade"}
-                  style={{ wordBreak: "keep-all" }}
                 />
-                <TextButton
-                  content={"reply"}
-                  size={"s"}
-                  color={"fade"}
-                  action={replyAction}
-                  noBreak
-                />
-                <TextButton
-                  content={!likeCount ? "" : `${likeCount} like`}
-                  size={"s"}
-                  color={"fade"}
-                  action={commentLikesAction}
-                />
-                {authorId === userId && (
-                  <Icon
-                    iconName={faEllipsis}
-                    type={"button"}
-                    action={() => onDotsIconClick(commentId, replyId)}
-                    color={"fade"}
-                  />
-                )}
-              </FlexBox>
-              {!repliesCount ? null : (
-                <FlexBox style={{ padding: "0px 50px" }}>
-                  <TextButton
-                    content={textButtonContent}
-                    size={"s"}
-                    color={"fade"}
-                    action={onShowRepliesHandler}
-                  />
-                </FlexBox>
-              )}{" "}
+              )}
             </FlexBox>
-            <Icon
-              iconName={isLiked === "1" ? faHeartSolid : faHeartRegular}
-              type={"button"}
-              action={toggleLike}
+            {!comments.totalReplies ? null : (
+              <FlexBox style={{ padding: "0px 50px" }}>
+                <TextButton
+                  content={textButtonContent}
+                  size={"s"}
+                  color={"fade"}
+                  action={onShowRepliesHandler}
+                />
+              </FlexBox>
+            )}{" "}
+          </FlexBox>
+          <Icon
+            iconName={isLiked === "1" ? faHeartSolid : faHeartRegular}
+            type={"button"}
+            action={toggleLike}
+          />
+        </FlexBox>
+        {isVisible ? (
+          <FlexBox direction={"column"} style={{ padding: "5px 20px" }}>
+            <FlatList
+              data={repliesData}
+              renderItem={(replies) => (
+                <Comment
+                  key={replies.commentId}
+                  comments={replies}
+                  replyId={replies.commentId}
+                  userId={userId}
+                  parentCommentId={comments.commentId}
+                  handleReplyClick={handleReplyClick}
+                  openCommentsLikesModal={openCommentsLikesModal}
+                  repliesData={repliesData}
+                  onReply={onReply}
+                  onOpenActionsModal={onOpenActionsModal}
+                  onUserClickAction={onUserClickAction}
+                  updateLikes={updateLikes}
+                />
+              )}
             />
           </FlexBox>
-
-          {isVisible ? (
-            <FlexBox direction={"column"} style={{ padding: "5px 25px" }}>
-              <FlatList
-                data={repliesData}
-                renderItem={(comment) => (
-                  <Comment
-                    key={comment.commentId}
-                    userId={userId}
-                    avatarSrc={formatImgUrl(comment.userImgURL)}
-                    passedTime={getPassedTime(comment.createdAt)}
-                    author={comment.username}
-                    caption={comment.description}
-                    commentId={commentId}
-                    replyId={comment.commentId}
-                    commentLikes={comment.commentsLikeCount}
-                    likedByUser={comment.likedByUser}
-                    handleReplyClick={handleReplyClick}
-                    openCommentsLikesModal={openCommentsLikesModal}
-                    repliesData={repliesData}
-                    onReply={onReply}
-                    authorId={comment.userId}
-                    onDotsIconClick={onDotsIconClick}
-                    onUserClickAction={onUserClickAction}
-                    updateLikes={updateLikes}
-                  />
-                )}
-              />
-            </FlexBox>
-          ) : null}
-        </FlexBox>
-      )}
+        ) : null}
+      </FlexBox>
     </>
   );
 };

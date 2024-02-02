@@ -1,11 +1,11 @@
 import Description from "./Description";
 import { formatImgUrl } from "../helpers";
-import { getPassedTime } from "./Post/helpers";
+import { getPassedTime } from "../helpers";
 
 const NotificationsFilter = ({
   data,
-  onNotificationClick,
-  onUsernamesClick,
+  onNotificationPostClick,
+  navigateToUserProfile,
 }) => {
   const truncatedDescription =
     data.description?.length > 60
@@ -30,8 +30,8 @@ const NotificationsFilter = ({
             avatarSrc={formatImgUrl(data.userImgURL)}
             imageSrc={formatImgUrl(data.postImage)}
             timePassed={getPassedTime(data.createdAt)}
-            action={() => onUsernamesClick(data.username)}
-            onPostClick={() => onNotificationClick(data.postId)}
+            action={() => navigateToUserProfile(data.username)}
+            onPostClick={() => onNotificationPostClick(data.postId)}
           />
         ));
       case "comments":
@@ -49,8 +49,8 @@ const NotificationsFilter = ({
             avatarSrc={formatImgUrl(data.userImgURL)}
             imageSrc={formatImgUrl(data.postImage)}
             timePassed={getPassedTime(data.createdAt)}
-            action={() => onUsernamesClick(data.username)}
-            onPostClick={() => onNotificationClick(data.postId)}
+            action={() => navigateToUserProfile(data.username)}
+            onPostClick={() => onNotificationPostClick(data.postId)}
           />
         ));
       case "commentLikes":
@@ -68,8 +68,8 @@ const NotificationsFilter = ({
             avatarSrc={formatImgUrl(data.userImgURL)}
             imageSrc={formatImgUrl(data.postImage)}
             timePassed={getPassedTime(data.createdAt)}
-            action={() => onUsernamesClick(data.username)}
-            onPostClick={() => onNotificationClick(data.postId)}
+            action={() => navigateToUserProfile(data.username)}
+            onPostClick={() => onNotificationPostClick(data.postId)}
           />
         ));
       case "followers":
@@ -86,7 +86,7 @@ const NotificationsFilter = ({
             notification={true}
             avatarSrc={formatImgUrl(data.userImgURL)}
             timePassed={getPassedTime(data.createdAt)}
-            action={() => onUsernamesClick(data.username)}
+            action={() => navigateToUserProfile(data.username)}
           />
         ));
     }

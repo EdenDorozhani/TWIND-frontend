@@ -1,14 +1,14 @@
 import { Outlet } from "react-router-dom";
 import React from "react";
-import App from "../App";
+import Home from "../pages/Home/Home";
 
-const RootParent = () => {
+const RootHome = () => {
   return (
     <>
-      <App />
+      <Home />
       <Outlet />
     </>
   );
 };
 
-export default RootParent;
+export default RootHome;

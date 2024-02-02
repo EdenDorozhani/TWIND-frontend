@@ -1,28 +1,30 @@
 import { useEffect, useState } from "react";
 import Post from "../../lib/components/Post";
 import NotificationPanel from "../../lib/components/NotificationPanel";
-import FlatList from "../../lib/components/util/FlatList";
+import FlatList from "../../lib/components/FlatList";
 import FlexBox from "../../lib/components/FlexBox";
 import { useLocation, useNavigate } from "react-router-dom";
-import useMultipleData from "../../hooks/useMultipleData";
+import usePaginationData from "../../hooks/usePaginationData";
 import Modal from "../../lib/components/Modal";
 import useModal from "../../hooks/useModal";
 import useLoggedInUser from "../../context/useLoggedInUser";
 import UsersList from "../../lib/components/UsersList";
 import PostActions from "../../lib/components/PostActions";
 import useDataDeleter from "../../hooks/useDataDeleter";
-import EndlessScroll from "../../lib/components/EndlessScroll";
+import ScrollPagination from "../../lib/components/ScrollPagination";
 import { postFollowers } from "./Home.actions";
 import { dateRangeFilter } from "./pageHelpers";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { postLikes } from "../../hooks/useLikeAction/useLikeAction.action";
+import SimpleText from "../../lib/components/SimpleText";
 
 const Home = () => {
   const [postId, setPostId] = useState();
   const [isPopUpVisible, setIsPopUpVisible] = useState(false);
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state: deletedPost } = useLocation();
+  const deletedPostId = deletedPost?.postId;
 
   const { userLoggedInData } = useLoggedInUser();
 
@@ -30,57 +32,64 @@ const Home = () => {
 
   const { onDelete } = useDataDeleter({ path: "deletePost" });
 
-  const { multipleData: followingPosts } = useMultipleData({
+  const { costumeData: followingPosts } = usePaginationData({
     pageSize: 2,
     path: "getFollowingPostsData",
   });
 
-  const { multipleData: postsLikes } = useMultipleData({
-    pageSize: 12,
+  const { costumeData: postsLikes } = usePaginationData({
+    pageSize: 2,
     path: "getPostsLikes",
   });
 
-  const { multipleData: notifications } = useMultipleData({
-    pageSize: 12,
+  const { costumeData: notifications } = usePaginationData({
+    pageSize: 1,
     path: "getNotifications",
   });
 
+  //Filter notifications based on date
   const dateRangeData = dateRangeFilter(notifications);
 
   useEffect(() => {
     if (!userLoggedInData.userId) return;
-    followingPosts.getDataPagination({ identifier: userLoggedInData.userId });
-    notifications.getDataPagination({ identifier: userLoggedInData.userId });
-    if (!!state?.postId) {
-      followingPosts.setResponseData((prevState) => ({
-        ...prevState,
-        data: prevState.data.filter((post) => post.postId !== postId),
-      }));
+    followingPosts.getDataPagination({
+      userLoggedIn: userLoggedInData.userId,
+    });
+    notifications.getDataPagination({
+      userLoggedIn: userLoggedInData.userId,
+      withPages: true,
+    });
+    //Delete home posts from PostModal
+    if (!!deletedPostId) {
+      followingPosts.onDeleteFrontEnd({
+        identifier: deletedPostId,
+        key: "postId",
+      });
     }
-  }, [userLoggedInData.userId]);
+  }, [deletedPostId, userLoggedInData.userId]);
 
-  const onPostModal = (postId) => {
+  const onOpenPostModal = (postId) => {
     navigate(`p/${postId}`);
   };
 
-  const openLikesModal = (postId) => {
+  const onOpenLikesModal = (postId) => {
     setPostId(postId);
     postsLikes.getDataPagination({ identifier: postId });
     openModal();
   };
 
-  const closeModalHandler = () => {
+  const onCloseModal = () => {
     setPostId();
     postsLikes.resetState();
     setIsPopUpVisible(false);
     closeModal();
   };
 
-  const onUsernamesClick = (username) => {
+  const navigateToUserProfile = (username) => {
     navigate(`${username}`);
   };
 
-  const onDotsIconClick = (postId) => {
+  const onPostOptionsClick = (postId) => {
     openModal();
     setPostId(postId);
   };
@@ -89,108 +98,111 @@ const Home = () => {
     navigate(`edit/${postId}`);
   };
 
-  const onDeletePost = () => {
+  const displayDangerPopup = () => {
     setIsPopUpVisible(true);
   };
 
   const confirmDelete = async () => {
     const response = onDelete({
-      action: closeModalHandler,
+      action: onCloseModal,
       identifier: postId,
     });
     if (!response) return;
-    followingPosts.setResponseData((prevState) => ({
-      ...prevState,
-      data: prevState.data.map((post, index, array) =>
-        post.postId === postId ? { ...post, notShow: true } : post
-      ),
-    }));
-
-    followingPosts.setPage(1);
+    followingPosts.onDeleteFrontEnd({ identifier: postId, key: "postId" });
   };
 
-  const updateFollowers = async (isFollow, id) => {
+  const updateFollowers = async (isFollowed, id) => {
     try {
-      await postFollowers(userLoggedInData?.userId, id, isFollow);
+      await postFollowers(userLoggedInData.userId, id, isFollowed);
     } catch (err) {
       toast.error(err.message);
     }
-  };
-
-  const onNotificationClick = (identifier) => {
-    navigate(`/twind/p/${identifier}`);
   };
 
   const updateLikes = async (id, isLiked) => {
     try {
-      await postLikes(id, userLoggedInData?.userId, isLiked, "updatePostLikes");
+      await postLikes(id, userLoggedInData.userId, isLiked, "updatePostLikes");
     } catch (err) {
       toast.error(err.message);
     }
   };
 
+  const onNotificationPostClick = (identifier) => {
+    navigate(`p/${identifier}`);
+  };
+
   return (
     <>
-      <Modal isVisible={isVisible} onClose={closeModalHandler}>
-        {!postsLikes.responseData.module ? (
+      <Modal isVisible={isVisible} onClose={onCloseModal}>
+        {!postsLikes.paginationData.module && !postsLikes.isLoading ? (
           <PostActions
             editAction={nvaigateToEditPage}
-            deleteAction={onDeletePost}
+            deleteAction={displayDangerPopup}
             isPopUpVisible={isPopUpVisible}
-            cancelDelete={closeModalHandler}
+            cancelDelete={onCloseModal}
             confirmDelete={confirmDelete}
             type={"post"}
           />
         ) : (
           <UsersList
-            responseData={postsLikes.responseData}
-            isLoading={postsLikes.isLoading}
+            configurationData={postsLikes}
             userId={userLoggedInData?.userId}
-            shouldInterrupt={() =>
+            shouldInterruptScroll={() =>
               postsLikes.getDataPagination({ identifier: postId })
             }
-            onUserClick={onUsernamesClick}
+            onUserClick={navigateToUserProfile}
             updateFollowers={updateFollowers}
           />
         )}
       </Modal>
-      <EndlessScroll
+      <ScrollPagination
         loadMore={() =>
           followingPosts.getDataPagination({
-            identifier: userLoggedInData?.userId,
+            userLoggedIn: userLoggedInData?.userId,
           })
         }
+        dataLength={followingPosts.paginationData.data.length}
         isLoading={followingPosts.isLoading}
-        dataLength={followingPosts.responseData.data.length}
-        totalCount={followingPosts.responseData.count}
+        totalCount={followingPosts.paginationData.count}
+        useWindow={true}
+        withTransition={true}
       >
         <FlexBox justifyContent={"center"}>
-          <FlexBox padding={"extra large"} direction={"column"} gap={"large"}>
+          <FlexBox
+            padding={"xl"}
+            direction={"column"}
+            gap={"l"}
+            alignItems={"center"}
+          >
+            {(followingPosts.paginationData.isEmpty ||
+              followingPosts.paginationData.count === 0) && (
+              <SimpleText content={"No posts in home page."} size={"l"} />
+            )}
             <FlatList
-              data={followingPosts.responseData.data}
+              data={followingPosts.paginationData.data}
               renderItem={(post) => (
                 <Post
                   key={post.postId}
                   postData={post}
                   userId={userLoggedInData?.userId}
-                  onPostModal={onPostModal}
-                  openLikesModal={openLikesModal}
-                  onUsernamesClick={onUsernamesClick}
-                  onDotsIconClick={onDotsIconClick}
+                  onOpenPostModal={onOpenPostModal}
+                  onOpenLikesModal={onOpenLikesModal}
+                  navigateToUserProfile={navigateToUserProfile}
+                  onPostOptionsClick={onPostOptionsClick}
                   updateLikes={updateLikes}
                 />
               )}
             />
           </FlexBox>
           <NotificationPanel
-            notificationsData={notifications}
+            notifications={notifications}
             dateRangeData={dateRangeData}
-            onNotificationClick={onNotificationClick}
-            onUsernamesClick={onUsernamesClick}
+            onNotificationPostClick={onNotificationPostClick}
+            navigateToUserProfile={navigateToUserProfile}
             userId={userLoggedInData.userId}
           />
         </FlexBox>
-      </EndlessScroll>
+      </ScrollPagination>
     </>
   );
 };

@@ -11,10 +11,10 @@ import {
   faHeart as faHeartRegular,
 } from "@fortawesome/free-regular-svg-icons";
 import TextButton from "../TextButton";
-import FlatList from "../util/FlatList";
-import EndlessScroll from "../EndlessScroll";
+import FlatList from "../FlatList";
+import ScrollPagination from "../ScrollPagination";
 import { formatImgUrl } from "../../helpers";
-import { getPassedTime } from "../Post/helpers";
+import { getPassedTime } from "../../helpers";
 
 const SinglePost = ({
   inputValue,
@@ -32,7 +32,7 @@ const SinglePost = ({
   userId,
   openPostLikesModal,
   singlePostData,
-  onDotsIconClick,
+  onOpenActionsModal,
   backendErrors,
   onShowReplies,
   repliesData,
@@ -46,14 +46,14 @@ const SinglePost = ({
   return (
     <FlexBox>
       <img
+        src={formatImgUrl(singlePostData.postImage)}
         style={{
           objectFit: "cover",
           maxWidth: "800px",
           maxHeight: "850px",
         }}
-        src={formatImgUrl(singlePostData.postImage)}
       />
-      <div style={{ width: "350px", height: "auto" }}>
+      <div style={{ width: "360px", height: "auto" }}>
         <FlexBox
           direction={"column"}
           style={{ height: "100%" }}
@@ -71,7 +71,7 @@ const SinglePost = ({
                 location={singlePostData.location}
                 userImg={formatImgUrl(singlePostData.userImgURL)}
                 unknown={isFollow === "1" ? false : true}
-                onIconClick={onDotsIconClick}
+                onIconClick={onOpenActionsModal}
                 toggleFollow={toggleFollow}
                 userId={userId}
                 creatorId={singlePostData.creatorId}
@@ -97,52 +97,42 @@ const SinglePost = ({
             )}
             <div
               style={{
-                height: "480px",
+                height: "500px",
                 borderBottom: "1px solid green",
                 padding: "5px 15px",
                 overflowY: "scroll",
               }}
             >
               {comments.data.length !== 0 ? (
-                <EndlessScroll
+                <ScrollPagination
                   loadMore={shouldInterrupt}
-                  useWindow={false}
                   dataLength={comments.data.length}
                   totalCount={comments.count}
                   isLoading={isLoadingComments}
+                  useWindow={false}
                 >
-                  <FlexBox direction={"column"} gap={"small"}>
+                  <FlexBox direction={"column"} gap={"s"}>
                     <FlatList
                       data={comments.data}
                       renderItem={(comment) => (
                         <Comment
                           key={comment.commentId}
                           userId={userId}
-                          comments={comments.data}
-                          author={comment.username}
-                          caption={comment.description}
-                          commentLikes={comment.commentsLikeCount}
-                          likedByUser={comment.likedByUser}
-                          postId={comment.postId}
-                          passedTime={getPassedTime(comment.createdAt)}
-                          commentId={comment.commentId}
-                          avatarSrc={formatImgUrl(comment.userImgURL)}
+                          comments={comment}
                           onReply={onReply}
                           handleReplyClick={handleReplyClick}
-                          reply={comment.reply}
-                          authorId={comment.userId}
                           openCommentsLikesModal={openCommentsLikesModal}
                           onShowReplies={onShowReplies}
-                          repliesCount={comment.totalReplies}
                           repliesData={repliesData?.[comment.commentId]}
-                          onDotsIconClick={onDotsIconClick}
+                          onOpenActionsModal={onOpenActionsModal}
                           onUserClickAction={onUserClickAction}
                           updateLikes={updateLikes}
+                          parentCommentId={comment.commentId}
                         />
                       )}
                     />
                   </FlexBox>
-                </EndlessScroll>
+                </ScrollPagination>
               ) : (
                 <FlexBox alignItems={"center"} justifyContent={"center"}>
                   <SimpleText content={"No comments yet"} />
@@ -151,7 +141,7 @@ const SinglePost = ({
             </div>
           </div>
           <FlexBox direction={"column"}>
-            <FlexBox gap={"large"} padding={"small"}>
+            <FlexBox gap={"l"} padding={"s"}>
               <Icon
                 iconName={isLiked === "1" ? faHeartSolid : faHeartRegular}
                 action={toggleLike}
@@ -165,13 +155,13 @@ const SinglePost = ({
                 action={handleReplyClick}
               />
             </FlexBox>
-            <FlexBox padding={"small"}>
+            <FlexBox padding={"s"}>
               <SimpleText
                 color={"fade"}
                 content={getPassedTime(singlePostData.createdAt)}
               />
             </FlexBox>
-            <FlexBox padding={"small"}>
+            <FlexBox padding={"s"}>
               {likeCount !== 0 && (
                 <TextButton
                   content={`${likeCount} like`}
@@ -189,6 +179,7 @@ const SinglePost = ({
                 inputValue={inputValue}
                 button={inputValue?.length > 0 ? true : false}
                 noBreak
+                border
                 textButtonContent={"Post"}
                 textButtonAction={onSendComment}
                 replyInputRef={replyInputRef}

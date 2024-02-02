@@ -1,15 +1,14 @@
 import { Outlet } from "react-router-dom";
 import React from "react";
 import App from "../App";
-import Home from "../pages/Home/Home";
 
-const RootHome = () => {
+const RootApp = () => {
   return (
     <>
-      <Home />
+      <App />
       <Outlet />
     </>
   );
 };
 
-export default RootHome;
+export default RootApp;

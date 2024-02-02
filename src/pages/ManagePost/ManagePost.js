@@ -1,4 +1,4 @@
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import FileInput from "../../lib/components/InputTypes/FileInput";
 import FlexBox from "../../lib/components/FlexBox";
@@ -19,7 +19,6 @@ import useLoggedInUser from "../../context/useLoggedInUser";
 const ManagePost = () => {
   const [inputValue, setInputValue] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
   const { postId } = useParams();
 
   const { userLoggedInData } = useLoggedInUser();
@@ -32,7 +31,9 @@ const ManagePost = () => {
     control,
   } = useForm({ resolver: yupResolver(managePostValidationSchema) });
 
-  const path = !postId ? "create" : `editPost?postId=${postId}`;
+  const path = !postId
+    ? `create?identifier=${userLoggedInData?.userId}`
+    : `editPost?identifier=${postId}`;
 
   const { backendErrors, submit } = useDataPoster({
     requestHeader: "multipart",
@@ -60,31 +61,33 @@ const ManagePost = () => {
       setIsLoading(false);
     }
   };
-
+  console.log(backendErrors);
   useEffect(() => {
     setInputValue({});
-    if (!postId) return;
+    if (!postId || !userLoggedInData.userId) return;
     fetchPostData();
-  }, [postId]);
+  }, [postId, userLoggedInData.userId]);
 
   const onInputChange = (name, value) => {
     setInputValue({ ...inputValue, [name]: value });
   };
   const onFormSubmit = async () => {
-    const state = postId ? false : true;
-    submit({ dataToSend: { ...inputValue, postId } });
-    navigate("/twind", { state: { isAdded: state } });
+    await submit({
+      dataToSend: inputValue,
+      navigateTo: `/twind/${userLoggedInData.username}`,
+    });
   };
 
   return (
     <div
       style={{
-        height: "100vh",
+        height: "calc(100% - 30px)",
         display: "flex",
         paddingTop: "30px",
         flexDirection: "column",
         gap: "30px",
         alignItems: "center",
+        marginLeft: "370px",
       }}
     >
       <SimpleText
@@ -137,6 +140,7 @@ const ManagePost = () => {
         <Button
           content={postId ? "Submit" : "Share"}
           action={handleSubmit(onFormSubmit)}
+          type={"button"}
         />
       )}
     </div>

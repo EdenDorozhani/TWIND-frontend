@@ -1,8 +1,8 @@
-import AsyncInputPicker from "../InputTypes/AsyncInputPicker";
-import FileInput from "../InputTypes/FileInput";
-import PasswordInput from "../InputTypes/PasswordInput";
-import SimpleInput from "../InputTypes/SimpleInput";
-import TextAreaInput from "../InputTypes/TextAreaInput";
+import AsyncInputPicker from "./InputTypes/AsyncInputPicker";
+import FileInput from "./InputTypes/FileInput";
+import PasswordInput from "./InputTypes/PasswordInput";
+import SimpleInput from "./InputTypes/SimpleInput";
+import TextAreaInput from "./InputTypes/TextAreaInput";
 
 const InputFilter = ({
   inputProps,

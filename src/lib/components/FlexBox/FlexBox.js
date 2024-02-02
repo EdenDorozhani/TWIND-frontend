@@ -46,30 +46,30 @@ const FlexBox = ({
   }
 
   switch (padding) {
-    case "small":
+    case "s":
       styleClass = [...styleClass, classes.paddingS];
       break;
-    case "medium":
+    case "m":
       styleClass = [...styleClass, classes.paddingM];
       break;
-    case "large":
+    case "l":
       styleClass = [...styleClass, classes.paddingL];
       break;
-    case "extra large":
+    case "xl":
       styleClass = [...styleClass, classes.paddingXL];
   }
 
   switch (gap) {
-    case "small":
+    case "s":
       styleClass = [...styleClass, classes.gapS];
       break;
-    case "medium":
+    case "m":
       styleClass = [...styleClass, classes.gapM];
       break;
-    case "large":
+    case "l":
       styleClass = [...styleClass, classes.gapL];
       break;
-    case "extra large":
+    case "xl":
       styleClass = [...styleClass, classes.gapXl];
   }
 

@@ -29,13 +29,17 @@ const PasswordInput = ({
 
   const iconName = showPassword ? faEye : faEyeSlash;
 
-  const classNames = [classes.passwordInput, errors ? classes.danger : ""].join(
-    " "
-  );
+  const classNames = [
+    classes.passwordInput,
+    errors || backendErrors ? classes.danger : "",
+  ].join(" ");
 
   return (
-    <FlexBox direction={"column"} gap="small">
-      <SimpleText content={formatText(name)} color={!!errors && "danger"} />
+    <FlexBox direction={"column"} gap="s">
+      <SimpleText
+        content={formatText(name)}
+        color={(!!errors || backendErrors) && "danger"}
+      />
       {!!errors && <ErrorText content={errors.message} />}
       {!!backendErrors && !errors && <ErrorText content={backendErrors} />}
       <FlexBox alignItems={"end"} justifyContent="between">
@@ -50,7 +54,7 @@ const PasswordInput = ({
           iconName={iconName}
           action={onShowPassword}
           size={"s"}
-          color={!!errors && "danger"}
+          color={(!!errors || !!backendErrors) && "danger"}
           type="button"
         />
       </FlexBox>
