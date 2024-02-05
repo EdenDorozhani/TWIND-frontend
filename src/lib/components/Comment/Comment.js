@@ -71,7 +71,6 @@ const Comment = ({
       onShowReplies(parentCommentId, comments.totalReplies);
     }
   };
-  console.log(isVisible);
   return (
     <>
       <FlexBox direction={"column"}>

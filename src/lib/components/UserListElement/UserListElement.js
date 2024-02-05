@@ -5,7 +5,6 @@ import TextButton from "../TextButton";
 import SimpleText from "../SimpleText";
 import Button from "../Button";
 import { formatImgUrl } from "../../helpers";
-import { motion } from "framer-motion";
 
 const UserListElement = ({
   data,

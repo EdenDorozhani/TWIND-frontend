@@ -18,7 +18,7 @@ const Authentication = () => {
 
   const { isVisible, openModal, closeModal } = useModal({});
 
-  const { submit, isLoading } = useDataPoster({
+  const { submit, isLoading, backendErrors } = useDataPoster({
     requestHeader: "json",
     urlPath: pageStatus,
   });
@@ -81,10 +81,12 @@ const Authentication = () => {
   };
 
   const onResetPassword = async () => {
-    await submit({
+    const response = await submit({
       dataToSend: resetPasswordInputValue,
     });
-    resetData();
+    if (response) {
+      resetData();
+    }
   };
 
   return (
@@ -98,6 +100,7 @@ const Authentication = () => {
           errors={errors}
           register={register}
           backButtonAction={onCloseModal}
+          backendErrors={backendErrors}
         />
       </Modal>
       <UserAuth

@@ -15,8 +15,6 @@ const ChangePassword = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const token = searchParams.get("token");
-  const email = searchParams.get("email");
-
   const { submit, backendErrors } = useDataPoster({
     requestHeader: "json",
     urlPath: "changePassword",
@@ -37,7 +35,7 @@ const ChangePassword = () => {
 
   const onFormSubmit = async () => {
     const response = await submit({
-      dataToSend: { ...inputValue, token, email },
+      dataToSend: { ...inputValue, token },
     });
     if (!response) return;
     navigate("/");
@@ -53,7 +51,7 @@ const ChangePassword = () => {
     >
       <form
         onSubmit={handleSubmit(onFormSubmit)}
-        style={{ paddingTop: "300px" }}
+        style={{ paddingTop: "300px", width: "500px", margin: "0px auto" }}
       >
         <FlexBox
           direction={"column"}
@@ -62,7 +60,7 @@ const ChangePassword = () => {
           padding={"xl"}
           style={{
             border: "1px solid white",
-            margin: "0px 300px",
+
             backgroundColor: "white",
           }}
         >

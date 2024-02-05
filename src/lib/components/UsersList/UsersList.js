@@ -4,6 +4,8 @@ import FlatList from "../FlatList";
 import ScrollPagination from "../ScrollPagination";
 import SearchBar from "../InputTypes/SearchBar/SearchBar";
 import UserListElement from "../UserListElement";
+import Spinner from "../Spinner";
+import { motion } from "framer-motion";
 
 const UsersList = ({
   shouldInterruptScroll,
@@ -39,37 +41,53 @@ const UsersList = ({
         style={{
           height: "340px",
           overflowY: "scroll",
+          position: "relative",
         }}
       >
         <ScrollPagination
           loadMore={shouldInterruptScroll}
           dataLength={configurationData.paginationData.data.length}
           isLoading={configurationData.isLoading}
-          totalCount={configurationData.paginationData.count}
+          totalCount={
+            inputValue.length !== 0
+              ? configurationData.paginationData.data.length
+              : configurationData.paginationData.count
+          }
           useWindow={false}
         >
           <FlexBox direction={"column"} padding={"m"} gap={"m"}>
-            {configurationData.paginationData.data.length === 0 ? (
+            {configurationData.paginationData.isEmpty ? (
               <FlexBox justifyContent={"center"}>
                 <SimpleText content={`No ${module}.`} />
               </FlexBox>
             ) : null}
+
             <FlatList
               data={configurationData.paginationData.data}
               renderItem={(curr) => (
-                <UserListElement
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.1 }}
                   key={module === "Followers" ? curr.followId : curr.likeId}
-                  data={curr}
-                  onUserClick={onUserClick}
-                  userId={userId}
-                  updateFollowers={updateFollowers}
-                  type={module}
-                  updateFollowingCount={updateFollowingCount}
-                />
+                  style={{ height: "200px" }}
+                >
+                  <UserListElement
+                    data={curr}
+                    onUserClick={onUserClick}
+                    userId={userId}
+                    updateFollowers={updateFollowers}
+                    type={module}
+                    updateFollowingCount={updateFollowingCount}
+                  />
+                </motion.div>
               )}
             />
           </FlexBox>
         </ScrollPagination>
+        {!configurationData.paginationData.isEmpty && (
+          <Spinner size={"l"} isVisible={configurationData.isLoading} />
+        )}
       </div>
     </>
   );

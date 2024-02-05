@@ -2,6 +2,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classes from "./Icon.module.css";
 
 const Icon = ({ iconName, action, color, size, type }) => {
+  if (!iconName) {
+    return;
+  }
+
   let styleClass = [classes.icon];
 
   switch (size) {

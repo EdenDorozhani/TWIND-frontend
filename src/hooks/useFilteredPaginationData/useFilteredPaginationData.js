@@ -15,49 +15,50 @@ const useFilteredPaginationData = ({
     isEmpty: false,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(1);
   const [searchBarValue, setSearchBarValue] = useState("");
 
   const scrollCondition = searchBarValue.length !== 0;
 
-  const getFilteredData = async ({ initialPage = false }) => {
+  const getFilteredData = async () => {
     if (!scrollCondition) return;
     const url =
       BASE_URL +
-      `/${path}?page=${initialPage ? 1 : page}&pageSize=${pageSize}${
+      `/${path}?pageSize=${pageSize}${
         userLoggedIn ? `&userLoggedIn=${userLoggedIn}` : ""
       }${
         identifier ? `&identifier=${identifier}` : ""
       }&value=${searchBarValue}`;
-    setIsLoading(true);
     try {
       const response = await getPaginationData(url);
-      setFilteredData((prevState) => ({
-        data: initialPage
-          ? response.data.response.data
-          : [...prevState.data, ...response.data.response.data],
+      setFilteredData({
+        data: response.data.response.data,
         module: response.data.response.module,
         count: response.data.response.count,
         isEmpty: response.data.response.isEmpty,
-      }));
-      setPage((prevState) => prevState + 1);
-      setIsLoading(false);
+      });
     } catch (err) {
       console.log(err);
     }
   };
 
   useEffect(() => {
-    if (searchBarValue.length === 0) {
-      setFilteredData({
-        data: [],
-        module: "",
-        count: null,
-      });
-      return;
-    }
-    setPage(1);
-    getFilteredData({ initialPage: true });
+    setIsLoading(true);
+    const fetchData = () => {
+      if (searchBarValue.length === 0) {
+        setFilteredData({
+          data: [],
+          module: "",
+          count: null,
+        });
+        return;
+      }
+      getFilteredData();
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+      setIsLoading(false);
+    }, 300);
+    return () => clearTimeout(timer);
   }, [searchBarValue]);
 
   const getSearchBarValue = (value) => {
@@ -70,7 +71,6 @@ const useFilteredPaginationData = ({
       module: "",
       count: null,
     });
-    setPage(1);
     setSearchBarValue("");
   };
 

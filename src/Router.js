@@ -10,16 +10,19 @@ import RootSidebar from "./routerRoots/RootSidebar";
 import RootHome from "./routerRoots/RootHome";
 import RootProfile from "./routerRoots/RootProfile";
 import RootExplore from "./routerRoots/RootExplore";
+import ErrorPage from "./pages/RouteError/RouteError";
 
 const Router = () => {
   const router = createBrowserRouter([
     {
       path: "/",
+      errorElement: <ErrorPage />,
       element: <RootApp />,
       children: [
         { index: true, element: <Login /> },
         { path: "signup", element: <Signup /> },
         { path: "resetPassword", element: <ChangePassword /> },
+        { path: "error", element: <ErrorPage /> },
         {
           path: "twind",
           element: <RootSidebar />,

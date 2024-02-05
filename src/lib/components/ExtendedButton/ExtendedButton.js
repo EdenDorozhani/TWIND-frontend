@@ -8,6 +8,7 @@ const ExtendedButton = ({
   icon,
   textContent,
   backgroundColor,
+  resetUserLoggedInData,
   buttonSize,
   textColor,
   iconColor,
@@ -18,6 +19,9 @@ const ExtendedButton = ({
   action,
 }) => {
   const onClickAction = () => {
+    if (textContent === "Logout") {
+      resetUserLoggedInData();
+    }
     !!action && action();
   };
 

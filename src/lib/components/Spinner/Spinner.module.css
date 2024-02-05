@@ -1,0 +1,31 @@
+.spinner {
+  color: rgb(9, 121, 84);
+  animation: spin 1s infinite linear;
+  font-size: 50px;
+  position: absolute;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.sFont {
+  font-size: 15px;
+}
+
+.mFont {
+  font-size: 25px;
+}
+
+.lFont {
+  font-size: 35px;
+}
+
+.xlFont {
+  font-size: 45px;
+}

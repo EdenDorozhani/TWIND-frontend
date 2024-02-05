@@ -12,7 +12,7 @@ import FlatList from "../../lib/components/FlatList";
 import { formatImgUrl } from "../../lib/helpers";
 import PostsGrid from "../../lib/components/PostsGrid";
 import { getProfileData } from "./Profile.actions";
-import useLoggedInUser from "../../context/useLoggedInUser";
+import useLoggedInUser from "../../hooks/useLoggedInUser";
 import ScrollPagination from "../../lib/components/ScrollPagination";
 import { postFollowers } from "../Home/Home.actions";
 import { toast } from "react-toastify";
@@ -22,7 +22,7 @@ import Modal from "../../lib/components/Modal";
 import UsersList from "../../lib/components/UsersList";
 import useModal from "../../hooks/useModal";
 import { determineFollowersPaginationData } from "./pageHelpers";
-import useFilteredPaginationData from "../../hooks/useFilteredPaginationData/useFilteredPaginationData";
+import useFilteredPaginationData from "../../hooks/useFilteredPaginationData";
 
 const Profile = () => {
   const [profileUserData, setProfileUserData] = useState({});
@@ -41,12 +41,12 @@ const Profile = () => {
     path: "getProfilePostsData",
   });
   const { costumeData: followers } = usePaginationData({
-    pageSize: 1,
+    pageSize: 5,
     path: "getFollowers",
   });
   const { filteredPaginationData } = useFilteredPaginationData({
     identifier: profileUserData.userId,
-    pageSize: 1,
+    pageSize: 20,
     path: "getFollowers",
   });
 
@@ -55,6 +55,10 @@ const Profile = () => {
       const response = await getProfileData(username);
       setProfileUserData(response);
     } catch (err) {
+      if (!err.response.data.success) {
+        navigate("/error");
+      }
+      console.log(err);
       console.log(err);
     }
   };
@@ -140,7 +144,6 @@ const Profile = () => {
     followers,
     profileUserData,
   });
-
   return (
     <>
       <Modal isVisible={isVisible} onClose={closeFollowersModal}>
@@ -156,7 +159,9 @@ const Profile = () => {
           updateFollowingCount={updateFollowingCount}
         />
       </Modal>
-      <div style={{ marginLeft: "370px" }}>
+      <div
+        style={{ marginLeft: "370px", height: "100%", position: "relative" }}
+      >
         <div
           style={{
             display: "flex",
@@ -234,30 +239,30 @@ const Profile = () => {
                 </FlexBox>
               </div>
             )}
-            <div style={{ width: "100%" }}>
-              <ScrollPagination
-                loadMore={() =>
-                  profilePosts.getDataPagination({ identifier: username })
-                }
-                dataLength={profilePosts.paginationData.data.length}
-                isLoading={profilePosts.isLoading}
-                totalCount={profilePosts.paginationData.count}
-                useWindow={true}
-              >
-                <FlexBox wrap gap={"s"}>
-                  <FlatList
-                    data={profilePosts.paginationData.data}
-                    renderItem={(post) => (
-                      <PostsGrid
-                        key={post.postId}
-                        postData={post}
-                        action={onOpenPost}
-                      />
-                    )}
-                  />
-                </FlexBox>
-              </ScrollPagination>
-            </div>
+
+            <ScrollPagination
+              loadMore={() =>
+                profilePosts.getDataPagination({ identifier: username })
+              }
+              dataLength={profilePosts.paginationData.data.length}
+              isLoading={profilePosts.isLoading}
+              totalCount={profilePosts.paginationData.count}
+              useWindow={true}
+              withTransition={true}
+            >
+              <FlexBox wrap gap={"s"}>
+                <FlatList
+                  data={profilePosts.paginationData.data}
+                  renderItem={(post) => (
+                    <PostsGrid
+                      key={post.postId}
+                      postData={post}
+                      action={onOpenPost}
+                    />
+                  )}
+                />
+              </FlexBox>
+            </ScrollPagination>
           </FlexBox>
         </div>
       </div>

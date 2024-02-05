@@ -11,7 +11,7 @@ import SimpleText from "../../lib/components/SimpleText";
 import Icon from "../../lib/components/Icon";
 import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
 import useModal from "../../hooks/useModal";
-import useLoggedInUser from "../../context/useLoggedInUser";
+import useLoggedInUser from "../../hooks/useLoggedInUser";
 import ImageInput from "../../lib/components/InputTypes/ImageInput";
 import { formatImgUrl } from "../../lib/helpers";
 import Modal from "../../lib/components/Modal/Modal";

@@ -9,9 +9,14 @@ const UserProvider = ({ children }) => {
     setUserLoggedInData(data);
   };
 
+  const resetState = () => {
+    setUserLoggedInData({});
+  };
+
   const providerValue = {
     userLoggedInData,
     storeData,
+    resetState,
   };
 
   return (

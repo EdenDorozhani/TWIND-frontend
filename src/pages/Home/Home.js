@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import usePaginationData from "../../hooks/usePaginationData";
 import Modal from "../../lib/components/Modal";
 import useModal from "../../hooks/useModal";
-import useLoggedInUser from "../../context/useLoggedInUser";
+import useLoggedInUser from "../../hooks/useLoggedInUser";
 import UsersList from "../../lib/components/UsersList";
 import PostActions from "../../lib/components/PostActions";
 import useDataDeleter from "../../hooks/useDataDeleter";
@@ -155,19 +155,18 @@ const Home = () => {
           />
         )}
       </Modal>
-      <ScrollPagination
-        loadMore={() =>
-          followingPosts.getDataPagination({
-            userLoggedIn: userLoggedInData?.userId,
-          })
-        }
-        dataLength={followingPosts.paginationData.data.length}
-        isLoading={followingPosts.isLoading}
-        totalCount={followingPosts.paginationData.count}
-        useWindow={true}
-        withTransition={true}
-      >
-        <FlexBox justifyContent={"center"}>
+      <FlexBox justifyContent={"center"}>
+        <ScrollPagination
+          loadMore={() =>
+            followingPosts.getDataPagination({
+              userLoggedIn: userLoggedInData?.userId,
+            })
+          }
+          dataLength={followingPosts.paginationData.data.length}
+          isLoading={followingPosts.isLoading}
+          totalCount={followingPosts.paginationData.count}
+          withTransition={true}
+        >
           <FlexBox
             padding={"xl"}
             direction={"column"}
@@ -194,15 +193,15 @@ const Home = () => {
               )}
             />
           </FlexBox>
-          <NotificationPanel
-            notifications={notifications}
-            dateRangeData={dateRangeData}
-            onNotificationPostClick={onNotificationPostClick}
-            navigateToUserProfile={navigateToUserProfile}
-            userId={userLoggedInData.userId}
-          />
-        </FlexBox>
-      </ScrollPagination>
+        </ScrollPagination>
+        <NotificationPanel
+          notifications={notifications}
+          dateRangeData={dateRangeData}
+          onNotificationPostClick={onNotificationPostClick}
+          navigateToUserProfile={navigateToUserProfile}
+          userId={userLoggedInData.userId}
+        />
+      </FlexBox>
     </>
   );
 };

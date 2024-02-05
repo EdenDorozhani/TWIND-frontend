@@ -1,13 +1,13 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import MainSidebar from "../../lib/components/MainSidebar";
-import useLoggedInUser from "../../context/useLoggedInUser";
+import useLoggedInUser from "../../hooks/useLoggedInUser";
 import { sidebarHelpers } from "./RootSidebarHelpers";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useEffect } from "react";
 
 const RootSidebar = () => {
-  const { userLoggedInData, storeData } = useLoggedInUser();
+  const { userLoggedInData, storeData, resetState } = useLoggedInUser();
 
   const storeUserData = async () => {
     try {
@@ -21,6 +21,10 @@ const RootSidebar = () => {
   useEffect(() => {
     storeUserData();
   }, []);
+
+  const resetUserLoggedInData = () => {
+    resetState();
+  };
 
   const navigate = useNavigate();
 
@@ -37,6 +41,7 @@ const RootSidebar = () => {
           userLoggedInData.userImgURL
         )}
         action={onNavigate}
+        resetUserLoggedInData={resetUserLoggedInData}
       />
       <Outlet />
     </>

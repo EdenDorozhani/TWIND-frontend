@@ -16,7 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ModalOverlay from "../../lib/components/ModalOverlay";
 import useModal from "../../hooks/useModal";
 import Modal from "../../lib/components/Modal";
-import useLoggedInUser from "../../context/useLoggedInUser";
+import useLoggedInUser from "../../hooks/useLoggedInUser";
 import UsersList from "../../lib/components/UsersList";
 import PostActions from "../../lib/components/PostActions";
 import useDataPoster from "../../hooks/useDataPoster/useDataPoster";
@@ -80,7 +80,9 @@ const PostModal = () => {
       const response = await getSinglePost(postId, userLoggedInData.userId);
       setSinglePost(response);
     } catch (err) {
-      toast.error(err.message);
+      if (!err.response.data.success) {
+        navigate("/error");
+      }
     } finally {
       setIsSinglePostLoading(false);
     }
@@ -184,7 +186,6 @@ const PostModal = () => {
   };
 
   const confirmDelete = async () => {
-    console.log(replyId, commentId, postId);
     const response = onDelete({
       identifier: replyId || commentId || postId,
       action: closeLikesAndActionModal,
@@ -204,7 +205,6 @@ const PostModal = () => {
         key: "commentId",
       });
     } else if (!commentId) {
-      console.log(username);
       navigate(`/twind${username ? `/${username}` : ""}`, {
         state: { postId },
       });

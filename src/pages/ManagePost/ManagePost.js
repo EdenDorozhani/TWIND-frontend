@@ -14,7 +14,7 @@ import { formatImgUrl } from "../../lib/helpers";
 import { getSinglePost } from "../PostModal/PostModal.actions";
 import AsyncInputPicker from "../../lib/components/InputTypes/AsyncInputPicker";
 import useDataPoster from "../../hooks/useDataPoster/useDataPoster";
-import useLoggedInUser from "../../context/useLoggedInUser";
+import useLoggedInUser from "../../hooks/useLoggedInUser";
 
 const ManagePost = () => {
   const [inputValue, setInputValue] = useState({});
@@ -61,7 +61,6 @@ const ManagePost = () => {
       setIsLoading(false);
     }
   };
-  console.log(backendErrors);
   useEffect(() => {
     setInputValue({});
     if (!postId || !userLoggedInData.userId) return;

@@ -37,7 +37,6 @@ const useDataPoster = ({ requestHeader, urlPath }) => {
       }
       return response;
     } catch (err) {
-      console.log(err.response.data.response);
       if (
         err.response.data.response !== null &&
         err.response.data.response.length !== 0

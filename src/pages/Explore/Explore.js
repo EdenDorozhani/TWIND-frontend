@@ -5,7 +5,7 @@ import SearchBar from "../../lib/components/InputTypes/SearchBar/SearchBar";
 import PostsGrid from "../../lib/components/PostsGrid";
 import UserListElement from "../../lib/components/UserListElement";
 import FlatList from "../../lib/components/FlatList";
-import useLoggedInUser from "../../context/useLoggedInUser";
+import useLoggedInUser from "../../hooks/useLoggedInUser";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,6 +13,8 @@ import ScrollPagination from "../../lib/components/ScrollPagination";
 import { postFollowers } from "../Home/Home.actions";
 import SimpleText from "../../lib/components/SimpleText";
 import useFilteredPaginationData from "../../hooks/useFilteredPaginationData/useFilteredPaginationData";
+import { motion } from "framer-motion";
+import Spinner from "../../lib/components/Spinner";
 
 const Explore = () => {
   const { userLoggedInData } = useLoggedInUser();
@@ -25,7 +27,7 @@ const Explore = () => {
 
   const { filteredPaginationData } = useFilteredPaginationData({
     userLoggedIn: userLoggedInData.userId,
-    pageSize: 3,
+    pageSize: 12,
     path: "getAllUsers",
   });
 
@@ -57,6 +59,8 @@ const Explore = () => {
     <div
       style={{
         marginLeft: "371px",
+        height: "100%",
+        position: "relative",
       }}
     >
       <FlexBox direction={"column"}>
@@ -66,38 +70,40 @@ const Explore = () => {
         />
         {filteredPaginationData.scrollCondition && (
           <FlexBox direction={"column"}>
-            <ScrollPagination
-              dataLength={filteredPaginationData.filteredData.data.length}
-              loadMore={() => filteredPaginationData.getFilteredData({})}
-              isLoading={filteredPaginationData.isLoading}
-              totalCount={filteredPaginationData.filteredData.count}
-              useWindow={false}
+            <div
+              style={{
+                height: "260px",
+                overflowY: "scroll",
+                backgroundColor: "white",
+                position: "absolute",
+                marginLeft: "20px",
+                width: "97%",
+                zIndex: 100000,
+                borderRadius: "15px",
+              }}
             >
-              <div
-                style={{
-                  maxHeight: "500px",
-                  minHeight: "30px",
-                  overflowY: "scroll",
-                  backgroundColor: "white",
-                  position: "absolute",
-                  marginLeft: "20px",
-                  width: "calc(100% - 405px)",
-                  zIndex: 100000,
-                  borderRadius: "15px",
-                }}
-              >
-                {filteredPaginationData.filteredData.isEmpty ? (
-                  <SimpleText
-                    content={"No users with this username."}
-                    style={{ textAlign: "center" }}
-                  />
-                ) : (
-                  <FlexBox direction={"column"} padding={"m"} gap={"m"}>
-                    {!filteredPaginationData.isLoading && (
+              {!filteredPaginationData.isLoading ? (
+                <>
+                  {filteredPaginationData.filteredData.isEmpty ? (
+                    <SimpleText
+                      content={"No users with this username."}
+                      style={{ textAlign: "center" }}
+                      size={"m"}
+                    />
+                  ) : (
+                    <FlexBox
+                      direction={"column"}
+                      padding={"m"}
+                      gap={"m"}
+                      justifyContent={"center"}
+                    >
                       <FlatList
                         data={filteredPaginationData.filteredData.data}
                         renderItem={(user) => (
-                          <div
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.2 }}
                             style={{
                               border: "1px solid green",
                               padding: "15px",
@@ -112,14 +118,16 @@ const Explore = () => {
                               updateFollowers={updateFollowers}
                               type={"Users"}
                             />
-                          </div>
+                          </motion.div>
                         )}
                       />
-                    )}
-                  </FlexBox>
-                )}
-              </div>
-            </ScrollPagination>
+                    </FlexBox>
+                  )}
+                </>
+              ) : (
+                <Spinner isVisible={true} size={"xl"} />
+              )}
+            </div>
           </FlexBox>
         )}
         <ScrollPagination
@@ -127,6 +135,7 @@ const Explore = () => {
           dataLength={allPosts.paginationData.data.length}
           isLoading={allPosts.isLoading}
           totalCount={allPosts.paginationData.count}
+          withTransition={true}
           useWindow={true}
         >
           <FlexBox wrap gap={"s"} justifyContent={"center"}>

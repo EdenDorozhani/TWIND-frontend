@@ -25,7 +25,7 @@ const HOME_SIDEBAR_LINKS = (userPhoto) => {
     { content: "Logout", icon: faRightFromBracket, path: "/" },
     {
       content: "Profile",
-      src: `http://localhost:3131/${userPhoto}`,
+      src: userPhoto ? `http://localhost:3131/${userPhoto}` : null,
       path: "twind/username",
     },
   ];

@@ -29,6 +29,7 @@ const NotificationPanel = ({
       <FlexBox padding={"m"}>
         <SimpleText content="Notifications" size={"l"} />
       </FlexBox>
+
       <ScrollPagination
         dataLength={notifications.paginationData.data.length}
         isLoading={notifications.isLoading}
@@ -40,6 +41,7 @@ const NotificationPanel = ({
             withPages: true,
           })
         }
+        withTransition={true}
       >
         <FlexBox direction={"column"}>
           <div style={{ borderBottom: "1px solid rgb(9, 121, 84, 0.3)" }}>

@@ -5,7 +5,7 @@ import SimpleText from "../SimpleText";
 import FlatList from "../FlatList";
 import { motion } from "framer-motion";
 
-const MainSidebar = ({ sideBarLinks, action }) => {
+const MainSidebar = ({ sideBarLinks, action, resetUserLoggedInData }) => {
   return (
     <div>
       <motion.div
@@ -44,6 +44,7 @@ const MainSidebar = ({ sideBarLinks, action }) => {
                 src={link.src}
                 justifyContent={"end"}
                 action={action[link.path]}
+                resetUserLoggedInData={resetUserLoggedInData}
               />
             )}
           />
