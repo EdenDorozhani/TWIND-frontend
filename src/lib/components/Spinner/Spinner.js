@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classes from "./Spinner.module.css";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-const Spinner = ({ size, isVisible }) => {
+const Spinner = ({ size, isVisible, bottom }) => {
   if (!isVisible) {
     return;
   }

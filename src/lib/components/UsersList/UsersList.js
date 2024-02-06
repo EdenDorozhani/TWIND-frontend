@@ -49,13 +49,13 @@ const UsersList = ({
           dataLength={configurationData.paginationData.data.length}
           isLoading={configurationData.isLoading}
           totalCount={
-            inputValue.length !== 0
+            inputValue
               ? configurationData.paginationData.data.length
               : configurationData.paginationData.count
           }
           useWindow={false}
         >
-          <FlexBox direction={"column"} padding={"m"} gap={"m"}>
+          <FlexBox direction={"column"} padding={"m"} gap={"l"}>
             {configurationData.paginationData.isEmpty ? (
               <FlexBox justifyContent={"center"}>
                 <SimpleText content={`No ${module}.`} />
@@ -70,7 +70,6 @@ const UsersList = ({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.1 }}
                   key={module === "Followers" ? curr.followId : curr.likeId}
-                  style={{ height: "200px" }}
                 >
                   <UserListElement
                     data={curr}

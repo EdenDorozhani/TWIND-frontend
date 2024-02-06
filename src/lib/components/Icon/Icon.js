@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classes from "./Icon.module.css";
 
-const Icon = ({ iconName, action, color, size, type }) => {
+const Icon = ({ iconName, action, color, size, type, style }) => {
   if (!iconName) {
     return;
   }
@@ -58,6 +58,7 @@ const Icon = ({ iconName, action, color, size, type }) => {
       }}
     >
       <FontAwesomeIcon
+        style={style}
         icon={iconName}
         onClick={onClickHandler}
         className={styleClass.join(" ")}

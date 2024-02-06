@@ -59,6 +59,7 @@ const Home = () => {
       userLoggedIn: userLoggedInData.userId,
       withPages: true,
     });
+
     //Delete home posts from PostModal
     if (!!deletedPostId) {
       followingPosts.onDeleteFrontEnd({
@@ -131,6 +132,10 @@ const Home = () => {
     navigate(`p/${identifier}`);
   };
 
+  const interruptFollowersCall = notifications.paginationData.data.some(
+    (e) => e.type === "followers"
+  );
+
   return (
     <>
       <Modal isVisible={isVisible} onClose={onCloseModal}>
@@ -200,6 +205,7 @@ const Home = () => {
           onNotificationPostClick={onNotificationPostClick}
           navigateToUserProfile={navigateToUserProfile}
           userId={userLoggedInData.userId}
+          interruptFollowersCall={interruptFollowersCall}
         />
       </FlexBox>
     </>

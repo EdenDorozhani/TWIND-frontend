@@ -40,6 +40,7 @@ const usePaginationData = ({ pageSize, path }) => {
     userLoggedIn,
     initialLastElementId,
     withPages,
+    interrupt = false,
   }) => {
     const url =
       BASE_URL +
@@ -49,7 +50,7 @@ const usePaginationData = ({ pageSize, path }) => {
           : `lastElementId=${initialLastElementId ? "" : lastElementId}`
       }&pageSize=${pageSize}${identifier ? `&identifier=${identifier}` : ""}${
         userLoggedIn ? `&userLoggedIn=${userLoggedIn}` : ""
-      }`;
+      }&interrupt=${interrupt}`;
     setIsLoading(true);
     try {
       const response = await getPaginationData(url);

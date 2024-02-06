@@ -37,7 +37,7 @@ const Profile = () => {
   const { isVisible, closeModal, openModal } = useModal();
 
   const { costumeData: profilePosts } = usePaginationData({
-    pageSize: 1,
+    pageSize: 3,
     path: "getProfilePostsData",
   });
   const { costumeData: followers } = usePaginationData({

@@ -77,6 +77,9 @@ const ManagePost = () => {
     });
   };
 
+  const emptyFile = () => {
+    setInputValue((prevState) => ({ ...prevState, postImage: null }));
+  };
   return (
     <div
       style={{
@@ -105,6 +108,7 @@ const ManagePost = () => {
               inputValue={inputValue["postImage"]}
               isLoading={isLoading}
               postId={postId}
+              emptyFile={emptyFile}
             />
             <div style={{ borderLeft: "1px solid black" }}>
               <FlexBox

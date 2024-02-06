@@ -17,7 +17,7 @@ const PostsGrid = ({ action, postData }) => {
       style={{
         flex: "0 0 calc(31%)",
         position: "relative",
-        height: "400px",
+        height: "430px",
       }}
       onMouseEnter={() => setIsShown(true)}
       onMouseLeave={() => setIsShown(false)}

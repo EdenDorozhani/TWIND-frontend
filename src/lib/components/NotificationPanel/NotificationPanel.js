@@ -10,6 +10,7 @@ const NotificationPanel = ({
   onNotificationPostClick,
   navigateToUserProfile,
   userId,
+  interruptFollowersCall,
 }) => {
   const generateKey = (id) => {
     return `${id}_${new Date().getTime()}`;
@@ -39,6 +40,7 @@ const NotificationPanel = ({
           notifications.getDataPagination({
             userLoggedIn: userId,
             withPages: true,
+            interrupt: interruptFollowersCall,
           })
         }
         withTransition={true}

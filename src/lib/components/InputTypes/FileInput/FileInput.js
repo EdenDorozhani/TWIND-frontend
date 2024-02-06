@@ -5,6 +5,7 @@ import SimpleText from "../../SimpleText";
 import FlexBox from "../../FlexBox";
 import Icon from "../../Icon";
 import ErrorText from "../../ErrorText";
+import TextButton from "../../TextButton";
 
 const FileInput = ({
   name,
@@ -14,6 +15,7 @@ const FileInput = ({
   inputValue,
   isLoading,
   postId,
+  emptyFile,
 }) => {
   const [image, setImage] = useState();
 
@@ -33,26 +35,38 @@ const FileInput = ({
     }
   };
 
+  const discardImage = () => {
+    setImage();
+    emptyFile();
+  };
+
   return (
     <FlexBox direction="column" gap="s">
       {!!backendErrors && <ErrorText content={backendErrors} />}
-      <div className={classes.inputFileContainer}>
-        <label className={classes.costumFileInput}>
-          <input
-            {...register(name, {
-              onChange: onChangeHandler,
-            })}
-            type="file"
-            name={name}
-            className={classes.fileInput}
-          />
-          <div className={classes.fileInputContent}>
-            <span>
-              <Icon iconName={faFileImport} color="white" />
-            </span>
-            <SimpleText content="upload image" size="s" color="white" />
+      <div className={classes.inputFileContainer} onClick={discardImage}>
+        {inputValue ? (
+          <div style={{ padding: "10px" }}>
+            {" "}
+            <TextButton content={`discard image`} size="s" color={"danger"} />
           </div>
-        </label>
+        ) : (
+          <label className={classes.costumFileInput}>
+            <input
+              {...register(name, {
+                onChange: onChangeHandler,
+              })}
+              type="file"
+              name={name}
+              className={classes.fileInput}
+            />
+            <div className={classes.fileInputContent}>
+              <span>
+                <Icon iconName={faFileImport} color="white" />
+              </span>
+              <SimpleText content={`upload image`} size="s" color="white" />
+            </div>
+          </label>
+        )}
         {!image && (
           <SimpleText
             content="No image is uploaded, please upload an image."

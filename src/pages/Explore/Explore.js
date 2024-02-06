@@ -53,6 +53,7 @@ const Explore = () => {
 
   const onPostsClick = (postId) => {
     navigate(`p/${postId}`);
+    filteredPaginationData.resetState();
   };
 
   return (
@@ -78,7 +79,7 @@ const Explore = () => {
                 position: "absolute",
                 marginLeft: "20px",
                 width: "97%",
-                zIndex: 100000,
+                zIndex: 1,
                 borderRadius: "15px",
               }}
             >

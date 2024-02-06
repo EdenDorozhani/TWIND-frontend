@@ -33,7 +33,9 @@ const useDataPoster = ({ requestHeader, urlPath }) => {
       const response = await postAction({ dataToSend, headers, url });
       if (response.data.success) {
         !toastScc && toast.success(response.data.message);
-        navigate(navigateTo);
+        if (navigateTo) {
+          navigate(navigateTo);
+        }
       }
       return response;
     } catch (err) {
