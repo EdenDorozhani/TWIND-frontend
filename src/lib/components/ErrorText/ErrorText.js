@@ -1,7 +1,6 @@
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import Icon from "../Icon";
 import classes from "./ErrorText.module.css";
-import FlexBox from "../FlexBox";
 
 const ErrorText = ({ content }) => {
   return (

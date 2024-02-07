@@ -9,7 +9,7 @@ import Modal from "../../lib/components/Modal/Modal";
 import ChangeCredentials from "../../lib/components/ChangeCredentials";
 import useModal from "../../hooks/useModal";
 
-const Authentication = () => {
+const Login = () => {
   const [loginInputsValue, setLoginInputsValue] = useState({});
   const [resetPasswordInputValue, setResetPasswordInputValue] = useState({});
   const [pageStatus, setPageStatus] = useState("login");
@@ -120,4 +120,4 @@ const Authentication = () => {
   );
 };
 
-export default Authentication;
+export default Login;

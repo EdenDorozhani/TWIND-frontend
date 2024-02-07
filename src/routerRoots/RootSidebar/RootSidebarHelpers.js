@@ -31,10 +31,9 @@ const HOME_SIDEBAR_LINKS = (userPhoto) => {
   ];
 };
 
-const onNavigateToLinks = (navigate, userLoggedIn, userPhoto) => {
-  return HOME_SIDEBAR_LINKS(userPhoto).reduce((acc, link) => {
+const onNavigateToLinks = (navigate, userLoggedIn) => {
+  return HOME_SIDEBAR_LINKS(userLoggedIn.userImgURL).reduce((acc, link) => {
     let action;
-
     switch (link.path) {
       case "":
         action = () => {
@@ -49,7 +48,7 @@ const onNavigateToLinks = (navigate, userLoggedIn, userPhoto) => {
         break;
       case "twind/username":
         action = () => {
-          navigate(`${userLoggedIn}`);
+          navigate(`${userLoggedIn.username}`);
         };
         break;
       case "create":

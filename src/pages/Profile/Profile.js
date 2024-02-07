@@ -37,11 +37,11 @@ const Profile = () => {
   const { isVisible, closeModal, openModal } = useModal();
 
   const { costumeData: profilePosts } = usePaginationData({
-    pageSize: 3,
+    pageSize: 10,
     path: "getProfilePostsData",
   });
   const { costumeData: followers } = usePaginationData({
-    pageSize: 5,
+    pageSize: 10,
     path: "getFollowers",
   });
   const { filteredPaginationData } = useFilteredPaginationData({
@@ -58,14 +58,21 @@ const Profile = () => {
       if (!err.response.data.success) {
         navigate("/error");
       }
-      console.log(err);
-      console.log(err);
     }
   };
 
   useEffect(() => {
     if (state === null) return;
-    profilePosts.onDeleteFrontEnd({ identifier: +state.postId, key: "postId" });
+    if (
+      profilePosts.paginationData.data.some(
+        (post) => post.postId === state.postId
+      )
+    ) {
+      profilePosts.onDeleteFrontEnd({
+        identifier: +state.postId,
+        key: "postId",
+      });
+    }
   }, [state]);
 
   useEffect(() => {
@@ -198,11 +205,7 @@ const Profile = () => {
               </FlexBox>
               <FlexBox gap={"l"} alignItems={"center"}>
                 <SimpleText
-                  content={`${
-                    !profilePosts.paginationData.count
-                      ? 0
-                      : profilePosts.paginationData.count
-                  } posts`}
+                  content={`${profilePosts.paginationData.count} posts`}
                   size={"m"}
                 />
                 <TextButton

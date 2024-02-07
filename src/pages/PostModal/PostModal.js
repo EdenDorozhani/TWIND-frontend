@@ -27,6 +27,7 @@ import { postFollowers } from "../Home/Home.actions";
 import { Follow } from "../../context/FollowProvider";
 import { postLikes } from "../../hooks/useLikeAction/useLikeAction.action";
 import { motion } from "framer-motion";
+import Spinner from "../../lib/components/Spinner";
 
 const PostModal = () => {
   const [singlePost, setSinglePost] = useState({});
@@ -35,7 +36,6 @@ const PostModal = () => {
   const [commentId, setCommentId] = useState();
   const [replyId, setReplyId] = useState();
   const [repliesData, setRepliesData] = useState({});
-  const [isSinglePostLoading, setIsSinglePostLoading] = useState(false);
 
   const replyInputRef = useRef(null);
   const navigate = useNavigate();
@@ -56,11 +56,11 @@ const PostModal = () => {
     requestHeader: "json",
   });
   const { costumeData: comments } = usePaginationData({
-    pageSize: 2,
+    pageSize: 10,
     path: "getComments",
   });
   const { costumeData: likes } = usePaginationData({
-    pageSize: 3,
+    pageSize: 10,
   });
 
   const { onDelete } = useDataDeleter({
@@ -75,7 +75,6 @@ const PostModal = () => {
   });
 
   const getSinglePostData = async () => {
-    setIsSinglePostLoading(true);
     try {
       const response = await getSinglePost(postId, userLoggedInData.userId);
       setSinglePost(response);
@@ -83,8 +82,6 @@ const PostModal = () => {
       if (!err.response.data.success) {
         navigate("/error");
       }
-    } finally {
-      setIsSinglePostLoading(false);
     }
   };
 
@@ -274,8 +271,8 @@ const PostModal = () => {
         transition={{ duration: 0.1 }}
       >
         <ModalOverlay action={onCloseModal} isVisible={isVisible}>
-          {!isSinglePostLoading ? (
-            <div style={{ backgroundColor: "white" }}>
+          <div style={{ backgroundColor: "white" }}>
+            {Object.keys(singlePost).length !== 0 ? (
               <SinglePost
                 onInputChange={onInputChange}
                 onSendComment={handleSubmit(onSendComment)}
@@ -309,41 +306,41 @@ const PostModal = () => {
                 isLoadingComments={comments.isLoading}
                 isFollow={isFollowed}
               />
-            </div>
-          ) : null}
+            ) : (
+              <Spinner isVisible={true} />
+            )}
+          </div>
         </ModalOverlay>
       </motion.div>
-      {!likes.isLoading ? (
-        <Modal isVisible={isVisible} onClose={closeLikesAndActionModal}>
-          {!likes.paginationData.module ? (
-            <PostActions
-              deleteAction={onDeletePost}
-              editAction={onNavigateToEditPage}
-              isPopUpVisible={isPopUpVisible}
-              cancelDelete={closeLikesAndActionModal}
-              confirmDelete={confirmDelete}
-              type={commentId ? "comment" : "post"}
-            />
-          ) : (
-            <UsersList
-              paginationData={likes}
-              isLoading={likes.isLoading}
-              shouldInterruptScroll={() =>
-                likes.getDataPagination({
-                  identifier: commentId || postId,
-                  conditionalPath: commentId
-                    ? "getCommentsLikes"
-                    : "getPostsLikes",
-                })
-              }
-              updateFollowers={updateFollowers}
-              userId={userLoggedInData?.userId}
-              onUserClick={onUserClickAction}
-              configurationData={likes}
-            />
-          )}
-        </Modal>
-      ) : null}
+      <Modal isVisible={isVisible} onClose={closeLikesAndActionModal}>
+        {!likes.paginationData.module ? (
+          <PostActions
+            deleteAction={onDeletePost}
+            editAction={onNavigateToEditPage}
+            isPopUpVisible={isPopUpVisible}
+            cancelDelete={closeLikesAndActionModal}
+            confirmDelete={confirmDelete}
+            type={commentId ? "comment" : "post"}
+          />
+        ) : (
+          <UsersList
+            paginationData={likes}
+            isLoading={likes.isLoading}
+            shouldInterruptScroll={() =>
+              likes.getDataPagination({
+                identifier: commentId || postId,
+                conditionalPath: commentId
+                  ? "getCommentsLikes"
+                  : "getPostsLikes",
+              })
+            }
+            updateFollowers={updateFollowers}
+            userId={userLoggedInData?.userId}
+            onUserClick={onUserClickAction}
+            configurationData={likes}
+          />
+        )}
+      </Modal>
     </>
   );
 };

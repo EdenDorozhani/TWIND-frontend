@@ -43,9 +43,9 @@ const FileInput = ({
   return (
     <FlexBox direction="column" gap="s">
       {!!backendErrors && <ErrorText content={backendErrors} />}
-      <div className={classes.inputFileContainer} onClick={discardImage}>
+      <div className={classes.inputFileContainer}>
         {inputValue ? (
-          <div style={{ padding: "10px" }}>
+          <div style={{ padding: "10px" }} onClick={discardImage}>
             {" "}
             <TextButton content={`discard image`} size="s" color={"danger"} />
           </div>

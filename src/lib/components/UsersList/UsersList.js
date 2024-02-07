@@ -3,9 +3,9 @@ import SimpleText from "../SimpleText";
 import FlatList from "../FlatList";
 import ScrollPagination from "../ScrollPagination";
 import SearchBar from "../InputTypes/SearchBar/SearchBar";
-import UserListElement from "../UserListElement";
 import Spinner from "../Spinner";
 import { motion } from "framer-motion";
+import UsersListElement from "../UsersListElement";
 
 const UsersList = ({
   shouldInterruptScroll,
@@ -71,7 +71,7 @@ const UsersList = ({
                   transition={{ duration: 0.1 }}
                   key={module === "Followers" ? curr.followId : curr.likeId}
                 >
-                  <UserListElement
+                  <UsersListElement
                     data={curr}
                     onUserClick={onUserClick}
                     userId={userId}
@@ -84,9 +84,6 @@ const UsersList = ({
             />
           </FlexBox>
         </ScrollPagination>
-        {!configurationData.paginationData.isEmpty && (
-          <Spinner size={"l"} isVisible={configurationData.isLoading} />
-        )}
       </div>
     </>
   );

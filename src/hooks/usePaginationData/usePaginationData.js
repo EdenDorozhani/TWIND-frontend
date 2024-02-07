@@ -3,6 +3,7 @@ import { getPaginationData } from "./usePaginationData.action";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BASE_URL } from "../../axiosConfig";
+import { useNavigate } from "react-router-dom";
 
 const usePaginationData = ({ pageSize, path }) => {
   const [paginationData, setPaginationData] = useState({
@@ -16,11 +17,14 @@ const usePaginationData = ({ pageSize, path }) => {
   const [lastElementId, setLastElementId] = useState("");
   const [page, setPage] = useState(1);
 
+  const navigate = useNavigate();
+
   const resetState = () => {
     setPaginationData({
       data: [],
       count: "",
       module: "",
+      isEmpty: false,
     });
     setLastElementId("");
     setPage(1);
@@ -67,10 +71,12 @@ const usePaginationData = ({ pageSize, path }) => {
         } else {
           setLastElementId(resData.lastElementId);
         }
-
         return response.data.response.data;
       }
     } catch (err) {
+      if (!err.response) {
+        return navigate("/error");
+      }
       toast.error(err.response.data.message);
     } finally {
       setIsLoading(false);

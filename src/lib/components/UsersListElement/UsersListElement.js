@@ -6,7 +6,7 @@ import SimpleText from "../SimpleText";
 import Button from "../Button";
 import { formatImgUrl } from "../../helpers";
 
-const UserListElement = ({
+const UsersListElement = ({
   data,
   onUserClick,
   userId,
@@ -63,4 +63,4 @@ const UserListElement = ({
   );
 };
 
-export default UserListElement;
+export default UsersListElement;

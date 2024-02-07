@@ -8,12 +8,16 @@ import { useEffect } from "react";
 
 const RootSidebar = () => {
   const { userLoggedInData, storeData, resetState } = useLoggedInUser();
+  const navigate = useNavigate();
 
   const storeUserData = async () => {
     try {
       const response = await sidebarHelpers.getUserData();
       storeData(response);
     } catch (err) {
+      if (!err.response) {
+        return navigate("/error");
+      }
       toast.error(err.response.data.message);
     }
   };
@@ -26,12 +30,9 @@ const RootSidebar = () => {
     resetState();
   };
 
-  const navigate = useNavigate();
-
   const onNavigate = sidebarHelpers.onNavigateToLinks(
     navigate,
-    userLoggedInData.username,
-    userLoggedInData.userImgURL
+    userLoggedInData
   );
 
   return (

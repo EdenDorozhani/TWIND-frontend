@@ -3,6 +3,7 @@ import SimpleText from "../SimpleText";
 import NotificationsFilter from "../NotificationsFilter";
 import FlatList from "../FlatList";
 import ScrollPagination from "../ScrollPagination";
+import Spinner from "../Spinner";
 
 const NotificationPanel = ({
   notifications,
@@ -30,7 +31,6 @@ const NotificationPanel = ({
       <FlexBox padding={"m"}>
         <SimpleText content="Notifications" size={"l"} />
       </FlexBox>
-
       <ScrollPagination
         dataLength={notifications.paginationData.data.length}
         isLoading={notifications.isLoading}

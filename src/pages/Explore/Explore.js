@@ -3,7 +3,6 @@ import usePaginationData from "../../hooks/usePaginationData";
 import FlexBox from "../../lib/components/FlexBox";
 import SearchBar from "../../lib/components/InputTypes/SearchBar/SearchBar";
 import PostsGrid from "../../lib/components/PostsGrid";
-import UserListElement from "../../lib/components/UserListElement";
 import FlatList from "../../lib/components/FlatList";
 import useLoggedInUser from "../../hooks/useLoggedInUser";
 import { useNavigate } from "react-router-dom";
@@ -15,13 +14,14 @@ import SimpleText from "../../lib/components/SimpleText";
 import useFilteredPaginationData from "../../hooks/useFilteredPaginationData/useFilteredPaginationData";
 import { motion } from "framer-motion";
 import Spinner from "../../lib/components/Spinner";
+import UsersListElement from "../../lib/components/UsersListElement";
 
 const Explore = () => {
   const { userLoggedInData } = useLoggedInUser();
   const navigate = useNavigate();
 
   const { costumeData: allPosts } = usePaginationData({
-    pageSize: 2,
+    pageSize: 10,
     path: "getAllPosts",
   });
 
@@ -112,7 +112,7 @@ const Explore = () => {
                             }}
                             key={user.userId}
                           >
-                            <UserListElement
+                            <UsersListElement
                               data={user}
                               onUserClick={navigateToUserProfile}
                               userId={userLoggedInData.userId}

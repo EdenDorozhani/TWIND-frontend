@@ -7,7 +7,7 @@ import { signupPageHelpers } from "./pageHelpers";
 import "react-toastify/dist/ReactToastify.css";
 import useDataPoster from "../../hooks/useDataPoster/useDataPoster";
 
-const Authentication = () => {
+const Signup = () => {
   const [inputValue, setInputValue] = useState({});
 
   const navigate = useNavigate();
@@ -57,4 +57,4 @@ const Authentication = () => {
   );
 };
 
-export default Authentication;
+export default Signup;

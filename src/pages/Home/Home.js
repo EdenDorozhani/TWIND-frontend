@@ -33,17 +33,17 @@ const Home = () => {
   const { onDelete } = useDataDeleter({ path: "deletePost" });
 
   const { costumeData: followingPosts } = usePaginationData({
-    pageSize: 2,
+    pageSize: 10,
     path: "getFollowingPostsData",
   });
 
   const { costumeData: postsLikes } = usePaginationData({
-    pageSize: 2,
+    pageSize: 10,
     path: "getPostsLikes",
   });
 
   const { costumeData: notifications } = usePaginationData({
-    pageSize: 1,
+    pageSize: 10,
     path: "getNotifications",
   });
 
