@@ -8,12 +8,12 @@ import { useNavigate } from "react-router-dom";
 const usePaginationData = ({ pageSize, path }) => {
   const [paginationData, setPaginationData] = useState({
     data: [],
-    count: "",
+    count: 0,
     module: "",
     isEmpty: false,
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [lastElementId, setLastElementId] = useState("");
   const [page, setPage] = useState(1);
 
